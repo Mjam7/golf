@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cyprus Tour Live Scoring</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./config.js"></script>
+  <style>
+    :root{
+      --bg:#f3f5f7; --card:#ffffff; --ink:#18212a; --muted:#6b7785; --line:#d9e0e7;
+      --green:#0f7b44; --blue:#245ea6; --red:#c63d2f; --amber:#b7791f;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--ink)}
+    .wrap{max-width:1280px;margin:0 auto;padding:16px}
+    h1,h2,h3,h4{margin:0 0 8px}
+    .sub{color:var(--muted);margin:4px 0 0}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}
+    button, select, input{
+      border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;font-size:14px
+    }
+    button{font-weight:bold;cursor:pointer}
+    button.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+    button.good{background:var(--green);color:#fff;border-color:var(--green)}
+    button.warn{background:#fff7eb;border-color:#f1d293}
+    .row{display:grid;gap:12px}
+    .row.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .row.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .row.cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#edf2f7;font-size:12px;font-weight:bold}
+    .pill.teamA{background:#e7f0ff;color:#245ea6}
+    .pill.teamB{background:#fff0ec;color:#b53e25}
+    .muted{color:var(--muted)}
+    .score-row{display:grid;grid-template-columns:repeat(18,minmax(46px,1fr));gap:6px;overflow:auto;padding-bottom:6px}
+    .hole-cell{min-width:46px}
+    .hole-label{text-align:center;color:var(--muted);font-size:11px;margin-bottom:4px}
+    .hole-input{width:100%;text-align:center;padding:7px;border-radius:8px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:top}
+    th{background:#f8fafc}
+    .money{font-weight:bold;color:var(--green)}
+    .match-card,.player-card{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px}
+    .player-header{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}
+    .summary-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:8px}
+    .summary-box{border:1px solid var(--line);border-radius:10px;padding:8px}
+    .summary-box .v{font-size:18px;font-weight:bold}
+    .hole-chip{display:inline-block;padding:4px 8px;margin:2px;border-radius:999px;font-size:12px;font-weight:bold}
+    .hole-A{background:#e7f0ff;color:#245ea6}
+    .hole-B{background:#fff0ec;color:#b53e25}
+    .hole-H{background:#eef2f6;color:#556170}
+    .hidden{display:none}
+    .status{padding:10px 12px;border-radius:10px;background:#eef6ff;color:#1f4f82;margin-bottom:12px}
+    .ok{background:#eaf8ef;color:#0f7b44}
+    .bad{background:#fff0ec;color:#b53e25}
+    @media (max-width: 900px){
+      .row.cols-2,.row.cols-3,.row.cols-4{grid-template-columns:1fr}
+      .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>Cyprus Tour Live Scoring</h1>
+    <div class="sub">GitHub Pages + Supabase version. Shared live scoring for all players.</div>
+  </div>
+
+  <div id="statusBox" class="status">Loading…</div>
+
+  <div class="card" id="loginCard">
+    <h2>Player sign in</h2>
+    <div class="sub">Pick your name. Admin can unlock any player.</div>
+    <div class="row cols-4" style="margin-top:10px">
+      <div>
+        <div class="muted">Tournament code</div>
+        <input id="tournamentCodeInput" value="cyprus-tour-2026" />
+      </div>
+      <div>
+        <div class="muted">Your player</div>
+        <select id="playerSelect"></select>
+      </div>
+      <div>
+        <div class="muted">Admin code (optional)</div>
+        <input id="adminCodeInput" type="password" placeholder="Only for admin" />
+      </div>
+      <div style="align-self:end">
+        <button class="primary" onclick="enterApp()">Enter app</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="appRoot" class="hidden">
+    <div class="card">
+      <div class="row cols-4">
+        <div><strong id="whoAmI">—</strong><div class="muted">Signed in player</div></div>
+        <div><strong id="viewMode">—</strong><div class="muted">Access</div></div>
+        <div><strong id="syncState">—</strong><div class="muted">Sync</div></div>
+        <div><button onclick="signOut()">Switch player</button></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="tabs">
+        <button class="primary" onclick="showSection('day1')">Day 1</button>
+        <button class="primary" onclick="showSection('day2')">Day 2</button>
+        <button class="primary" onclick="showSection('day3')">Day 3</button>
+        <button class="primary" onclick="showSection('overall')">Overall</button>
+        <button class="primary" onclick="showSection('setup')">Setup</button>
+      </div>
+    </div>
+
+    <div id="day1" class="section"></div>
+    <div id="day2" class="section hidden"></div>
+    <div id="day3" class="section hidden"></div>
+    <div id="overall" class="section hidden"></div>
+    <div id="setup" class="section hidden"></div>
+  </div>
+</div>
+
+<script>
+const PLAYERS = [
+  { id:"bradley", full:"Bradley Leviton", first:"Bradley", hi:14.1, team:"B" },
+  { id:"eytan", full:"Eytan Alexander", first:"Eytan", hi:14.9, team:"A" },
+  { id:"garyr", full:"Gary Rosenthal", first:"Gary R", hi:19.3, team:"B" },
+  { id:"garyd", full:"Gary Davis", first:"Gary D", hi:19.5, team:"A" },
+  { id:"ian", full:"Ian Rosenthal", first:"Ian", hi:19.3, team:"A" },
+  { id:"jonathan", full:"Jonathan Castle", first:"Jonathan", hi:13.9, team:"A" },
+  { id:"mitchell", full:"Mitchell Feldman", first:"Mitchell", hi:26.0, team:"A" },
+  { id:"rob", full:"Rob Jay", first:"Rob", hi:12.6, team:"A" },
+  { id:"steven", full:"Steven Lewis", first:"Steven", hi:14.5, team:"B" },
+  { id:"simon", full:"Simon Miller", first:"Simon", hi:22.7, team:"B" },
+  { id:"scott", full:"Scott Franklin", first:"Scott", hi:18.7, team:"B" },
+  { id:"richard", full:"Richard Baskind", first:"Richard", hi:16.7, team:"B" }
+];
+
+const COURSES = {
+  day1: {
+    key:"day1", name:"Aphrodite Hills", par:71, rating:70.4, slope:124, allowance:100,
+    holes:[
+      {par:4,si:18},{par:4,si:10},{par:4,si:8},{par:4,si:4},{par:3,si:16},{par:5,si:6},{par:3,si:14},{par:4,si:2},{par:4,si:12},
+      {par:5,si:11},{par:4,si:5},{par:3,si:15},{par:4,si:3},{par:4,si:17},{par:3,si:1},{par:4,si:7},{par:3,si:13},{par:5,si:9}
+    ]
+  },
+  day2: {
+    key:"day2", name:"Minthis", par:72, rating:72.1, slope:134, allowance:100,
+    holes:[
+      {par:4,si:14},{par:3,si:18},{par:5,si:12},{par:4,si:10},{par:4,si:6},{par:5,si:2},{par:4,si:4},{par:3,si:16},{par:4,si:8},
+      {par:5,si:5},{par:5,si:9},{par:4,si:1},{par:3,si:17},{par:4,si:15},{par:3,si:13},{par:4,si:3},{par:5,si:7},{par:4,si:11}
+    ]
+  },
+  day3: {
+    key:"day3", name:"Limassol Greens", par:71, rating:72.5, slope:149, allowance:100,
+    holes:[
+      {par:5,si:8},{par:4,si:12},{par:3,si:14},{par:4,si:4},{par:3,si:18},{par:4,si:2},{par:4,si:16},{par:3,si:10},{par:5,si:6},
+      {par:4,si:9},{par:3,si:13},{par:4,si:7},{par:4,si:1},{par:5,si:11},{par:4,si:17},{par:5,si:3},{par:3,si:15},{par:4,si:5}
+    ]
+  }
+};
+
+const DAY_GAMES = {
+  day1: [
+    {name:"Game 1", a:["rob","eytan"], b:["bradley","steven"]},
+    {name:"Game 2", a:["jonathan","ian"], b:["richard","garyr"]},
+    {name:"Game 3", a:["garyd","mitchell"], b:["scott","simon"]}
+  ],
+  day2: [
+    {name:"Game 1", a:["rob","ian"], b:["richard","simon"]},
+    {name:"Game 2", a:["eytan","garyd"], b:["bradley","garyr"]},
+    {name:"Game 3", a:["jonathan","mitchell"], b:["steven","scott"]}
+  ]
+};
+
+const DAY3_GROUPS = [
+  ["mitchell","rob","eytan","ian"],
+  ["garyd","jonathan","bradley","steven"],
+  ["richard","garyr","scott","simon"]
+];
+
+const DAILY_PRIZES = [50,40,30,20];
+const OVERALL_PRIZES = [150,100,50];
+
+let supabase = null;
+let state = {
+  tournamentId: null,
+  currentPlayerId: null,
+  isAdmin: false,
+  scores: [],
+  scoreMap: {}
+};
+
+function $(id){ return document.getElementById(id); }
+function getPlayer(id){ return PLAYERS.find(p => p.id === id); }
+function roundHalfUp(v){ return Math.floor(v + 0.5); }
+function courseHandicap(hi, course){ return roundHalfUp(hi * (course.slope / 113) + (course.rating - course.par)); }
+function playingHandicap(ch, allowance){ return roundHalfUp(ch * (allowance / 100)); }
+function shotsOnHole(ph, si){
+  if (ph <= 0) return 0;
+  const base = Math.floor(ph / 18);
+  const rem = ph % 18;
+  return base + (rem >= si ? 1 : 0);
+}
+function stablefordPoints(raw, hole, shots){
+  if (raw === null || raw === undefined || raw === "") return null;
+  const txt = String(raw).trim().toUpperCase();
+  if (txt === "X" || txt === "BLOB" || txt === "0") return 0;
+  const gross = parseInt(txt, 10);
+  if (isNaN(gross)) return null;
+  const maxGross = hole.par + shots + 2;
+  if (gross > maxGross) return 0;
+  const net = gross - shots;
+  return Math.max(0, 2 + (hole.par - net));
+}
+function grossValue(raw){
+  const txt = String(raw || "").trim().toUpperCase();
+  if (!txt || txt === "X" || txt === "BLOB" || txt === "0") return null;
+  const n = parseInt(txt, 10);
+  return isNaN(n) ? null : n;
+}
+function countbackArray(holePoints){
+  const hp = holePoints.map(v => v ?? 0);
+  return [
+    hp.slice(9).reduce((a,b)=>a+b,0),
+    hp.slice(12).reduce((a,b)=>a+b,0),
+    hp.slice(15).reduce((a,b)=>a+b,0),
+    hp.slice(17).reduce((a,b)=>a+b,0)
+  ];
+}
+function compareCountback(a,b){
+  for(let i=0;i<a.length;i++){
+    if (b[i] !== a[i]) return b[i] - a[i];
+  }
+  return 0;
+}
+function formatMoney(v){ return "€" + Number(v || 0).toFixed(0); }
+function setStatus(text, cls=""){ const box = $("statusBox"); box.className = "status " + cls; box.textContent = text; }
+
+function populatePlayers(){
+  $("playerSelect").innerHTML = PLAYERS.map(p => `<option value="${p.id}">${p.first}</option>`).join("");
+}
+
+async function initSupabase(){
+  if (!window.APP_CONFIG || !window.APP_CONFIG.supabaseUrl || !window.APP_CONFIG.supabaseAnonKey){
+    setStatus("Add your Supabase URL and anon key to config.js first.", "bad");
+    return false;
+  }
+  supabase = window.supabase.createClient(window.APP_CONFIG.supabaseUrl, window.APP_CONFIG.supabaseAnonKey);
+  return true;
+}
+
+async function findTournamentByCode(code){
+  const { data, error } = await supabase.from("tournaments").select("*").eq("slug", code).single();
+  if (error) throw error;
+  return data;
+}
+
+async function loadScores(){
+  const { data, error } = await supabase.from("scores")
+    .select("*")
+    .eq("tournament_id", state.tournamentId);
+  if (error) throw error;
+  state.scores = data || [];
+  state.scoreMap = {};
+  for (const row of state.scores){
+    state.scoreMap[`${row.day_key}:${row.player_id}:${row.hole_no}`] = row.score_value;
+  }
+}
+
+function scoreValue(day, playerId, holeNo){
+  return state.scoreMap[`${day}:${playerId}:${holeNo}`] ?? "";
+}
+
+async function upsertScore(day, playerId, holeNo, value){
+  const payload = {
+    tournament_id: state.tournamentId,
+    day_key: day,
+    player_id: playerId,
+    hole_no: holeNo,
+    score_value: String(value || "").trim()
+  };
+  const { error } = await supabase.from("scores").upsert(payload, {
+    onConflict: "tournament_id,day_key,player_id,hole_no"
+  });
+  if (error) {
+    setStatus("Save failed: " + error.message, "bad");
+    return;
+  }
+  state.scoreMap[`${day}:${playerId}:${holeNo}`] = payload.score_value;
+  setStatus("Saved.", "ok");
+  renderAll();
+}
+
+function canEditPlayer(playerId){
+  return state.isAdmin || state.currentPlayerId === playerId;
+}
+
+function playerSummary(day, playerId){
+  const player = getPlayer(playerId);
+  const course = COURSES[day];
+  const ch = courseHandicap(player.hi, course);
+  const ph = playingHandicap(ch, course.allowance);
+  let total = 0, gross = 0, holesEntered = 0;
+  const holePoints = [];
+  for(let i=0;i<18;i++){
+    const raw = scoreValue(day, playerId, i+1);
+    const shots = shotsOnHole(ph, course.holes[i].si);
+    const pts = stablefordPoints(raw, course.holes[i], shots);
+    holePoints.push(pts);
+    if (pts !== null) total += pts;
+    const g = grossValue(raw);
+    if (g !== null){ gross += g; holesEntered += 1; }
+    else if (String(raw).trim().toUpperCase() === "X" || String(raw).trim() === "0") holesEntered += 1;
+  }
+  return { player, ch, ph, total, gross, holesEntered, holePoints, countback: countbackArray(holePoints) };
+}
+
+function sortedDaily(day){
+  const rows = PLAYERS.map(p => playerSummary(day, p.id));
+  rows.sort((a,b) => {
+    if (b.total !== a.total) return b.total - a.total;
+    const cb = compareCountback(a.countback, b.countback);
+    if (cb !== 0) return cb;
+    return a.gross - b.gross;
+  });
+  rows.forEach((r, idx) => { r.position = idx+1; r.money = idx < 4 ? DAILY_PRIZES[idx] : 0; });
+  return rows;
+}
+
+function overallSorted(){
+  const d1 = Object.fromEntries(sortedDaily("day1").map(r => [r.player.id, r]));
+  const d2 = Object.fromEntries(sortedDaily("day2").map(r => [r.player.id, r]));
+  const d3 = Object.fromEntries(sortedDaily("day3").map(r => [r.player.id, r]));
+  const rows = PLAYERS.map(p => ({
+    player:p,
+    d1:d1[p.id].total, d2:d2[p.id].total, d3:d3[p.id].total,
+    total:d1[p.id].total + d2[p.id].total + d3[p.id].total
+  }));
+  rows.sort((a,b) => {
+    if (b.total !== a.total) return b.total - a.total;
+    if (b.d3 !== a.d3) return b.d3 - a.d3;
+    if (b.d2 !== a.d2) return b.d2 - a.d2;
+    return b.d1 - a.d1;
+  });
+  rows.forEach((r, idx) => r.money = idx < 3 ? OVERALL_PRIZES[idx] : 0);
+  return rows;
+}
+
+function teamTotals(){
+  const overall = overallSorted();
+  const sums = {A:0, B:0};
+  overall.forEach(r => sums[r.player.team] += r.total);
+  return sums;
+}
+
+function matchResult(day, game){
+  const labelA = game.a.map(id => getPlayer(id).first).join(" & ");
+  const labelB = game.b.map(id => getPlayer(id).first).join(" & ");
+  let aUp = 0;
+  const holes = [];
+  for (let i=0;i<18;i++){
+    const aPoints = game.a.map(id => playerSummary(day, id).holePoints[i] ?? 0);
+    const bPoints = game.b.map(id => playerSummary(day, id).holePoints[i] ?? 0);
+    const aVal = day === "day1" ? aPoints.reduce((x,y)=>x+y,0) : Math.max(...aPoints);
+    const bVal = day === "day1" ? bPoints.reduce((x,y)=>x+y,0) : Math.max(...bPoints);
+    let winner = "H";
+    if (aVal > bVal){ winner = "A"; aUp += 1; }
+    else if (bVal > aVal){ winner = "B"; aUp -= 1; }
+    const left = 18 - (i+1);
+    holes.push({hole:i+1, aVal, bVal, winner, status:aUp, left});
+  }
+  let finalText = "Match halved";
+  for (const h of holes){
+    if (Math.abs(h.status) > h.left){
+      finalText = `${h.status > 0 ? labelA : labelB} wins ${Math.abs(h.status)} & ${h.left}`;
+      break;
+    }
+  }
+  if (finalText === "Match halved"){
+    const s = holes[17].status;
+    if (s > 0) finalText = `${labelA} wins ${s} up`;
+    else if (s < 0) finalText = `${labelB} wins ${Math.abs(s)} up`;
+  }
+  return {labelA, labelB, holes, finalText};
+}
+
+function scoreInputs(day, playerId){
+  let html = `<div class="score-row">`;
+  for(let h=1; h<=18; h++){
+    const val = scoreValue(day, playerId, h);
+    const disabled = canEditPlayer(playerId) ? "" : "disabled";
+    html += `
+      <div class="hole-cell">
+        <div class="hole-label">${h}</div>
+        <input class="hole-input" value="${val}" ${disabled}
+          onchange="handleScoreChange('${day}','${playerId}',${h}, this.value)"
+          placeholder="X" />
+      </div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+async function handleScoreChange(day, playerId, holeNo, value){
+  if (!canEditPlayer(playerId)){
+    setStatus("You can only edit your own scores.", "bad");
+    renderAll();
+    return;
+  }
+  await upsertScore(day, playerId, holeNo, value);
+}
+
+function renderDay(day){
+  const course = COURSES[day];
+  const daily = sortedDaily(day);
+  let html = `
+    <div class="card">
+      <h2>${day.toUpperCase()} — ${course.name}</h2>
+      <div class="sub">${day === "day1" ? "Combined Stableford Matchplay" : day === "day2" ? "Best Stableford Score Matchplay" : "Individual Stableford"}</div>
+      <div style="margin-top:8px">
+        <span class="pill">Par ${course.par}</span>
+        <span class="pill">Course Rating ${course.rating}</span>
+        <span class="pill">Slope ${course.slope}</span>
+      </div>
+    </div>
+  `;
+
+  if (day !== "day3"){
+    html += `<div class="card"><h3>Matchplay</h3>`;
+    for (const game of DAY_GAMES[day]){
+      const m = matchResult(day, game);
+      html += `<div class="match-card">
+        <h4>${game.name}</h4>
+        <div>${m.labelA} vs ${m.labelB}</div>
+        <div class="money" style="margin:8px 0">${m.finalText}</div>
+        <div>`;
+      for (const h of m.holes){
+        const cls = h.winner === "A" ? "hole-A" : h.winner === "B" ? "hole-B" : "hole-H";
+        const label = h.winner === "A" ? "A" : h.winner === "B" ? "B" : "Half";
+        html += `<span class="hole-chip ${cls}">H${h.hole} ${label} ${h.aVal}-${h.bVal}</span>`;
+      }
+      html += `</div></div>`;
+    }
+    html += `</div>`;
+  }
+
+  const groups = day === "day3" ? DAY3_GROUPS : DAY_GAMES[day].map(g => [...g.a, ...g.b]);
+  for (let gi = 0; gi < groups.length; gi++){
+    html += `<div class="card"><h3>${day === "day3" ? `Group ${gi+1}` : DAY_GAMES[day][gi].name}</h3>`;
+    for (const pid of groups[gi]){
+      const s = playerSummary(day, pid);
+      html += `<div class="player-card">
+        <div class="player-header">
+          <div>
+            <strong>${s.player.first}</strong>
+            <span class="pill ${s.player.team === "A" ? "teamA" : "teamB"}">${s.player.team === "A" ? "Team A" : "Team B"}</span>
+            <div class="muted">Index ${s.player.hi.toFixed(1)} · Course ${s.ch} · Playing ${s.ph}</div>
+          </div>
+          <div class="money">${s.total} pts</div>
+        </div>
+        ${scoreInputs(day, pid)}
+        <div class="summary-grid">
+          <div class="summary-box"><div class="muted">Stableford</div><div class="v">${s.total}</div></div>
+          <div class="summary-box"><div class="muted">Gross entered</div><div class="v">${s.gross || 0}</div></div>
+          <div class="summary-box"><div class="muted">Holes</div><div class="v">${s.holesEntered}/18</div></div>
+          <div class="summary-box"><div class="muted">Back 9</div><div class="v">${s.countback[0]}</div></div>
+          <div class="summary-box"><div class="muted">Prize now</div><div class="v">${formatMoney(daily.find(r => r.player.id === pid)?.money || 0)}</div></div>
+        </div>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+
+  html += `<div class="card"><h3>Daily leaderboard</h3><table>
+    <thead><tr><th>Pos</th><th>Player</th><th>Team</th><th>Stableford</th><th>Back 9</th><th>Back 6</th><th>Back 3</th><th>Last hole</th><th>Prize</th></tr></thead><tbody>`;
+  for (const r of daily){
+    html += `<tr>
+      <td>${r.position}</td><td>${r.player.first}</td><td>${r.player.team}</td><td><strong>${r.total}</strong></td>
+      <td>${r.countback[0]}</td><td>${r.countback[1]}</td><td>${r.countback[2]}</td><td>${r.countback[3]}</td>
+      <td class="money">${formatMoney(r.money)}</td></tr>`;
+  }
+  html += `</tbody></table></div>`;
+
+  $(day).innerHTML = html;
+}
+
+function renderOverall(){
+  const rows = overallSorted();
+  const teams = teamTotals();
+  $("overall").innerHTML = `
+    <div class="card">
+      <h2>Overall standings</h2>
+      <div class="sub">Overall ties break on Day 3, then Day 2, then Day 1.</div>
+    </div>
+    <div class="row cols-2">
+      <div class="card">
+        <h3>Team totals</h3>
+        <table>
+          <thead><tr><th>Team</th><th>Total</th><th>Prize</th></tr></thead>
+          <tbody>
+            <tr><td>Team A</td><td><strong>${teams.A}</strong></td><td class="money">${teams.A > teams.B ? "€40 each" : "—"}</td></tr>
+            <tr><td>Team B</td><td><strong>${teams.B}</strong></td><td class="money">${teams.B > teams.A ? "€40 each" : "—"}</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>Prize summary</h3>
+        <table>
+          <tbody>
+            <tr><td>Daily prizes</td><td>${formatMoney(420)}</td></tr>
+            <tr><td>Overall prizes</td><td>${formatMoney(300)}</td></tr>
+            <tr><td>Winning team</td><td>${formatMoney(240)}</td></tr>
+            <tr><td><strong>Total pot</strong></td><td><strong>${formatMoney(960)}</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Overall leaderboard</h3>
+      <table>
+        <thead><tr><th>Pos</th><th>Player</th><th>Team</th><th>Day 1</th><th>Day 2</th><th>Day 3</th><th>Total</th><th>Prize</th></tr></thead>
+        <tbody>
+          ${rows.map((r, idx) => `
+            <tr><td>${idx+1}</td><td>${r.player.first}</td><td>${r.player.team}</td>
+            <td>${r.d1}</td><td>${r.d2}</td><td>${r.d3}</td><td><strong>${r.total}</strong></td><td class="money">${formatMoney(r.money)}</td></tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderSetup(){
+  $("setup").innerHTML = `
+    <div class="card">
+      <h2>Setup</h2>
+      <div class="sub">This version is multi-user. Each player can edit only his own scores. Admin can edit anyone.</div>
+    </div>
+    <div class="row cols-2">
+      <div class="card">
+        <h3>Players</h3>
+        <table><thead><tr><th>Player</th><th>Team</th><th>Index</th></tr></thead><tbody>
+          ${PLAYERS.map(p => `<tr><td>${p.first}</td><td>${p.team}</td><td>${p.hi.toFixed(1)}</td></tr>`).join("")}
+        </tbody></table>
+      </div>
+      <div class="card">
+        <h3>Courses</h3>
+        <table><thead><tr><th>Day</th><th>Course</th><th>Par</th><th>Rating</th><th>Slope</th></tr></thead><tbody>
+          ${Object.keys(COURSES).map(day => `<tr><td>${day.toUpperCase()}</td><td>${COURSES[day].name}</td><td>${COURSES[day].par}</td><td>${COURSES[day].rating}</td><td>${COURSES[day].slope}</td></tr>`).join("")}
+        </tbody></table>
+      </div>
+    </div>
+  `;
+}
+
+function renderAll(){
+  renderDay("day1");
+  renderDay("day2");
+  renderDay("day3");
+  renderOverall();
+  renderSetup();
+}
+
+function showSection(id){
+  document.querySelectorAll(".section").forEach(el => el.classList.add("hidden"));
+  $(id).classList.remove("hidden");
+}
+
+async function enterApp(){
+  try {
+    const ok = await initSupabase();
+    if (!ok) return;
+
+    const code = $("tournamentCodeInput").value.trim();
+    const playerId = $("playerSelect").value;
+    const adminCode = $("adminCodeInput").value.trim();
+
+    const tournament = await findTournamentByCode(code);
+    state.tournamentId = tournament.id;
+    state.currentPlayerId = playerId;
+    state.isAdmin = adminCode && adminCode === tournament.admin_code;
+
+    await loadScores();
+    subscribeRealtime();
+
+    $("whoAmI").textContent = getPlayer(playerId).first;
+    $("viewMode").textContent = state.isAdmin ? "Admin" : "Player";
+    $("syncState").textContent = "Live";
+    $("loginCard").classList.add("hidden");
+    $("appRoot").classList.remove("hidden");
+    setStatus("Connected. Live scores are syncing.", "ok");
+    renderAll();
+    showSection("day1");
+
+    localStorage.setItem("cyprusTourLastLogin", JSON.stringify({ code, playerId }));
+  } catch (e) {
+    setStatus("Could not enter app: " + e.message, "bad");
+  }
+}
+
+function signOut(){
+  state = { tournamentId:null, currentPlayerId:null, isAdmin:false, scores:[], scoreMap:{} };
+  $("appRoot").classList.add("hidden");
+  $("loginCard").classList.remove("hidden");
+  setStatus("Signed out.", "");
+}
+
+let channel = null;
+function subscribeRealtime(){
+  if (channel) supabase.removeChannel(channel);
+  channel = supabase.channel("scores-live")
+    .on("postgres_changes", {
+      event: "*",
+      schema: "public",
+      table: "scores",
+      filter: `tournament_id=eq.${state.tournamentId}`
+    }, payload => {
+      const row = payload.new || payload.old;
+      if (row){
+        state.scoreMap[`${row.day_key}:${row.player_id}:${row.hole_no}`] = row.score_value || "";
+        $("syncState").textContent = "Live";
+        renderAll();
+      }
+    })
+    .subscribe();
+}
+
+window.addEventListener("DOMContentLoaded", async () => {
+  populatePlayers();
+  const saved = localStorage.getItem("cyprusTourLastLogin");
+  if (saved){
+    try {
+      const data = JSON.parse(saved);
+      $("tournamentCodeInput").value = data.code || "cyprus-tour-2026";
+      $("playerSelect").value = data.playerId || "mitchell";
+    } catch(e){}
+  }
+  setStatus("Ready. Add Supabase keys, then sign in.", "");
+});
+</script>
+</body>
+</html>
