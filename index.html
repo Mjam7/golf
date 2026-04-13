@@ -183,7 +183,7 @@ const DAY3_GROUPS = [
 const DAILY_PRIZES = [50,40,30,20];
 const OVERALL_PRIZES = [150,100,50];
 
-let supabase = null;
+let sb = null;
 let state = {
   tournamentId: null,
   currentPlayerId: null,
@@ -247,18 +247,18 @@ async function initSupabase(){
     setStatus("Add your Supabase URL and anon key to config.js first.", "bad");
     return false;
   }
-  supabase = window.supabase.createClient(window.APP_CONFIG.supabaseUrl, window.APP_CONFIG.supabaseAnonKey);
+  sb = window.supabase.createClient(window.APP_CONFIG.supabaseUrl, window.APP_CONFIG.supabaseAnonKey);
   return true;
 }
 
 async function findTournamentByCode(code){
-  const { data, error } = await supabase.from("tournaments").select("*").eq("slug", code).single();
+  const { data, error } = await sb.from("tournaments").select("*").eq("slug", code).single();
   if (error) throw error;
   return data;
 }
 
 async function loadScores(){
-  const { data, error } = await supabase.from("scores")
+  const { data, error } = await sb.from("scores")
     .select("*")
     .eq("tournament_id", state.tournamentId);
   if (error) throw error;
@@ -281,7 +281,7 @@ async function upsertScore(day, playerId, holeNo, value){
     hole_no: holeNo,
     score_value: String(value || "").trim()
   };
-  const { error } = await supabase.from("scores").upsert(payload, {
+  const { error } = await sb.from("scores").upsert(payload, {
     onConflict: "tournament_id,day_key,player_id,hole_no"
   });
   if (error) {
@@ -609,8 +609,8 @@ function signOut(){
 
 let channel = null;
 function subscribeRealtime(){
-  if (channel) supabase.removeChannel(channel);
-  channel = supabase.channel("scores-live")
+  if (channel) sb.removeChannel(channel);
+  channel = sb.channel("scores-live")
     .on("postgres_changes", {
       event: "*",
       schema: "public",
