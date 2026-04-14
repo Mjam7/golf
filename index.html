@@ -416,6 +416,7 @@ function logOut(){
   setStatus("Signed out. Select a player to continue.", "");
   localStorage.removeItem("cyprusTourV3Login");
 }
+function showSection(id){
   // Block non-Mitchell users from accessing setup
   if(id === "setup" && state.currentPlayerId !== "mitchell"){ return; }
   document.querySelectorAll(".section").forEach(el => el.classList.add("hidden"));
