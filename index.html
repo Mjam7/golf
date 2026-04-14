@@ -483,7 +483,7 @@ const PLAYERS = [
   { id:"richard", first:"Richard", hi:16.7, team:"B" }
 ];
 let COURSES = {
-  day1:{name:"Aphrodite Hills",par:71,rating:70.4,slope:124,allowance:100,holes:[{par:4,si:18},{par:4,si:10},{par:4,si:8},{par:4,si:4},{par:3,si:16},{par:5,si:6},{par:3,si:14},{par:4,si:2},{par:4,si:12},{par:5,si:11},{par:4,si:5},{par:3,si:15},{par:4,si:3},{par:4,si:17},{par:3,si:1},{par:4,si:7},{par:3,si:13},{par:5,si:9}]},
+  day1:{name:"PGA National Cyprus",par:71,rating:68.8,slope:126,allowance:95,holes:[{par:4,si:18},{par:4,si:10},{par:4,si:8},{par:4,si:4},{par:3,si:16},{par:5,si:6},{par:3,si:14},{par:4,si:2},{par:4,si:12},{par:5,si:11},{par:4,si:5},{par:3,si:15},{par:4,si:3},{par:4,si:17},{par:3,si:1},{par:4,si:7},{par:3,si:13},{par:5,si:9}]},
   day2:{name:"Minthis",par:72,rating:72.1,slope:134,allowance:100,holes:[{par:4,si:14},{par:3,si:18},{par:5,si:12},{par:4,si:10},{par:4,si:6},{par:5,si:2},{par:4,si:4},{par:3,si:16},{par:4,si:8},{par:5,si:5},{par:5,si:9},{par:4,si:1},{par:3,si:17},{par:4,si:15},{par:3,si:13},{par:4,si:3},{par:5,si:7},{par:4,si:11}]},
   day3:{name:"Limassol Greens",par:71,rating:72.5,slope:149,allowance:100,holes:[{par:5,si:8},{par:4,si:12},{par:3,si:14},{par:4,si:4},{par:3,si:18},{par:4,si:2},{par:4,si:16},{par:3,si:10},{par:5,si:6},{par:4,si:9},{par:3,si:13},{par:4,si:7},{par:4,si:1},{par:5,si:11},{par:4,si:17},{par:5,si:3},{par:3,si:15},{par:4,si:5}]}
 };
@@ -877,7 +877,7 @@ function shareScorecard(day, playerId){
 // ── Render day ──
 function renderDay(day){
   const c = COURSES[day], daily = sortedDaily(day), groups = day==="day3" ? getDay3GroupsFromSingles() : DAY_GAMES[day].map(g => [...g.a,...g.b]);
-  let html = `<div class="card"><div class="card-title"><span class="icon">🏳️</span>${c.name}</div><p class="sub">${day==="day1"?"Combined Stableford Matchplay":day==="day2"?"Best Ball Stableford Matchplay":"Singles Stableford Matchplay"} · White tees · Par ${c.par} · Rating ${c.rating} · Slope ${c.slope}</p></div>`;
+  let html = `<div class="card"><div class="card-title"><span class="icon">🏳️</span>${c.name}</div><p class="sub">${day==="day1"?"Combined Stableford Matchplay":day==="day2"?"Best Ball Stableford Matchplay":"Singles Stableford Matchplay"} · Yellow tees · Par ${c.par} · Rating ${c.rating} · Slope ${c.slope}</p></div>`;
 
   // View toggle
   html += `<div class="view-toggle"><button data-mode="me" onclick="setViewMode('me')" class="${viewMode==="me"?"active":""}">My card</button><button data-mode="all" onclick="setViewMode('all')" class="${viewMode==="all"?"active":""}">All players</button></div>`;
