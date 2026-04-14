@@ -76,7 +76,7 @@
     .modal{
       width:min(560px, 100%);background:var(--card);border-radius:22px;padding:16px;border:1px solid var(--line);box-shadow:var(--shadow);
     }
-    .score-buttons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
+    .score-buttons{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:12px}
     .score-btn{padding:16px 10px;font-size:20px;font-weight:900}
     .score-btn.alt{background:#fff7e1;border-color:#ebd28e}
     .score-btn.soft{background:#f5f6f7}
@@ -93,7 +93,7 @@
     @media (max-width:520px){
       .wrap{padding:12px}.card{padding:14px}.score-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
       .player-name{font-size:18px}
-      .score-buttons{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .score-buttons{grid-template-columns:repeat(4,minmax(0,1fr))}
     }
   </style>
 </head>
@@ -132,7 +132,6 @@
         <div><h2 id="whoAmI">—</h2><p class="sub" id="accessSummary">—</p></div>
         <div class="top-pills">
           <span class="pill" id="syncState">Live</span>
-          <span class="pill">Blob with X</span>
           <span class="pill">Countback enabled</span>
         </div>
       </div>
@@ -188,6 +187,7 @@ const DAILY_PRIZES = [50,40,30,20], OVERALL_PRIZES = [150,100,50];
 let sb = null, channel = null;
 let state = { tournamentId:null, tournamentSlug:null, currentPlayerId:null, isAdmin:false, adminCode:"", scoreMap:{} };
 let modalState = { day:null, playerId:null, holeNo:null };
+let _summaryCache = {};
 
 function $(id){ return document.getElementById(id); }
 function getPlayer(id){ return PLAYERS.find(p => p.id === id); }
@@ -230,10 +230,14 @@ async function secureUpsertScore(day, playerId, holeNo, value){
   const { data, error } = await sb.rpc("upsert_score_nopin", params); if (error) throw error; return data;
 }
 function playerSummary(day, playerId){
+  const key = `${day}:${playerId}`;
+  if (_summaryCache[key]) return _summaryCache[key];
   const p = getPlayer(playerId), c = COURSES[day], ch = courseHandicap(p.hi, c), ph = playingHandicap(ch, c.allowance);
   let total=0,gross=0,holesEntered=0; const holePoints=[];
   for(let i=0;i<18;i++){ const raw = scoreValue(day, playerId, i+1), shots = shotsOnHole(ph, c.holes[i].si), pts = stablefordPoints(raw, c.holes[i], shots); holePoints.push(pts); if (pts!==null) total += pts; const g = grossValue(raw); if (g!==null){ gross += g; holesEntered += 1; } else if (String(raw).trim().toUpperCase()==="X" || String(raw).trim()==="0") holesEntered += 1; }
-  return { player:p, ch, ph, total, gross, holesEntered, holePoints, countback:countbackArray(holePoints) };
+  const result = { player:p, ch, ph, total, gross, holesEntered, holePoints, countback:countbackArray(holePoints) };
+  _summaryCache[key] = result;
+  return result;
 }
 function sortedDaily(day){
   const rows = PLAYERS.map(p => playerSummary(day, p.id));
@@ -277,11 +281,12 @@ function getDay3GroupsFromSingles(){
 }
 function day3SinglesMatchResult(pair){
   const labelA = getPlayer(pair.a).first, labelB = getPlayer(pair.b).first;
+  const psA = playerSummary("day3", pair.a), psB = playerSummary("day3", pair.b);
   let aUp = 0;
   const holes = [];
   for(let i=0;i<18;i++){
-    const aVal = playerSummary("day3", pair.a).holePoints[i] ?? 0;
-    const bVal = playerSummary("day3", pair.b).holePoints[i] ?? 0;
+    const aVal = psA.holePoints[i] ?? 0;
+    const bVal = psB.holePoints[i] ?? 0;
     let winner = "H";
     if (aVal > bVal){ winner = "A"; aUp += 1; }
     else if (bVal > aVal){ winner = "B"; aUp -= 1; }
@@ -308,15 +313,11 @@ function teamMatchPointsSummary(){
   const out = { day1:{A:0,B:0,H:0}, day2:{A:0,B:0,H:0}, day3:{A:0,B:0,H:0}, total:{A:0,B:0,H:0} };
   for(const g of DAY_GAMES.day1){
     const r = matchResult("day1", g);
-    const s = r.holes[17].status;
-    const w = s > 0 ? "A" : s < 0 ? "B" : "H";
-    out.day1[w] += 1; out.total[w] += 1;
+    out.day1[r.winnerTeam] += 1; out.total[r.winnerTeam] += 1;
   }
   for(const g of DAY_GAMES.day2){
     const r = matchResult("day2", g);
-    const s = r.holes[17].status;
-    const w = s > 0 ? "A" : s < 0 ? "B" : "H";
-    out.day2[w] += 1; out.total[w] += 1;
+    out.day2[r.winnerTeam] += 1; out.total[r.winnerTeam] += 1;
   }
   for(const p of getDay3SinglesPairings()){
     const r = day3SinglesMatchResult(p);
@@ -327,7 +328,10 @@ function teamMatchPointsSummary(){
 function matchResult(day, game){
   const labelA = game.a.map(id => getPlayer(id).first).join(" & "), labelB = game.b.map(id => getPlayer(id).first).join(" & "); let aUp = 0; const holes = [];
   for(let i=0;i<18;i++){ const aPoints = game.a.map(id => playerSummary(day,id).holePoints[i] ?? 0), bPoints = game.b.map(id => playerSummary(day,id).holePoints[i] ?? 0), aVal = day==="day1" ? aPoints.reduce((x,y)=>x+y,0) : Math.max(...aPoints), bVal = day==="day1" ? bPoints.reduce((x,y)=>x+y,0) : Math.max(...bPoints); let winner="H"; if (aVal>bVal){ winner="A"; aUp+=1; } else if (bVal>aVal){ winner="B"; aUp-=1; } const left = 18-(i+1); holes.push({hole:i+1,aVal,bVal,winner,status:aUp,left}); }
-  let finalText="Match halved"; for(const h of holes){ if (Math.abs(h.status) > h.left){ finalText = `${h.status>0?labelA:labelB} wins ${Math.abs(h.status)} & ${h.left}`; break; } } if (finalText==="Match halved"){ const s = holes[17].status; if (s>0) finalText = `${labelA} wins ${s} up`; else if (s<0) finalText = `${labelB} wins ${Math.abs(s)} up`; } return {labelA,labelB,holes,finalText};
+  let finalText="Match halved"; let winnerTeam="H";
+  for(const h of holes){ if (Math.abs(h.status) > h.left){ const w = h.status>0?"A":"B"; finalText = `${w==="A"?labelA:labelB} wins ${Math.abs(h.status)} & ${h.left}`; winnerTeam=w; break; } }
+  if (finalText==="Match halved"){ const s = holes[17].status; if (s>0){ finalText = `${labelA} wins ${s} up`; winnerTeam="A"; } else if (s<0){ finalText = `${labelB} wins ${Math.abs(s)} up`; winnerTeam="B"; } }
+  return {labelA,labelB,holes,finalText,winnerTeam};
 }
 
 function openScoreModal(day, playerId, holeNo){
@@ -342,7 +346,7 @@ function openScoreModal(day, playerId, holeNo){
         <h3>${getPlayer(playerId).first} · Hole ${holeNo}</h3>
         <p class="sub">Par ${hole.par} · Stroke Index ${hole.si} · Current score: <strong>${current}</strong></p>
         <div class="score-buttons">
-          ${[2,3,4,5,6,7,8,9,10].map(n => `<button class="score-btn" onclick="chooseScore('${n}')">${n}</button>`).join("")}
+          ${[1,2,3,4,5,6,7,8,9,10,11,12].map(n => `<button class="score-btn" onclick="chooseScore('${n}')">${n}</button>`).join("")}
           <button class="score-btn alt" onclick="chooseScore('X')">X</button>
           <button class="score-btn soft" onclick="chooseScore('')">Clear</button>
           <button class="score-btn primary" onclick="closeScoreModal()">Close</button>
@@ -405,7 +409,7 @@ function renderOverall(){
 function renderSetup(){
   $("setup").innerHTML = `<div class="card"><h2>Setup</h2><p class="sub">No PIN screen. Tap-to-score buttons. Admin code still available.</p></div><div class="row cols-2"><div class="card"><h3>Players</h3><div style="overflow:auto; margin-top:10px"><table><thead><tr><th>Player</th><th>Team</th><th>Index</th></tr></thead><tbody>${PLAYERS.map(p => `<tr><td>${p.first}</td><td>${p.team}</td><td>${p.hi.toFixed(1)}</td></tr>`).join("")}</tbody></table></div></div><div class="card"><h3>Courses</h3><div style="overflow:auto; margin-top:10px"><table><thead><tr><th>Day</th><th>Course</th><th>Par</th><th>Rating</th><th>Slope</th></tr></thead><tbody>${Object.keys(COURSES).map(day => `<tr><td>${day.toUpperCase()}</td><td>${COURSES[day].name}</td><td>${COURSES[day].par}</td><td>${COURSES[day].rating}</td><td>${COURSES[day].slope}</td></tr>`).join("")}</tbody></table></div></div></div>`;
 }
-function renderAll(){ renderDay("day1"); renderDay("day2"); renderDay("day3"); renderOverall(); renderSetup(); }
+function renderAll(){ _summaryCache = {}; renderDay("day1"); renderDay("day2"); renderDay("day3"); renderOverall(); renderSetup(); }
 function subscribeRealtime(){
   if (channel) sb.removeChannel(channel);
   channel = sb.channel("scores-live-v3").on("postgres_changes",{event:"*",schema:"public",table:"scores",filter:`tournament_id=eq.${state.tournamentId}`},payload => { const row = payload.new || payload.old; if (row){ state.scoreMap[`${row.day_key}:${row.player_id}:${row.hole_no}`] = row.score_value || ""; $("syncState").textContent = "Live"; renderAll(); } }).subscribe();
