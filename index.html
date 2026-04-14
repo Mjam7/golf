@@ -275,6 +275,73 @@
     .par5-row td input[name="par"]{color:#8c4a12}
     .save-banner{background:#ebf8ef;border:1px solid #cde7d6;color:var(--green-dark);border-radius:12px;padding:12px 14px;font-weight:700;font-size:13px;margin-top:12px;display:none;align-items:center;gap:8px}
     .save-banner.show{display:flex}
+    /* ── PROGRESS BAR ── */
+    .progress-bar-wrap{background:#e8f0ea;border-radius:999px;height:8px;margin:10px 0 4px;overflow:hidden}
+    .progress-bar-fill{background:linear-gradient(90deg,var(--green),#2ecc71);height:100%;border-radius:999px;transition:width .4s ease}
+    .progress-label{font-size:11px;font-weight:800;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:2px}
+
+    /* ── MATCH STATUS BANNER ── */
+    .match-banner{
+      border-radius:14px;padding:12px 16px;margin-bottom:10px;
+      display:flex;align-items:center;justify-content:space-between;gap:8px;
+      background:var(--green-dark);color:white;
+    }
+    .match-banner.halved{background:var(--cream);color:var(--ink);border:1px solid var(--line)}
+    .match-banner-status{font-size:15px;font-weight:900}
+    .match-banner-sub{font-size:11px;opacity:.75;margin-top:2px}
+    .match-banner-holes{font-size:13px;font-weight:800;opacity:.85;white-space:nowrap}
+
+    /* ── SAVE FLASH ANIMATION ── */
+    @keyframes flashGreen{0%{background:var(--green)}50%{background:#2ecc71}100%{background:var(--green)}}
+    .hole-tile-btn.saving{animation:flashGreen .4s ease}
+    @keyframes popIn{0%{transform:scale(0.7);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+    .hole-tile-btn.saved-pop{animation:popIn .3s ease forwards}
+
+    /* ── LEADERBOARD HIGHLIGHT ── */
+    .lb-me{background:var(--cream);border-radius:10px;padding:6px 8px;margin:-2px -4px}
+    tr.me-row td{background:#f0faf3;font-weight:900}
+    tr.me-row td:first-child{border-left:3px solid var(--green)}
+
+    /* ── ACTIVITY FEED ── */
+    .activity-feed{margin-bottom:14px}
+    .activity-feed-inner{display:flex;flex-direction:column;gap:6px}
+    .activity-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:white;border:1px solid var(--line);border-radius:12px;font-size:12px;animation:slideIn .3s ease}
+    @keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+    .activity-icon{font-size:16px;flex-shrink:0}
+    .activity-text{flex:1;color:var(--ink);font-weight:600}
+    .activity-time{color:var(--muted);font-size:11px;white-space:nowrap}
+
+    /* ── DARK MODE ── */
+    body.dark{--bg:#0d1f14;--card:#162b1e;--ink:#e8f5ee;--muted:#7aad8a;--line:#1e3828;--cream:#1a2e22;--shadow:0 4px 24px rgba(0,0,0,.4)}
+    body.dark .hole-tile-btn{background:#1a2e22;color:#e8f5ee}
+    body.dark .hole-tile{background:#162b1e;border-color:#1e3828}
+    body.dark table{color:#e8f5ee}
+    body.dark th{background:#1a2e22}
+    body.dark input,body.dark select{background:#1a2e22;color:#e8f5ee;border-color:#1e3828}
+    body.dark .match-card,body.dark .player-card,body.dark .comp-block,body.dark .summary-box{background:#162b1e;border-color:#1e3828}
+    body.dark .login-float-card{background:#162b1e}
+    body.dark .login-security{background:#1a2e22;border-color:#1e3828}
+    .dark-toggle{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);padding:5px 9px;border-radius:999px;font-size:16px;width:auto;line-height:1}
+
+    /* ── SHARE CARD ── */
+    .share-btn{display:flex;align-items:center;gap:8px;justify-content:center;padding:12px;border-radius:14px;border:1.5px solid var(--green);background:white;color:var(--green);font-size:14px;font-weight:800;width:100%;margin-top:10px}
+    body.dark .share-btn{background:var(--card);border-color:var(--green)}
+
+    /* ── SWIPE MODAL NAV ── */
+    .modal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .modal-nav-btn{background:var(--cream);border:1.5px solid var(--line);border-radius:10px;padding:8px 14px;font-size:18px;font-weight:900;width:auto;color:var(--ink)}
+    .modal-nav-btn:disabled{opacity:.3}
+    .modal-hole-info{text-align:center;flex:1}
+
+    /* ── OFFLINE TOAST ── */
+    .offline-toast{
+      position:fixed;top:74px;left:50%;transform:translateX(-50%);
+      background:#1a1a1a;color:white;padding:10px 18px;border-radius:999px;
+      font-size:13px;font-weight:700;z-index:500;display:none;
+      box-shadow:0 4px 20px rgba(0,0,0,.3);
+    }
+    .offline-toast.show{display:block}
+
   </style>
 </head>
 <body>
@@ -344,6 +411,7 @@
     </div>
   </div>
   <div class="app-bar-right" id="appBarRight">
+    <button class="dark-toggle" onclick="toggleDark()" title="Toggle dark mode">🌙</button>
     <span class="app-bar-user" id="whoAmI"></span>
     <span class="app-bar-sync" id="syncState">● Live</span>
     <button onclick="logOut()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:white;padding:6px 11px;border-radius:999px;font-size:12px;font-weight:800;width:auto">⇠ Switch</button>
@@ -397,6 +465,7 @@
   </button>
 </nav>
 
+<div class="offline-toast" id="offlineToast">📡 Offline — scores will sync when reconnected</div>
 <div id="scoreModalWrap" class="hidden"></div>
 <script>
 const PLAYERS = [
@@ -429,7 +498,11 @@ let sb = null, channel = null;
 let state = { tournamentId:null, tournamentSlug:null, currentPlayerId:null, isAdmin:false, adminCode:"", scoreMap:{} };
 let modalState = { day:null, playerId:null, holeNo:null };
 let _summaryCache = {};
+let activityFeed = []; // [{text, icon, time}]
+let pendingScores = []; // offline queue
+let isDark = false;
 
+// ── Utility ──
 function $(id){ return document.getElementById(id); }
 function getPlayer(id){ return PLAYERS.find(p => p.id === id); }
 function roundHalfUp(v){ return Math.floor(v + 0.5); }
@@ -449,20 +522,54 @@ function grossValue(raw){ const txt = String(raw || "").trim().toUpperCase(); if
 function countbackArray(hp){ hp = hp.map(v => v ?? 0); return [hp.slice(9).reduce((a,b)=>a+b,0), hp.slice(12).reduce((a,b)=>a+b,0), hp.slice(15).reduce((a,b)=>a+b,0), hp.slice(17).reduce((a,b)=>a+b,0)]; }
 function compareCountback(a,b){ for(let i=0;i<a.length;i++){ if (b[i] !== a[i]) return b[i]-a[i]; } return 0; }
 function setStatus(text, cls=""){ const box = $("statusBox"); if(!box) return; box.className = "status" + (cls ? " " + cls : ""); box.textContent = text; }
-function logOut(){
-  state.currentPlayerId = null; state.isAdmin = false; state.scoreMap = {}; state.tournamentId = null;
-  if(channel && sb){ sb.removeChannel(channel); channel = null; }
-  $("mainApp").classList.add("hidden");
-  $("bottomNav").classList.add("hidden");
-  $("loginScreen").classList.remove("hidden");
-  $("adminCodeInput").value = "";
-  toggleAdminField();
-  setStatus("Signed out. Select a player to continue.", "");
-  localStorage.removeItem("cyprusTourV3Login");
+function scoreValue(day, playerId, holeNo){ return state.scoreMap[`${day}:${playerId}:${holeNo}`] ?? ""; }
+function canEditPlayer(playerId){ return state.isAdmin || state.currentPlayerId === playerId; }
+
+// ── Dark mode ──
+function toggleDark(){
+  isDark = !isDark;
+  document.body.classList.toggle("dark", isDark);
+  localStorage.setItem("cyprusDark", isDark ? "1" : "");
+  const btn = document.querySelector(".dark-toggle");
+  if(btn) btn.textContent = isDark ? "☀️" : "🌙";
 }
+
+// ── Offline support ──
+function setupOfflineDetection(){
+  const toast = $("offlineToast");
+  window.addEventListener("online",  () => { if(toast) toast.classList.remove("show"); flushPendingScores(); });
+  window.addEventListener("offline", () => { if(toast) toast.classList.add("show"); });
+  if(!navigator.onLine && toast) toast.classList.add("show");
+}
+async function flushPendingScores(){
+  if(!pendingScores.length) return;
+  const queue = [...pendingScores]; pendingScores = [];
+  for(const s of queue){
+    try{ await secureUpsertScore(s.day, s.playerId, s.holeNo, s.value); }
+    catch(e){ pendingScores.push(s); }
+  }
+  if(!pendingScores.length) setStatus("Synced offline scores.", "ok");
+}
+
+// ── Activity feed ──
+function pushActivity(icon, text){
+  const now = new Date();
+  const timeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+  activityFeed.unshift({icon, text, time:timeStr});
+  if(activityFeed.length > 8) activityFeed.pop();
+  renderActivityFeed();
+}
+function renderActivityFeed(){
+  const el = $("activityFeedInner");
+  if(!el) return;
+  el.innerHTML = activityFeed.map(a =>
+    `<div class="activity-item"><span class="activity-icon">${a.icon}</span><span class="activity-text">${a.text}</span><span class="activity-time">${a.time}</span></div>`
+  ).join("");
+}
+
+// ── Navigation ──
 function showSection(id){
-  // Block non-Mitchell users from accessing setup
-  if(id === "setup" && state.currentPlayerId !== "mitchell"){ return; }
+  if(id === "setup" && state.currentPlayerId !== "mitchell") return;
   document.querySelectorAll(".section").forEach(el => el.classList.add("hidden"));
   $(id).classList.remove("hidden");
   document.querySelectorAll("#dayTabs button").forEach(btn => btn.classList.remove("active"));
@@ -472,17 +579,14 @@ function showSection(id){
 }
 function populatePlayers(){ $("playerSelect").innerHTML = PLAYERS.map(p => `<option value="${p.id}">${p.first}</option>`).join(""); }
 function toggleAdminField(){ $("adminCodeField").style.display = $("playerSelect").value === "mitchell" ? "block" : "none"; }
-function fillMitchellTest(){ $("playerSelect").value = "mitchell"; $("tournamentCodeInput").value = "cyprus-tour-2026"; toggleAdminField(); }
 
+// ── Supabase ──
 async function initSupabase(){
   if (!window.APP_CONFIG || !window.APP_CONFIG.supabaseUrl || !window.APP_CONFIG.supabaseAnonKey){ setStatus("Add your Supabase values to config.js first.", "bad"); return false; }
   sb = window.supabase.createClient(window.APP_CONFIG.supabaseUrl, window.APP_CONFIG.supabaseAnonKey); return true;
 }
 async function loadTournament(code){ const { data, error } = await sb.from("tournaments").select("id,name,slug").eq("slug", code).single(); if (error) throw error; return data; }
 async function loadScores(){ const { data, error } = await sb.from("scores_public").select("*").eq("tournament_slug", state.tournamentSlug); if (error) throw error; state.scoreMap = {}; (data||[]).forEach(row => state.scoreMap[`${row.day_key}:${row.player_id}:${row.hole_no}`] = row.score_value); }
-function scoreValue(day, playerId, holeNo){ return state.scoreMap[`${day}:${playerId}:${holeNo}`] ?? ""; }
-function canEditPlayer(playerId){ return state.isAdmin || state.currentPlayerId === playerId; }
-
 async function secureSignIn(){
   const params = { p_tournament_slug:$("tournamentCodeInput").value.trim(), p_player_id:$("playerSelect").value, p_admin_code:$("adminCodeInput").value.trim() || null };
   const { data, error } = await sb.rpc("sign_in_secure_nopin", params); if (error) throw error; return data;
@@ -491,6 +595,8 @@ async function secureUpsertScore(day, playerId, holeNo, value){
   const params = { p_tournament_slug:state.tournamentSlug, p_player_id:playerId, p_day_key:day, p_hole_no:holeNo, p_score_value:String(value||"").trim(), p_admin_code:state.adminCode || null };
   const { data, error } = await sb.rpc("upsert_score_nopin", params); if (error) throw error; return data;
 }
+
+// ── Calculations ──
 function playerSummary(day, playerId){
   const key = `${day}:${playerId}`;
   if (_summaryCache[key]) return _summaryCache[key];
@@ -520,7 +626,6 @@ function overallSorted(){
 }
 function teamTotals(){ const overall = overallSorted(), sums = {A:0,B:0}; overall.forEach(r => sums[r.player.team] += r.total); return sums; }
 function teamMembers(tag){ return PLAYERS.filter(p => p.team === tag).map(p => p.first).join(", "); }
-
 function day12TotalsForPairing(){
   const d1 = Object.fromEntries(sortedDaily("day1").map(r => [r.player.id, r.total]));
   const d2 = Object.fromEntries(sortedDaily("day2").map(r => [r.player.id, r.total]));
@@ -550,81 +655,125 @@ function getDay3GroupsFromSingles(){
 function day3SinglesMatchResult(pair){
   const labelA = getPlayer(pair.a).first, labelB = getPlayer(pair.b).first;
   const psA = playerSummary("day3", pair.a), psB = playerSummary("day3", pair.b);
-  let aUp = 0;
-  const holes = [];
+  let aUp = 0; const holes = [];
   for(let i=0;i<18;i++){
-    const aVal = psA.holePoints[i] ?? 0;
-    const bVal = psB.holePoints[i] ?? 0;
+    const aVal = psA.holePoints[i] ?? 0, bVal = psB.holePoints[i] ?? 0;
     let winner = "H";
-    if (aVal > bVal){ winner = "A"; aUp += 1; }
-    else if (bVal > aVal){ winner = "B"; aUp -= 1; }
+    if (aVal > bVal){ winner = "A"; aUp += 1; } else if (bVal > aVal){ winner = "B"; aUp -= 1; }
     const left = 18 - (i+1);
     holes.push({hole:i+1,aVal,bVal,winner,status:aUp,left});
   }
-  let finalText = "Match halved";
-  for(const h of holes){
-    if (Math.abs(h.status) > h.left){
-      finalText = `${h.status>0 ? labelA : labelB} wins ${Math.abs(h.status)} & ${h.left}`;
-      break;
-    }
-  }
-  if (finalText === "Match halved"){
-    const s = holes[17].status;
-    if (s > 0) finalText = `${labelA} wins ${s} up`;
-    else if (s < 0) finalText = `${labelB} wins ${Math.abs(s)} up`;
-  }
-  const s = holes[17].status;
-  const winnerTeam = s > 0 ? "A" : s < 0 ? "B" : "H";
+  let finalText = "Match halved"; let winnerTeam = "H";
+  for(const h of holes){ if (Math.abs(h.status) > h.left){ const w = h.status>0?"A":"B"; finalText = `${w==="A"?labelA:labelB} wins ${Math.abs(h.status)} & ${h.left}`; winnerTeam=w; break; } }
+  if (finalText === "Match halved"){ const s = holes[17].status; if (s > 0){ finalText = `${labelA} wins ${s} up`; winnerTeam="A"; } else if (s < 0){ finalText = `${labelB} wins ${Math.abs(s)} up`; winnerTeam="B"; } }
   return {labelA,labelB,holes,finalText,winnerTeam};
 }
 function teamMatchPointsSummary(){
   const out = { day1:{A:0,B:0,H:0}, day2:{A:0,B:0,H:0}, day3:{A:0,B:0,H:0}, total:{A:0,B:0,H:0} };
-  for(const g of DAY_GAMES.day1){
-    const r = matchResult("day1", g);
-    out.day1[r.winnerTeam] += 1; out.total[r.winnerTeam] += 1;
-  }
-  for(const g of DAY_GAMES.day2){
-    const r = matchResult("day2", g);
-    out.day2[r.winnerTeam] += 1; out.total[r.winnerTeam] += 1;
-  }
-  for(const p of getDay3SinglesPairings()){
-    const r = day3SinglesMatchResult(p);
-    out.day3[r.winnerTeam] += 1; out.total[r.winnerTeam] += 1;
-  }
+  for(const g of DAY_GAMES.day1){ const r = matchResult("day1", g); out.day1[r.winnerTeam] += 1; out.total[r.winnerTeam] += 1; }
+  for(const g of DAY_GAMES.day2){ const r = matchResult("day2", g); out.day2[r.winnerTeam] += 1; out.total[r.winnerTeam] += 1; }
+  for(const p of getDay3SinglesPairings()){ const r = day3SinglesMatchResult(p); out.day3[r.winnerTeam] += 1; out.total[r.winnerTeam] += 1; }
   return out;
 }
 function matchResult(day, game){
-  const labelA = game.a.map(id => getPlayer(id).first).join(" & "), labelB = game.b.map(id => getPlayer(id).first).join(" & "); let aUp = 0; const holes = [];
-  for(let i=0;i<18;i++){ const aPoints = game.a.map(id => playerSummary(day,id).holePoints[i] ?? 0), bPoints = game.b.map(id => playerSummary(day,id).holePoints[i] ?? 0), aVal = day==="day1" ? aPoints.reduce((x,y)=>x+y,0) : Math.max(...aPoints), bVal = day==="day1" ? bPoints.reduce((x,y)=>x+y,0) : Math.max(...bPoints); let winner="H"; if (aVal>bVal){ winner="A"; aUp+=1; } else if (bVal>aVal){ winner="B"; aUp-=1; } const left = 18-(i+1); holes.push({hole:i+1,aVal,bVal,winner,status:aUp,left}); }
+  const labelA = game.a.map(id => getPlayer(id).first).join(" & "), labelB = game.b.map(id => getPlayer(id).first).join(" & ");
+  let aUp = 0; const holes = [];
+  for(let i=0;i<18;i++){
+    const aPoints = game.a.map(id => playerSummary(day,id).holePoints[i] ?? 0), bPoints = game.b.map(id => playerSummary(day,id).holePoints[i] ?? 0);
+    const aVal = day==="day1" ? aPoints.reduce((x,y)=>x+y,0) : Math.max(...aPoints);
+    const bVal = day==="day1" ? bPoints.reduce((x,y)=>x+y,0) : Math.max(...bPoints);
+    let winner="H"; if (aVal>bVal){ winner="A"; aUp+=1; } else if (bVal>aVal){ winner="B"; aUp-=1; }
+    const left = 18-(i+1); holes.push({hole:i+1,aVal,bVal,winner,status:aUp,left});
+  }
   let finalText="Match halved"; let winnerTeam="H";
   for(const h of holes){ if (Math.abs(h.status) > h.left){ const w = h.status>0?"A":"B"; finalText = `${w==="A"?labelA:labelB} wins ${Math.abs(h.status)} & ${h.left}`; winnerTeam=w; break; } }
   if (finalText==="Match halved"){ const s = holes[17].status; if (s>0){ finalText = `${labelA} wins ${s} up`; winnerTeam="A"; } else if (s<0){ finalText = `${labelB} wins ${Math.abs(s)} up`; winnerTeam="B"; } }
   return {labelA,labelB,holes,finalText,winnerTeam};
 }
 
+// ── Match status banner for current player ──
+function myMatchBanner(day){
+  if(!state.currentPlayerId) return "";
+  const pid = state.currentPlayerId;
+  let result = null;
+  if(day !== "day3"){
+    const myGame = DAY_GAMES[day]?.find(g => [...g.a,...g.b].includes(pid));
+    if(myGame) result = matchResult(day, myGame);
+  } else {
+    const pair = getDay3SinglesPairings().find(p => p.a===pid||p.b===pid);
+    if(pair) result = day3SinglesMatchResult(pair);
+  }
+  if(!result) return "";
+
+  // Work out current hole count and live status
+  const ps = playerSummary(day, pid);
+  const holesPlayed = ps.holesEntered;
+  const lastHole = result.holes[Math.min(holesPlayed, 17)];
+  const status = lastHole ? lastHole.status : 0;
+  const myTeam = getPlayer(pid).team;
+  const iAmA = result.labelA.includes(getPlayer(pid).first);
+  const myStatus = iAmA ? status : -status;
+  let statusText = "All square";
+  if(myStatus > 0) statusText = `${myStatus} UP`;
+  else if(myStatus < 0) statusText = `${Math.abs(myStatus)} DOWN`;
+  const isHalved = myStatus === 0;
+  const holesLeft = 18 - holesPlayed;
+
+  return `<div class="match-banner ${isHalved?'halved':''}">
+    <div>
+      <div class="match-banner-status">${statusText}</div>
+      <div class="match-banner-sub">${result.labelA} vs ${result.labelB}</div>
+    </div>
+    <div class="match-banner-holes">${holesPlayed}/18 · ${holesLeft} to play</div>
+  </div>`;
+}
+
+// ── Score modal with swipe navigation ──
 function openScoreModal(day, playerId, holeNo){
   if (!canEditPlayer(playerId)){ setStatus("You can only edit your own scores.", "bad"); return; }
   modalState = { day, playerId, holeNo };
+  renderScoreModal();
+}
+function renderScoreModal(){
+  const { day, playerId, holeNo } = modalState;
   const current = scoreValue(day, playerId, holeNo) || "—";
   const course = COURSES[day];
   const hole = course.holes[holeNo-1];
+  const ps = playerSummary(day, playerId);
+  const shots = shotsOnHole(ps.ph, hole.si);
   const html = `
     <div class="modal-backdrop" onclick="closeScoreModal(event)">
       <div class="modal" onclick="event.stopPropagation()">
-        <h3>${getPlayer(playerId).first} · Hole ${holeNo}</h3>
-        <p class="sub">Par ${hole.par} · Stroke Index ${hole.si} · Current score: <strong>${current}</strong></p>
+        <div class="modal-nav">
+          <button class="modal-nav-btn" onclick="navigateHole(-1)" ${holeNo<=1?"disabled":""}>‹</button>
+          <div class="modal-hole-info">
+            <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:900">${getPlayer(playerId).first} · Hole ${holeNo}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Par ${hole.par} · SI ${hole.si} · ${shots} shot${shots!==1?'s':''} received · Now: <strong>${current}</strong></div>
+          </div>
+          <button class="modal-nav-btn" onclick="navigateHole(1)" ${holeNo>=18?"disabled":""}>›</button>
+        </div>
         <div class="score-buttons">
-          ${[1,2,3,4,5,6,7,8,9,10,11,12].map(n => `<button class="score-btn" onclick="chooseScore('${n}')">${n}</button>`).join("")}
-          <button class="score-btn alt" onclick="chooseScore('X')">X</button>
+          ${[1,2,3,4,5,6,7,8,9,10,11,12].map(n => {
+            const pts = stablefordPoints(String(n), hole, shots);
+            const highlight = current === String(n) ? "style='outline:3px solid var(--gold)'" : "";
+            return `<button class="score-btn" onclick="chooseScore('${n}')" ${highlight}>${n}<br><span style="font-size:10px;opacity:.6">${pts!==null?pts+'pt':''}</span></button>`;
+          }).join("")}
+          <button class="score-btn alt" onclick="chooseScore('X')">X<br><span style="font-size:10px;opacity:.6">blob</span></button>
           <button class="score-btn soft" onclick="chooseScore('')">Clear</button>
           <button class="score-btn primary" onclick="closeScoreModal()">Close</button>
         </div>
-        <div class="small-note">Tap a score to save instantly.</div>
+        <div class="small-note">Tap a score to save · ‹ › to move between holes</div>
       </div>
     </div>
   `;
   $("scoreModalWrap").innerHTML = html;
   $("scoreModalWrap").classList.remove("hidden");
+}
+function navigateHole(dir){
+  const next = modalState.holeNo + dir;
+  if(next < 1 || next > 18) return;
+  modalState.holeNo = next;
+  renderScoreModal();
 }
 function closeScoreModal(e){
   if (e && e.stopPropagation) e.stopPropagation();
@@ -633,17 +782,45 @@ function closeScoreModal(e){
 }
 async function chooseScore(value){
   const { day, playerId, holeNo } = modalState;
+  const key = `${day}:${playerId}:${holeNo}`;
+  state.scoreMap[key] = String(value || "").trim();
+
+  // Flash animation on tile
+  const tileBtn = document.querySelector(`[data-hole-key="${key}"]`);
+  if(tileBtn){ tileBtn.classList.add("saved-pop"); setTimeout(()=>tileBtn.classList.remove("saved-pop"),400); }
+
+  // Re-render modal with updated score
+  renderScoreModal();
+  _summaryCache = {};
+  renderAll();
+
+  // Activity feed
+  if(value){
+    const player = getPlayer(playerId);
+    const course = COURSES[day]; const hole = course.holes[holeNo-1];
+    const ps = playerSummary(day, playerId);
+    const shots = shotsOnHole(ps.ph, hole.si);
+    const pts = stablefordPoints(value, hole, shots);
+    const icon = pts>=4?"🦅":pts===3?"🐦":pts===2?"⛳":pts===0?"💀":"🏌️";
+    pushActivity(icon, `${player.first} scored ${value} on H${holeNo} (${pts} pts)`);
+  }
+
+  // Save — queue if offline
+  if(!navigator.onLine){
+    pendingScores.push({day, playerId, holeNo, value});
+    setStatus("Saved offline. Will sync when connected.", "");
+    return;
+  }
   try{
     await secureUpsertScore(day, playerId, holeNo, value);
-    state.scoreMap[`${day}:${playerId}:${holeNo}`] = String(value || "").trim();
-    closeScoreModal();
-    setStatus("Saved live.", "ok");
-    renderAll();
+    setStatus("Saved.", "ok");
   }catch(e){
-    setStatus("Save failed: " + (e.message || e), "bad");
+    pendingScores.push({day, playerId, holeNo, value});
+    setStatus("Save failed — queued for retry.", "bad");
   }
 }
 
+// ── Score inputs (hole tile grid) ──
 function scoreInputs(day, playerId){
   const c = COURSES[day], ps = playerSummary(day, playerId);
   let front9=0, back9=0;
@@ -658,7 +835,12 @@ function scoreInputs(day, playerId){
     <div><div class="sh-label">Total</div><div class="sh-val">${ps.total}</div></div>
   </div>`;
 
-  for(const [half, label] of [[[1,9],"Front 9"],[[ 10,18],"Back 9"]]){
+  // Progress bar
+  const pct = Math.round((ps.holesEntered/18)*100);
+  html += `<div class="progress-label"><span>${ps.holesEntered}/18 holes</span><span>${pct}%</span></div>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>`;
+
+  for(const [half, label] of [[[1,9],"Front 9"],[[10,18],"Back 9"]]){
     html += `<div class="hole-half-label">${label}</div><div class="hole-grid">`;
     for(let h=half[0];h<=half[1];h++){
       const hole=c.holes[h-1], shots=shotsOnHole(ps.ph,hole.si), raw=scoreValue(day,playerId,h), pts=stablefordPoints(raw,hole,shots);
@@ -666,9 +848,10 @@ function scoreInputs(day, playerId){
       if(raw){ const n=parseInt(raw); if(!isNaN(n)){ if(pts>=4) cls='great'; else if(pts>=3) cls='good'; else if(pts===0) cls='blob'; else cls='has-score'; } else if(raw==='X') cls='blob'; }
       const ptsLabel = pts===null ? '—' : pts===0 ? '0 pts' : `${pts} pts`;
       const ptsCls = pts!==null && pts>2 ? 'pos' : '';
+      const key = `${day}:${playerId}:${h}`;
       html += `<div class="hole-tile">
-        <div class="hole-tile-top"><span>H${h}</span><span>Par ${hole.par}</span></div>
-        <div class="hole-tile-btn ${cls}" onclick="openScoreModal('${day}','${playerId}',${h})">${raw||'·'}</div>
+        <div class="hole-tile-top"><span>H${h}</span><span>P${hole.par}</span></div>
+        <div class="hole-tile-btn ${cls}" data-hole-key="${key}" onclick="openScoreModal('${day}','${playerId}',${h})">${raw||'·'}</div>
         <div class="hole-tile-pts ${ptsCls}">${ptsLabel}</div>
       </div>`;
     }
@@ -676,6 +859,22 @@ function scoreInputs(day, playerId){
   }
   return html;
 }
+
+// ── Share scorecard ──
+function shareScorecard(day, playerId){
+  const ps = playerSummary(day, playerId);
+  const c = COURSES[day];
+  let text = `⛳ Cyprus Golf Tour '26 — ${c.name}\n${getPlayer(playerId).first} · ${ps.total} pts (${ps.holesEntered}/18 holes)\n\n`;
+  for(let h=1;h<=18;h++){
+    const raw = scoreValue(day, playerId, h);
+    if(raw) text += `H${h}: ${raw}  `;
+  }
+  text += `\n\n14-16 May 2026 · Cyprus`;
+  if(navigator.share){ navigator.share({title:"My Scorecard", text}); }
+  else { navigator.clipboard?.writeText(text); setStatus("Scorecard copied to clipboard!", "ok"); }
+}
+
+// ── Render day ──
 function renderDay(day){
   const c = COURSES[day], daily = sortedDaily(day), groups = day==="day3" ? getDay3GroupsFromSingles() : DAY_GAMES[day].map(g => [...g.a,...g.b]);
   let html = `<div class="card"><div class="card-title"><span class="icon">🏳️</span>${c.name}</div><p class="sub">${day==="day1"?"Combined Stableford Matchplay":day==="day2"?"Best Ball Stableford Matchplay":"Singles Stableford Matchplay"} · White tees · Par ${c.par} · Rating ${c.rating} · Slope ${c.slope}</p></div>`;
@@ -683,10 +882,15 @@ function renderDay(day){
   // View toggle
   html += `<div class="view-toggle"><button data-mode="me" onclick="setViewMode('me')" class="${viewMode==="me"?"active":""}">My card</button><button data-mode="all" onclick="setViewMode('all')" class="${viewMode==="all"?"active":""}">All players</button></div>`;
 
+  // Activity feed
+  if(activityFeed.length > 0){
+    html += `<div class="activity-feed card" style="padding:14px"><div class="card-title" style="font-size:14px;margin-bottom:8px"><span>📡</span> Live Activity</div><div class="activity-feed-inner" id="activityFeedInner">${activityFeed.map(a=>`<div class="activity-item"><span class="activity-icon">${a.icon}</span><span class="activity-text">${a.text}</span><span class="activity-time">${a.time}</span></div>`).join("")}</div></div>`;
+  }
+
   if (day!=="day3"){ html += `<div class="card"><h3>${day==="day1"?"Matchplay — combined team points per hole":"Matchplay — best score per pair per hole"}</h3><div style="margin-top:12px">`; for(const game of DAY_GAMES[day]){ const m = matchResult(day, game); html += `<div class="match-card"><h4>${game.name}</h4><p class="sub" style="margin-top:4px">${m.labelA} vs ${m.labelB}</p><p style="margin-top:8px;font-weight:900;color:var(--green)">${m.finalText}</p><div style="margin-top:10px">${m.holes.map(h => { const cls = h.winner==="A"?"hole-A":h.winner==="B"?"hole-B":"hole-H", label = h.winner==="A"?"A":h.winner==="B"?"B":"Half"; return `<span class="hole-chip ${cls}">H${h.hole} ${label} ${h.aVal}-${h.bVal}</span>`; }).join("")}</div></div>`; } html += `</div></div>`; }
   if (day==="day3"){
     const singles = getDay3SinglesPairings();
-    html += `<div class="card"><h3>Day 3 Singles Matchboard</h3><p class="sub">Pairings are auto-generated from Day 1 + Day 2 totals within each team. Lowest totals play first. Highest totals go out last.</p><div style="margin-top:12px">`;
+    html += `<div class="card"><h3>Day 3 Singles Matchboard</h3><p class="sub" style="margin-top:4px">Auto-paired from Day 1+2 totals. Lowest goes first.</p><div style="margin-top:12px">`;
     singles.forEach(pair => {
       const r = day3SinglesMatchResult(pair);
       html += `<div class="match-card"><h4>Match ${pair.matchNo}</h4><p class="sub" style="margin-top:4px">${r.labelA} (${pair.aSeedTotal}) vs ${r.labelB} (${pair.bSeedTotal})</p><p style="margin-top:8px;font-weight:900;color:var(--green)">${r.finalText}</p><div style="margin-top:10px">${r.holes.map(h => { const cls = h.winner==="A"?"hole-A":h.winner==="B"?"hole-B":"hole-H", label = h.winner==="A"?"A":h.winner==="B"?"B":"Half"; return `<span class="hole-chip ${cls}">H${h.hole} ${label} ${h.aVal}-${h.bVal}</span>`; }).join("")}</div></div>`;
@@ -695,60 +899,80 @@ function renderDay(day){
   }
 
   groups.forEach((group,idx) => {
-    // In "me" mode, skip groups that don't contain the current player
-    const visibleGroup = viewMode === "me"
-      ? group.filter(pid => pid === state.currentPlayerId)
-      : group;
+    const visibleGroup = viewMode === "me" ? group.filter(pid => pid === state.currentPlayerId) : group;
     if (visibleGroup.length === 0) return;
-
     html += `<div class="card"><h3>${day==="day3" ? `Group ${idx+1}` : DAY_GAMES[day][idx].name}</h3><div style="margin-top:12px">`;
     visibleGroup.forEach(pid => {
       const s = playerSummary(day, pid), livePrize = daily.find(r => r.player.id===pid)?.money || 0;
-      html += `<div class="player-card"><div class="player-header"><div><div class="player-name">${s.player.first}</div><div class="meta"><span class="pill ${s.player.team==="A"?"teamA":"teamB"}">${s.player.team==="A"?"Team A":"Team B"}</span> &nbsp;Index ${s.player.hi.toFixed(1)} · Playing ${s.ph}</div></div><div class="points-badge">${s.total}<span>pts</span></div></div>${scoreInputs(day,pid)}<div class="summary-strip"><div class="summary-box highlight"><div class="k">Stableford</div><div class="v">${s.total}</div></div><div class="summary-box"><div class="k">Holes</div><div class="v">${s.holesEntered}/18</div></div><div class="summary-box"><div class="k">Back 9</div><div class="v">${s.countback[0]}</div></div><div class="summary-box"><div class="k">Prize</div><div class="v">${formatMoney(livePrize)}</div></div></div></div>`;
+      html += `<div class="player-card">
+        <div class="player-header">
+          <div>
+            <div class="player-name">${s.player.first}</div>
+            <div class="meta"><span class="pill ${s.player.team==="A"?"teamA":"teamB"}">${s.player.team==="A"?"Team A":"Team B"}</span> &nbsp;Index ${s.player.hi.toFixed(1)} · Playing ${s.ph}</div>
+          </div>
+          <div class="points-badge">${s.total}<span>pts</span></div>
+        </div>
+        ${myMatchBanner(day)}
+        ${scoreInputs(day,pid)}
+        <div class="summary-strip">
+          <div class="summary-box highlight"><div class="k">Stableford</div><div class="v">${s.total}</div></div>
+          <div class="summary-box"><div class="k">Holes</div><div class="v">${s.holesEntered}/18</div></div>
+          <div class="summary-box"><div class="k">Back 9</div><div class="v">${s.countback[0]}</div></div>
+          <div class="summary-box"><div class="k">Prize</div><div class="v">${formatMoney(livePrize)}</div></div>
+        </div>
+        ${canEditPlayer(pid) ? `<button class="share-btn" onclick="shareScorecard('${day}','${pid}')">📤 Share my scorecard</button>` : ""}
+      </div>`;
     });
     html += `</div></div>`;
   });
 
-  html += `<div class="card"><h3>Daily leaderboard</h3><div style="overflow:auto; margin-top:10px"><table><thead><tr><th>Pos</th><th>Player</th><th>Team</th><th>Pts</th><th>Back 9</th><th>Back 6</th><th>Back 3</th><th>Last hole</th><th>Prize</th></tr></thead><tbody>${daily.map(r => `<tr><td>${r.position}</td><td>${r.player.first}</td><td>${r.player.team}</td><td><strong>${r.total}</strong></td><td>${r.countback[0]}</td><td>${r.countback[1]}</td><td>${r.countback[2]}</td><td>${r.countback[3]}</td><td class="money">${formatMoney(r.money)}</td></tr>`).join("")}</tbody></table></div></div>`;
+  // Daily leaderboard — highlight current player
+  html += `<div class="card"><h3>Daily leaderboard</h3><div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Pos</th><th>Player</th><th>Team</th><th>Pts</th><th>Back 9</th><th>Back 6</th><th>Back 3</th><th>Last</th><th>Prize</th></tr></thead><tbody>${daily.map(r => {
+    const isMe = r.player.id === state.currentPlayerId;
+    return `<tr class="${isMe?"me-row":""}"><td>${r.position}</td><td>${r.player.first}${isMe?" 👤":""}</td><td>${r.player.team}</td><td><strong>${r.total}</strong></td><td>${r.countback[0]}</td><td>${r.countback[1]}</td><td>${r.countback[2]}</td><td>${r.countback[3]}</td><td class="money">${formatMoney(r.money)}</td></tr>`;
+  }).join("")}</tbody></table></div></div>`;
   $(day).innerHTML = html;
 }
+
 function renderOverall(){
   const rows = overallSorted(), teams = teamTotals(), mp = teamMatchPointsSummary();
   const teamWinner = mp.total.A > mp.total.B ? "Team A" : mp.total.B > mp.total.A ? "Team B" : "Tie";
-  $("overall").innerHTML = `<div class="card"><h2>Overall standings</h2><p class="sub">Overall individual ties break on Day 3, then Day 2, then Day 1. Team competition uses match points across all three days.</p></div><div class="row cols-2"><div class="card"><h3>Team match points</h3><p class="sub" style="margin-top:6px"><span class="pill teamA">Team A</span> ${teamMembers("A")}</p><p class="sub" style="margin-top:6px"><span class="pill teamB">Team B</span> ${teamMembers("B")}</p><div style="overflow:auto; margin-top:10px"><table><thead><tr><th>Stage</th><th>Team A</th><th>Team B</th><th>Halved</th></tr></thead><tbody><tr><td>Day 1 matches</td><td><strong>${mp.day1.A}</strong></td><td><strong>${mp.day1.B}</strong></td><td>${mp.day1.H}</td></tr><tr><td>Day 2 matches</td><td><strong>${mp.day2.A}</strong></td><td><strong>${mp.day2.B}</strong></td><td>${mp.day2.H}</td></tr><tr><td>Day 3 singles</td><td><strong>${mp.day3.A}</strong></td><td><strong>${mp.day3.B}</strong></td><td>${mp.day3.H}</td></tr><tr><td><strong>Total</strong></td><td><strong>${mp.total.A}</strong></td><td><strong>${mp.total.B}</strong></td><td>${mp.total.H}</td></tr></tbody></table></div><p class="sub" style="margin-top:10px"><strong>Leading team:</strong> ${teamWinner}</p></div><div class="card"><h3>Prize pot</h3><div class="row cols-2" style="margin-top:10px"><div class="pill">Daily prizes ${formatMoney(420)}</div><div class="pill">Overall prizes ${formatMoney(300)}</div><div class="pill">Team prize ${formatMoney(240)}</div><div class="pill">Total pot ${formatMoney(960)}</div></div><div style="overflow:auto; margin-top:14px"><table><thead><tr><th>Team</th><th>Stableford total</th></tr></thead><tbody><tr><td>Team A</td><td><strong>${teams.A}</strong></td></tr><tr><td>Team B</td><td><strong>${teams.B}</strong></td></tr></tbody></table></div></div></div><div class="card"><h3>Overall individual leaderboard</h3><div style="overflow:auto; margin-top:10px"><table><thead><tr><th>Pos</th><th>Player</th><th>Team</th><th>Day 1</th><th>Day 2</th><th>Day 3</th><th>Total</th><th>Prize</th></tr></thead><tbody>${rows.map((r,idx) => `<tr><td>${idx+1}</td><td>${r.player.first}</td><td>${r.player.team}</td><td>${r.d1}</td><td>${r.d2}</td><td>${r.d3}</td><td><strong>${r.total}</strong></td><td class="money">${formatMoney(r.money)}</td></tr>`).join("")}</tbody></table></div></div>`;
+  $("overall").innerHTML = `<div class="card"><h2>Overall standings</h2><p class="sub">Overall individual ties break on Day 3, then Day 2, then Day 1.</p></div>
+  <div class="row cols-2">
+    <div class="card"><h3>Team match points</h3><p class="sub" style="margin-top:6px"><span class="pill teamA">Team A</span> ${teamMembers("A")}</p><p class="sub" style="margin-top:6px"><span class="pill teamB">Team B</span> ${teamMembers("B")}</p><div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Stage</th><th>A</th><th>B</th><th>½</th></tr></thead><tbody><tr><td>Day 1</td><td><strong>${mp.day1.A}</strong></td><td><strong>${mp.day1.B}</strong></td><td>${mp.day1.H}</td></tr><tr><td>Day 2</td><td><strong>${mp.day2.A}</strong></td><td><strong>${mp.day2.B}</strong></td><td>${mp.day2.H}</td></tr><tr><td>Day 3</td><td><strong>${mp.day3.A}</strong></td><td><strong>${mp.day3.B}</strong></td><td>${mp.day3.H}</td></tr><tr><td><strong>Total</strong></td><td><strong>${mp.total.A}</strong></td><td><strong>${mp.total.B}</strong></td><td>${mp.total.H}</td></tr></tbody></table></div><p class="sub" style="margin-top:10px"><strong>Leading:</strong> ${teamWinner}</p></div>
+    <div class="card"><h3>Prize pot</h3><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px"><span class="pill">Daily ${formatMoney(420)}</span><span class="pill">Overall ${formatMoney(300)}</span><span class="pill">Team ${formatMoney(240)}</span><span class="pill" style="background:var(--green);color:white">Total ${formatMoney(960)}</span></div><div style="overflow:auto;margin-top:14px"><table><thead><tr><th>Team</th><th>Total pts</th></tr></thead><tbody><tr><td>Team A</td><td><strong>${teams.A}</strong></td></tr><tr><td>Team B</td><td><strong>${teams.B}</strong></td></tr></tbody></table></div></div>
+  </div>
+  <div class="card"><h3>Overall individual leaderboard</h3><div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Pos</th><th>Player</th><th>Team</th><th>D1</th><th>D2</th><th>D3</th><th>Total</th><th>Prize</th></tr></thead><tbody>${rows.map((r,idx) => {
+    const isMe = r.player.id === state.currentPlayerId;
+    return `<tr class="${isMe?"me-row":""}"><td>${idx+1}</td><td>${r.player.first}${isMe?" 👤":""}</td><td>${r.player.team}</td><td>${r.d1}</td><td>${r.d2}</td><td>${r.d3}</td><td><strong>${r.total}</strong></td><td class="money">${formatMoney(r.money)}</td></tr>`;
+  }).join("")}</tbody></table></div></div>`;
 }
 
-// ── Course editor state ──
+// ── Course editor ──
 let courseEditorDay = "day1";
+let viewMode = "me";
+function setViewMode(mode){ viewMode = mode; document.querySelectorAll(".view-toggle button").forEach(b => b.classList.toggle("active", b.dataset.mode === mode)); renderDay("day1"); renderDay("day2"); renderDay("day3"); }
 
 function loadCoursesFromStorage(){
   try{
     const saved = localStorage.getItem("cyprusTourCourses");
     if(!saved) return;
     const data = JSON.parse(saved);
-    if(data && data.day1 && data.day2 && data.day3 &&
-       data.day1.holes?.length===18 && data.day2.holes?.length===18 && data.day3.holes?.length===18){
-      COURSES = data;
-    }
+    if(data && data.day1 && data.day2 && data.day3 && data.day1.holes?.length===18 && data.day2.holes?.length===18 && data.day3.holes?.length===18) COURSES = data;
   }catch(e){ console.warn("loadCoursesFromStorage failed:", e); }
 }
-
 function saveCoursesToStorage(){
   if(state.currentPlayerId !== "mitchell"){ setStatus("Only Mitchell can edit course details.", "bad"); return; }
-  // Read all inputs and update COURSES
   ["day1","day2","day3"].forEach(day => {
     const prefix = `ce_${day}`;
     const name = $(`${prefix}_name`)?.value.trim(); if(name) COURSES[day].name = name;
-    const par  = parseInt($(`${prefix}_par`)?.value);  if(!isNaN(par))  COURSES[day].par = par;
     const rating = parseFloat($(`${prefix}_rating`)?.value); if(!isNaN(rating)) COURSES[day].rating = rating;
     const slope = parseInt($(`${prefix}_slope`)?.value); if(!isNaN(slope)) COURSES[day].slope = slope;
     for(let h=1;h<=18;h++){
-      const hp = parseInt($(`${prefix}_h${h}_par`)?.value);
-      const hs = parseInt($(`${prefix}_h${h}_si`)?.value);
+      const hp = parseInt($(`${prefix}_h${h}_par`)?.value), hs = parseInt($(`${prefix}_h${h}_si`)?.value);
       if(!isNaN(hp)) COURSES[day].holes[h-1].par = hp;
-      if(!isNaN(hs)) COURSES[day].holes[h-1].si  = hs;
+      if(!isNaN(hs)) COURSES[day].holes[h-1].si = hs;
     }
-    // Recompute total par from holes
     COURSES[day].par = COURSES[day].holes.reduce((s,h)=>s+h.par,0);
     if($(`${prefix}_par`)) $(`${prefix}_par`).value = COURSES[day].par;
   });
@@ -757,168 +981,62 @@ function saveCoursesToStorage(){
   const banner = $("courseSaveBanner");
   if(banner){ banner.classList.add("show"); clearTimeout(banner._t); banner._t = setTimeout(()=>banner.classList.remove("show"),2500); }
 }
-
-function switchCourseEditorTab(day){
-  courseEditorDay = day;
-  ["day1","day2","day3"].forEach(d => {
-    $(`cetab_${d}`)?.classList.toggle("active", d===day);
-    $(`cepanel_${d}`)?.classList.toggle("hidden", d!==day);
-  });
-}
-
+function switchCourseEditorTab(day){ courseEditorDay = day; ["day1","day2","day3"].forEach(d => { $(`cetab_${d}`)?.classList.toggle("active", d===day); $(`cepanel_${d}`)?.classList.toggle("hidden", d!==day); }); }
+function updateParTotal(day){ const prefix=`ce_${day}`; let t=0; for(let h=1;h<=18;h++){ const v=parseInt($(`${prefix}_h${h}_par`)?.value); if(!isNaN(v)) t+=v; } if($(`${prefix}_par`)) $(`${prefix}_par`).value=t; }
 function buildCoursePanel(day){
-  const c = COURSES[day];
-  const prefix = `ce_${day}`;
-  const editable = state.currentPlayerId === "mitchell";
-  const dis = editable ? "" : "disabled style='opacity:.5;cursor:not-allowed'";
-
-  let rows = "";
-  for(let h=1;h<=18;h++){
-    const hole = c.holes[h-1];
-    const parCls = hole.par===3?"par3-row":hole.par===5?"par5-row":"";
-    rows += `<tr class="${parCls}">
-      <td>H${h}</td>
-      <td><input id="${prefix}_h${h}_par" name="par" type="number" min="3" max="5" value="${hole.par}" oninput="updateParTotal('${day}')" ${dis} /></td>
-      <td><input id="${prefix}_h${h}_si"  name="si"  type="number" min="1" max="18" value="${hole.si}" ${dis} /></td>
-    </tr>`;
-  }
-
-  return `<div id="cepanel_${day}" class="${day!==courseEditorDay?"hidden":""}">
-    <div class="course-meta-grid">
-      <div class="field-group full">
-        <label>Course Name</label>
-        <input id="${prefix}_name" type="text" value="${c.name}" placeholder="e.g. Aphrodite Hills" ${dis} />
-      </div>
-      <div class="field-group">
-        <label>Total Par <span id="${prefix}_par_display" style="color:var(--green)">(auto)</span></label>
-        <input id="${prefix}_par" type="number" value="${c.par}" readonly style="background:var(--cream);color:var(--muted)" />
-      </div>
-      <div class="field-group">
-        <label>Course Rating</label>
-        <input id="${prefix}_rating" type="number" step="0.1" value="${c.rating}" ${dis} />
-      </div>
-      <div class="field-group">
-        <label>Slope Rating</label>
-        <input id="${prefix}_slope" type="number" value="${c.slope}" ${dis} />
-      </div>
-      <div class="field-group">
-        <label>Handicap Allowance %</label>
-        <input id="${prefix}_allowance" type="number" value="${c.allowance||100}" ${dis} />
-      </div>
-    </div>
-    <p class="sub" style="margin-bottom:10px">${editable ? "Enter par and stroke index (SI 1=hardest, 18=easiest) for each hole. Par totals automatically." : "🔒 Course details can only be edited by Mitchell."}</p>
-    <div style="overflow-x:auto">
-      <table class="hole-editor-table">
-        <thead><tr><th>Hole</th><th>Par</th><th>SI</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>
-  </div>`;
+  const c=COURSES[day], prefix=`ce_${day}`, editable=state.currentPlayerId==="mitchell", dis=editable?"":" disabled style='opacity:.5;cursor:not-allowed'";
+  let rows="";
+  for(let h=1;h<=18;h++){ const hole=c.holes[h-1], parCls=hole.par===3?"par3-row":hole.par===5?"par5-row":""; rows+=`<tr class="${parCls}"><td>H${h}</td><td><input id="${prefix}_h${h}_par" name="par" type="number" min="3" max="5" value="${hole.par}" oninput="updateParTotal('${day}')"${dis}/></td><td><input id="${prefix}_h${h}_si" name="si" type="number" min="1" max="18" value="${hole.si}"${dis}/></td></tr>`; }
+  return `<div id="cepanel_${day}" class="${day!==courseEditorDay?"hidden":""}"><div class="course-meta-grid"><div class="field-group full"><label>Course Name</label><input id="${prefix}_name" type="text" value="${c.name}"${dis}/></div><div class="field-group"><label>Total Par (auto)</label><input id="${prefix}_par" type="number" value="${c.par}" readonly style="background:var(--cream);color:var(--muted)"/></div><div class="field-group"><label>Course Rating</label><input id="${prefix}_rating" type="number" step="0.1" value="${c.rating}"${dis}/></div><div class="field-group"><label>Slope</label><input id="${prefix}_slope" type="number" value="${c.slope}"${dis}/></div><div class="field-group"><label>Allowance %</label><input id="${prefix}_allowance" type="number" value="${c.allowance||100}"${dis}/></div></div><p class="sub" style="margin-bottom:10px">${editable?"Par and SI for each hole. Par totals automatically.":"🔒 Only Mitchell can edit course details."}</p><div style="overflow-x:auto"><table class="hole-editor-table"><thead><tr><th>Hole</th><th>Par</th><th>SI</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
-
-function updateParTotal(day){
-  const prefix = `ce_${day}`;
-  let total = 0;
-  for(let h=1;h<=18;h++){
-    const v = parseInt($(`${prefix}_h${h}_par`)?.value);
-    if(!isNaN(v)) total += v;
-  }
-  if($(`${prefix}_par`)) $(`${prefix}_par`).value = total;
-}
-
 function renderSetup(){
-  const dayLabel = {day1:"Day 1",day2:"Day 2",day3:"Day 3"};
-  $("setup").innerHTML = `
-    <div class="card">
-      <div class="card-title"><span class="icon">⚙️</span>Course Setup</div>
-      <p class="sub">Enter the course details for each day. Changes are saved locally to this device.</p>
-    </div>
-
-    <div class="card">
-      <div class="course-editor-tabs">
-        <button id="cetab_day1" class="${courseEditorDay==="day1"?"active":""}" onclick="switchCourseEditorTab('day1')">Day 1</button>
-        <button id="cetab_day2" class="${courseEditorDay==="day2"?"active":""}" onclick="switchCourseEditorTab('day2')">Day 2</button>
-        <button id="cetab_day3" class="${courseEditorDay==="day3"?"active":""}" onclick="switchCourseEditorTab('day3')">Day 3</button>
-      </div>
-      ${buildCoursePanel("day1")}
-      ${buildCoursePanel("day2")}
-      ${buildCoursePanel("day3")}
-      ${state.currentPlayerId === "mitchell" ? `<div style="margin-top:16px"><button class="btn-primary" onclick="saveCoursesToStorage()">💾 Save Course Data</button></div>` : ""}
-      <div id="courseSaveBanner" class="save-banner">✅ Course data saved to this device.</div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><span class="icon">👥</span>Players</div>
-      <div style="overflow:auto;margin-top:10px">
-        <table><thead><tr><th>Player</th><th>Team</th><th>Index</th></tr></thead>
-        <tbody>${PLAYERS.map(p=>`<tr><td>${p.first}</td><td>${p.team}</td><td>${p.hi.toFixed(1)}</td></tr>`).join("")}</tbody>
-        </table>
-      </div>
-    </div>
-  `;
+  $("setup").innerHTML = `<div class="card"><div class="card-title"><span class="icon">⚙️</span>Course Setup</div><p class="sub">Course details for each day. Saved locally to this device.</p></div>
+  <div class="card"><div class="course-editor-tabs"><button id="cetab_day1" class="${courseEditorDay==="day1"?"active":""}" onclick="switchCourseEditorTab('day1')">Day 1</button><button id="cetab_day2" class="${courseEditorDay==="day2"?"active":""}" onclick="switchCourseEditorTab('day2')">Day 2</button><button id="cetab_day3" class="${courseEditorDay==="day3"?"active":""}" onclick="switchCourseEditorTab('day3')">Day 3</button></div>${buildCoursePanel("day1")}${buildCoursePanel("day2")}${buildCoursePanel("day3")}${state.currentPlayerId==="mitchell"?`<div style="margin-top:16px"><button class="btn-primary" onclick="saveCoursesToStorage()">💾 Save Course Data</button></div>`:""}<div id="courseSaveBanner" class="save-banner">✅ Saved to this device.</div></div>
+  <div class="card"><div class="card-title"><span class="icon">👥</span>Players</div><div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Player</th><th>Team</th><th>Index</th></tr></thead><tbody>${PLAYERS.map(p=>`<tr><td>${p.first}</td><td>${p.team}</td><td>${p.hi.toFixed(1)}</td></tr>`).join("")}</tbody></table></div></div>`;
 }
-// 'me' = personal view (default), 'all' = all players
-let viewMode = "me";
-function setViewMode(mode){ viewMode = mode; document.querySelectorAll(".view-toggle button").forEach(b => b.classList.toggle("active", b.dataset.mode === mode)); renderDay("day1"); renderDay("day2"); renderDay("day3"); }
 
+// ── Comp summary ──
 function renderCompSummary(){
   const mp = teamMatchPointsSummary();
   const aTotal = mp.total.A, bTotal = mp.total.B;
   const leading = aTotal > bTotal ? "A" : bTotal > aTotal ? "B" : "tie";
-
-  // Today's leaderboard: use active day (day3 if has scores, else day2, else day1)
   const activeDays = ["day3","day2","day1"];
   let focusDay = "day1";
   for(const d of activeDays){ if(sortedDaily(d).some(r=>r.holesEntered>0)){ focusDay=d; break; } }
   const daily = sortedDaily(focusDay).filter(r => r.holesEntered > 0).slice(0,3);
   const dayLabel = {day1:"Day 1",day2:"Day 2",day3:"Day 3"}[focusDay];
-
-  // My match today
   let myMatchHtml = `<p style="font-size:13px;color:var(--muted)">No match data yet.</p>`;
   if(state.currentPlayerId){
     const pid = state.currentPlayerId;
     const myGame = DAY_GAMES[focusDay]?.find(g => [...g.a,...g.b].includes(pid));
-    if(myGame){
-      const m = matchResult(focusDay, myGame);
-      myMatchHtml = `<div class="my-match-text">${m.finalText}</div><div class="my-match-sub">${m.labelA} vs ${m.labelB}</div>`;
-    } else if(focusDay === "day3"){
-      const pair = getDay3SinglesPairings().find(p => p.a===pid||p.b===pid);
-      if(pair){ const r=day3SinglesMatchResult(pair); myMatchHtml=`<div class="my-match-text">${r.finalText}</div><div class="my-match-sub">${r.labelA} vs ${r.labelB}</div>`; }
-    }
+    if(myGame){ const m=matchResult(focusDay, myGame); myMatchHtml=`<div class="my-match-text">${m.finalText}</div><div class="my-match-sub">${m.labelA} vs ${m.labelB}</div>`; }
+    else if(focusDay==="day3"){ const pair=getDay3SinglesPairings().find(p=>p.a===pid||p.b===pid); if(pair){ const r=day3SinglesMatchResult(pair); myMatchHtml=`<div class="my-match-text">${r.finalText}</div><div class="my-match-sub">${r.labelA} vs ${r.labelB}</div>`; } }
   }
-
   $("compSummary").innerHTML = `
-    <div class="comp-block">
-      <h4>🏆 Team Match Points</h4>
-      <div class="team-score-row ${leading==="A"?"leading":leading==="tie"?"tied":"trailing"}">
-        <span>Team A</span><span>${aTotal} pts</span>
-      </div>
-      <div class="team-score-row ${leading==="B"?"leading":leading==="tie"?"tied":"trailing"}">
-        <span>Team B</span><span>${bTotal} pts</span>
-      </div>
-      <p style="font-size:11px;color:var(--muted);margin-top:8px">${leading==="tie"?"All square":leading==="A"?"Team A leading":"Team B leading"} · D1: ${mp.day1.A}-${mp.day1.B} · D2: ${mp.day2.A}-${mp.day2.B} · D3: ${mp.day3.A}-${mp.day3.B}</p>
-    </div>
-    <div class="comp-block">
-      <h4>📋 ${dayLabel} Leaderboard</h4>
-      ${daily.length === 0
-        ? `<p style="font-size:13px;color:var(--muted)">No scores yet.</p>`
-        : daily.map(r => `<div class="lb-row"><span class="lb-pos">${r.position}</span><span class="lb-name">${r.player.first}</span><span class="lb-pts">${r.total}pts</span><span class="lb-prize">${r.money>0?formatMoney(r.money):""}</span></div>`).join("")
-      }
-    </div>
-    <div class="comp-block">
-      <h4>⛳ My Match · ${dayLabel}</h4>
-      ${myMatchHtml}
-    </div>
-  `;
+    <div class="comp-block"><h4>🏆 Match Points</h4><div class="team-score-row ${leading==="A"?"leading":leading==="tie"?"tied":"trailing"}"><span>Team A</span><span>${aTotal}</span></div><div class="team-score-row ${leading==="B"?"leading":leading==="tie"?"tied":"trailing"}"><span>Team B</span><span>${bTotal}</span></div><p style="font-size:11px;color:var(--muted);margin-top:6px">${leading==="tie"?"All square":leading==="A"?"A leading":"B leading"} · D1:${mp.day1.A}-${mp.day1.B} D2:${mp.day2.A}-${mp.day2.B} D3:${mp.day3.A}-${mp.day3.B}</p></div>
+    <div class="comp-block"><h4>📋 ${dayLabel} Top 3</h4>${daily.length===0?`<p style="font-size:13px;color:var(--muted)">No scores yet.</p>`:daily.map(r=>`<div class="lb-row ${r.player.id===state.currentPlayerId?"lb-me":""}"><span class="lb-pos">${r.position}</span><span class="lb-name">${r.player.first}</span><span class="lb-pts">${r.total}pts</span></div>`).join("")}</div>
+    <div class="comp-block"><h4>⛳ My Match</h4>${myMatchHtml}</div>`;
 }
-
 
 function renderAll(){ _summaryCache = {}; renderCompSummary(); renderDay("day1"); renderDay("day2"); renderDay("day3"); renderOverall(); renderSetup(); }
 
 function subscribeRealtime(){
   if (channel) sb.removeChannel(channel);
-  channel = sb.channel("scores-live-v3").on("postgres_changes",{event:"*",schema:"public",table:"scores",filter:`tournament_id=eq.${state.tournamentId}`},payload => { const row = payload.new || payload.old; if (row){ state.scoreMap[`${row.day_key}:${row.player_id}:${row.hole_no}`] = row.score_value || ""; $("syncState").textContent = "Live"; renderAll(); } }).subscribe();
+  channel = sb.channel("scores-live-v3").on("postgres_changes",{event:"*",schema:"public",table:"scores",filter:`tournament_id=eq.${state.tournamentId}`},payload => {
+    const row = payload.new || payload.old;
+    if (row){
+      state.scoreMap[`${row.day_key}:${row.player_id}:${row.hole_no}`] = row.score_value || "";
+      $("syncState").textContent = "● Live";
+      // Activity for other players' scores
+      if(row.player_id !== state.currentPlayerId){
+        const p = getPlayer(row.player_id);
+        if(p) pushActivity("📡", `${p.first} updated H${row.hole_no} on ${row.day_key.replace("day","Day ")}`);
+      }
+      renderAll();
+    }
+  }).subscribe();
 }
+
 async function enterApp(){
   try{
     const ok = await initSupabase(); if (!ok) return;
@@ -934,8 +1052,7 @@ async function enterApp(){
     $("mainApp").classList.remove("hidden");
     $("bottomNav").classList.remove("hidden");
     $("syncState").textContent = "● Live";
-    setStatus("Connected. Live scores are syncing.", "ok");
-    // Only Mitchell can see the Setup tab
+    setStatus("Connected. Live scores syncing.", "ok");
     const isMitchell = playerId === "mitchell";
     $("tab_setup").style.display = isMitchell ? "" : "none";
     $("bnav_setup").style.display = isMitchell ? "" : "none";
@@ -945,21 +1062,31 @@ async function enterApp(){
     setStatus("Could not enter app: " + (e.message || e), "bad");
     return;
   }
-  // Run renderAll outside try/catch so render errors are visible separately
-  try{
-    renderAll();
-    showSection("day1");
-  }catch(e){
-    console.error("renderAll error:", e);
-    setStatus("Logged in but render error: " + (e.message || e), "bad");
-  }
+  try{ renderAll(); showSection("day1"); }
+  catch(e){ console.error("renderAll error:", e); setStatus("Logged in but render error: " + (e.message || e), "bad"); }
 }
+
+function logOut(){
+  state.currentPlayerId = null; state.isAdmin = false; state.scoreMap = {}; state.tournamentId = null;
+  if(channel && sb){ sb.removeChannel(channel); channel = null; }
+  $("mainApp").classList.add("hidden");
+  $("bottomNav").classList.add("hidden");
+  $("loginScreen").classList.remove("hidden");
+  $("adminCodeInput").value = "";
+  toggleAdminField();
+  setStatus("Signed out. Select a player to continue.", "");
+  localStorage.removeItem("cyprusTourV3Login");
+}
+
 window.addEventListener("DOMContentLoaded", () => {
   try{ loadCoursesFromStorage(); }catch(e){ console.warn("Could not load saved courses:", e); }
   populatePlayers();
   const saved = localStorage.getItem("cyprusTourV3Login");
   if (saved){ try{ const data = JSON.parse(saved); $("tournamentCodeInput").value = data.code || "cyprus-tour-2026"; $("playerSelect").value = data.playerId || "mitchell"; }catch(e){} }
   toggleAdminField();
+  // Restore dark mode preference
+  if(localStorage.getItem("cyprusDark")){ isDark=true; document.body.classList.add("dark"); const btn=document.querySelector(".dark-toggle"); if(btn) btn.textContent="☀️"; }
+  setupOfflineDetection();
   setStatus("Ready. Sign in.", "");
 });
 </script>
