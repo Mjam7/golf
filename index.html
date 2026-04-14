@@ -407,6 +407,8 @@ function countbackArray(hp){ hp = hp.map(v => v ?? 0); return [hp.slice(9).reduc
 function compareCountback(a,b){ for(let i=0;i<a.length;i++){ if (b[i] !== a[i]) return b[i]-a[i]; } return 0; }
 function setStatus(text, cls=""){ const box = $("statusBox"); box.className = "status" + (cls ? " " + cls : ""); box.textContent = text; }
 function showSection(id){
+  // Block non-Mitchell users from accessing setup
+  if(id === "setup" && state.currentPlayerId !== "mitchell"){ return; }
   document.querySelectorAll(".section").forEach(el => el.classList.add("hidden"));
   $(id).classList.remove("hidden");
   document.querySelectorAll("#dayTabs button").forEach(btn => btn.classList.remove("active"));
@@ -885,6 +887,10 @@ async function enterApp(){
     $("bottomNav").classList.remove("hidden");
     $("syncState").textContent = "● Live";
     setStatus("Connected. Live scores are syncing.", "ok");
+    // Only Mitchell can see the Setup tab
+    const isMitchell = playerId === "mitchell";
+    $("tab_setup").style.display = isMitchell ? "" : "none";
+    $("bnav_setup").style.display = isMitchell ? "" : "none";
     localStorage.setItem("cyprusTourV3Login", JSON.stringify({ code, playerId }));
   }catch(e){
     console.error("enterApp error:", e);
