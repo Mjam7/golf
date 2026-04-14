@@ -885,8 +885,20 @@ async function enterApp(){
     $("bottomNav").classList.remove("hidden");
     $("syncState").textContent = "● Live";
     setStatus("Connected. Live scores are syncing.", "ok");
-    renderAll(); showSection("day1"); localStorage.setItem("cyprusTourV3Login", JSON.stringify({ code, playerId }));
-  }catch(e){ setStatus("Could not enter app: " + (e.message || e), "bad"); }
+    localStorage.setItem("cyprusTourV3Login", JSON.stringify({ code, playerId }));
+  }catch(e){
+    console.error("enterApp error:", e);
+    setStatus("Could not enter app: " + (e.message || e), "bad");
+    return;
+  }
+  // Run renderAll outside try/catch so render errors are visible separately
+  try{
+    renderAll();
+    showSection("day1");
+  }catch(e){
+    console.error("renderAll error:", e);
+    setStatus("Logged in but render error: " + (e.message || e), "bad");
+  }
 }
 window.addEventListener("DOMContentLoaded", () => {
   loadCoursesFromStorage();
