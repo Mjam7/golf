@@ -103,7 +103,7 @@
     .teamB{background:#fff0df;color:#8c4a12}
     .pill-outline{background:transparent;border:1px solid var(--line);color:var(--muted)}
 
-    /* ── SCORE GRID (hole boxes) ── */
+    /* ── SCORE SECTION HEADER ── */
     .score-section-header{
       background:var(--green-dark);color:white;
       border-radius:14px;padding:14px 16px;
@@ -113,33 +113,29 @@
     .score-section-header .sh-label{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:2px}
     .score-section-header .sh-val{font-size:26px;font-weight:900;color:var(--gold);line-height:1}
 
-    /* Scorecard table layout */
-    .scorecard-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-    .scorecard{width:100%;border-collapse:separate;border-spacing:0}
-    .scorecard th{
-      background:var(--cream);color:var(--muted);font-size:10px;font-weight:800;
-      text-transform:uppercase;letter-spacing:.05em;padding:8px 6px;text-align:center;
-      border-bottom:2px solid var(--line);position:sticky;top:0;
+    /* ── HOLE TILE GRID ── */
+    .hole-half-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 0 6px;padding-left:2px}
+    .hole-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px}
+    .hole-tile{
+      background:white;border:1.5px solid var(--line);border-radius:14px;
+      padding:10px 8px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;
+      position:relative;
     }
-    .scorecard th:first-child{text-align:left;padding-left:10px;min-width:54px}
-    .scorecard td{padding:6px 4px;text-align:center;border-bottom:1px solid var(--line);font-size:13px;vertical-align:middle}
-    .scorecard td:first-child{text-align:left;padding-left:10px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-    .scorecard td.score-cell{
-      cursor:pointer;font-weight:900;font-size:16px;
+    .hole-tile-top{display:flex;justify-content:space-between;width:100%;font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.02em}
+    .hole-tile-btn{
+      width:100%;padding:12px 4px;border-radius:10px;border:1.5px solid var(--line);
+      background:#f8f6ef;font-size:20px;font-weight:900;color:var(--ink);
+      cursor:pointer;text-align:center;transition:transform .1s;
+      -webkit-tap-highlight-color:transparent;
     }
-    .scorecard td.score-cell .score-tap{
-      display:inline-flex;align-items:center;justify-content:center;
-      width:36px;height:36px;border-radius:10px;
-      border:1.5px solid var(--line);background:#f8f6ef;
-      font-size:15px;font-weight:900;transition:background .1s;
-    }
-    .scorecard td.score-cell .score-tap:active{background:#e8f0ea}
-    .scorecard td.score-cell .score-tap.has-score{background:white;border-color:#b8d4be}
-    .scorecard td.score-cell .score-tap.good{background:#e6f4eb;border-color:#8dc8a0;color:var(--green)}
-    .scorecard td.score-cell .score-tap.great{background:var(--green);border-color:var(--green);color:white}
-    .scorecard td.score-cell .score-tap.blob{background:#fff0df;border-color:#e8c878;color:#8c4a12}
-    .scorecard .pts-cell{font-size:12px;font-weight:700;color:var(--muted)}
-    .scorecard .pts-cell.pts-pos{color:var(--green);font-weight:900}
+    .hole-tile-btn:active{transform:scale(.94)}
+    .hole-tile-btn.empty{color:#ccc}
+    .hole-tile-btn.has-score{background:white;border-color:#b8d4be}
+    .hole-tile-btn.good{background:#e6f4eb;border-color:#8dc8a0;color:var(--green)}
+    .hole-tile-btn.great{background:var(--green);border-color:var(--green);color:white}
+    .hole-tile-btn.blob{background:#fff0df;border-color:#e8c878;color:#8c4a12}
+    .hole-tile-pts{font-size:11px;font-weight:800;color:var(--muted)}
+    .hole-tile-pts.pos{color:var(--green)}
 
     /* ── SUMMARY STRIP ── */
     .summary-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
@@ -605,43 +601,33 @@ async function chooseScore(value){
 
 function scoreInputs(day, playerId){
   const c = COURSES[day], ps = playerSummary(day, playerId);
-  // Front 9 / Back 9 totals
   let front9=0, back9=0;
   for(let h=1;h<=18;h++){
     const hole=c.holes[h-1], shots=shotsOnHole(ps.ph,hole.si), raw=scoreValue(day,playerId,h), pts=stablefordPoints(raw,hole,shots);
     if(pts!==null){ if(h<=9) front9+=pts; else back9+=pts; }
   }
+
   let html = `<div class="score-section-header">
     <div><div class="sh-label">Front 9</div><div class="sh-val">${front9}</div></div>
     <div><div class="sh-label">Back 9</div><div class="sh-val">${back9}</div></div>
     <div><div class="sh-label">Total</div><div class="sh-val">${ps.total}</div></div>
   </div>`;
 
-  // Build two-row scorecard tables: front 9 then back 9
-  for(const half of [[1,9],[10,18]]){
-    html += `<div class="scorecard-wrap"><table class="scorecard"><thead><tr><th>Hole</th>`;
-    for(let h=half[0];h<=half[1];h++) html += `<th>${h}</th>`;
-    html += `</tr></thead><tbody>`;
-    // Par row
-    html += `<tr><td>Par</td>`;
-    for(let h=half[0];h<=half[1];h++) html += `<td style="color:var(--muted);font-size:12px;font-weight:700">${c.holes[h-1].par}</td>`;
-    html += `</tr>`;
-    // Score row
-    html += `<tr><td>Score</td>`;
+  for(const [half, label] of [[[1,9],"Front 9"],[[ 10,18],"Back 9"]]){
+    html += `<div class="hole-half-label">${label}</div><div class="hole-grid">`;
     for(let h=half[0];h<=half[1];h++){
       const hole=c.holes[h-1], shots=shotsOnHole(ps.ph,hole.si), raw=scoreValue(day,playerId,h), pts=stablefordPoints(raw,hole,shots);
-      let cls='';
+      let cls='empty';
       if(raw){ const n=parseInt(raw); if(!isNaN(n)){ if(pts>=4) cls='great'; else if(pts>=3) cls='good'; else if(pts===0) cls='blob'; else cls='has-score'; } else if(raw==='X') cls='blob'; }
-      html += `<td class="score-cell"><span class="score-tap ${cls}" onclick="openScoreModal('${day}','${playerId}',${h})">${raw||'·'}</span></td>`;
+      const ptsLabel = pts===null ? '—' : pts===0 ? '0 pts' : `${pts} pts`;
+      const ptsCls = pts!==null && pts>2 ? 'pos' : '';
+      html += `<div class="hole-tile">
+        <div class="hole-tile-top"><span>H${h}</span><span>Par ${hole.par}</span></div>
+        <div class="hole-tile-btn ${cls}" onclick="openScoreModal('${day}','${playerId}',${h})">${raw||'·'}</div>
+        <div class="hole-tile-pts ${ptsCls}">${ptsLabel}</div>
+      </div>`;
     }
-    html += `</tr>`;
-    // Points row
-    html += `<tr><td>Pts</td>`;
-    for(let h=half[0];h<=half[1];h++){
-      const hole=c.holes[h-1], shots=shotsOnHole(ps.ph,hole.si), raw=scoreValue(day,playerId,h), pts=stablefordPoints(raw,hole,shots);
-      html += `<td class="pts-cell ${pts!==null&&pts>2?'pts-pos':''}">${pts===null?'—':pts}</td>`;
-    }
-    html += `</tr></tbody></table></div>`;
+    html += `</div>`;
   }
   return html;
 }
