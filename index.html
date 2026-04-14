@@ -272,6 +272,7 @@
   <div class="app-bar-right" id="appBarRight" style="display:none">
     <span class="app-bar-user" id="whoAmI"></span>
     <span class="app-bar-sync" id="syncState">● Live</span>
+    <button onclick="logOut()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:white;padding:6px 11px;border-radius:999px;font-size:12px;font-weight:800;width:auto">⇠ Switch</button>
   </div>
 </header>
 
@@ -406,7 +407,19 @@ function grossValue(raw){ const txt = String(raw || "").trim().toUpperCase(); if
 function countbackArray(hp){ hp = hp.map(v => v ?? 0); return [hp.slice(9).reduce((a,b)=>a+b,0), hp.slice(12).reduce((a,b)=>a+b,0), hp.slice(15).reduce((a,b)=>a+b,0), hp.slice(17).reduce((a,b)=>a+b,0)]; }
 function compareCountback(a,b){ for(let i=0;i<a.length;i++){ if (b[i] !== a[i]) return b[i]-a[i]; } return 0; }
 function setStatus(text, cls=""){ const box = $("statusBox"); box.className = "status" + (cls ? " " + cls : ""); box.textContent = text; }
-function showSection(id){
+function logOut(){
+  state.currentPlayerId = null; state.isAdmin = false; state.scoreMap = {}; state.tournamentId = null;
+  if(channel && sb){ sb.removeChannel(channel); channel = null; }
+  $("appRoot").classList.add("hidden");
+  $("dayTabs").classList.add("hidden");
+  $("bottomNav").classList.add("hidden");
+  $("appBarRight").style.display = "none";
+  $("loginCard").classList.remove("hidden");
+  $("adminCodeInput").value = "";
+  toggleAdminField();
+  setStatus("Signed out. Select a player to continue.", "");
+  localStorage.removeItem("cyprusTourV3Login");
+}
   // Block non-Mitchell users from accessing setup
   if(id === "setup" && state.currentPlayerId !== "mitchell"){ return; }
   document.querySelectorAll(".section").forEach(el => el.classList.add("hidden"));
