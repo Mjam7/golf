@@ -679,8 +679,13 @@ let courseEditorDay = "day1";
 function loadCoursesFromStorage(){
   try{
     const saved = localStorage.getItem("cyprusTourCourses");
-    if(saved){ const data = JSON.parse(saved); if(data.day1&&data.day2&&data.day3) COURSES = data; }
-  }catch(e){}
+    if(!saved) return;
+    const data = JSON.parse(saved);
+    if(data && data.day1 && data.day2 && data.day3 &&
+       data.day1.holes?.length===18 && data.day2.holes?.length===18 && data.day3.holes?.length===18){
+      COURSES = data;
+    }
+  }catch(e){ console.warn("loadCoursesFromStorage failed:", e); }
 }
 
 function saveCoursesToStorage(){
@@ -906,7 +911,7 @@ async function enterApp(){
   }
 }
 window.addEventListener("DOMContentLoaded", () => {
-  loadCoursesFromStorage();
+  try{ loadCoursesFromStorage(); }catch(e){ console.warn("Could not load saved courses:", e); }
   populatePlayers();
   const saved = localStorage.getItem("cyprusTourV3Login");
   if (saved){ try{ const data = JSON.parse(saved); $("tournamentCodeInput").value = data.code || "cyprus-tour-2026"; $("playerSelect").value = data.playerId || "mitchell"; }catch(e){} }
