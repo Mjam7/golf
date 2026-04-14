@@ -685,6 +685,7 @@ function loadCoursesFromStorage(){
 }
 
 function saveCoursesToStorage(){
+  if(state.currentPlayerId !== "mitchell"){ setStatus("Only Mitchell can edit course details.", "bad"); return; }
   // Read all inputs and update COURSES
   ["day1","day2","day3"].forEach(day => {
     const prefix = `ce_${day}`;
@@ -719,7 +720,8 @@ function switchCourseEditorTab(day){
 function buildCoursePanel(day){
   const c = COURSES[day];
   const prefix = `ce_${day}`;
-  const dayLabel = {day1:"Day 1 — Aphrodite Hills",day2:"Day 2 — Minthis",day3:"Day 3 — Limassol Greens"}[day];
+  const editable = state.currentPlayerId === "mitchell";
+  const dis = editable ? "" : "disabled style='opacity:.5;cursor:not-allowed'";
 
   let rows = "";
   for(let h=1;h<=18;h++){
@@ -727,8 +729,8 @@ function buildCoursePanel(day){
     const parCls = hole.par===3?"par3-row":hole.par===5?"par5-row":"";
     rows += `<tr class="${parCls}">
       <td>H${h}</td>
-      <td><input id="${prefix}_h${h}_par" name="par" type="number" min="3" max="5" value="${hole.par}" oninput="updateParTotal('${day}')" /></td>
-      <td><input id="${prefix}_h${h}_si"  name="si"  type="number" min="1" max="18" value="${hole.si}" /></td>
+      <td><input id="${prefix}_h${h}_par" name="par" type="number" min="3" max="5" value="${hole.par}" oninput="updateParTotal('${day}')" ${dis} /></td>
+      <td><input id="${prefix}_h${h}_si"  name="si"  type="number" min="1" max="18" value="${hole.si}" ${dis} /></td>
     </tr>`;
   }
 
@@ -736,7 +738,7 @@ function buildCoursePanel(day){
     <div class="course-meta-grid">
       <div class="field-group full">
         <label>Course Name</label>
-        <input id="${prefix}_name" type="text" value="${c.name}" placeholder="e.g. Aphrodite Hills" />
+        <input id="${prefix}_name" type="text" value="${c.name}" placeholder="e.g. Aphrodite Hills" ${dis} />
       </div>
       <div class="field-group">
         <label>Total Par <span id="${prefix}_par_display" style="color:var(--green)">(auto)</span></label>
@@ -744,18 +746,18 @@ function buildCoursePanel(day){
       </div>
       <div class="field-group">
         <label>Course Rating</label>
-        <input id="${prefix}_rating" type="number" step="0.1" value="${c.rating}" />
+        <input id="${prefix}_rating" type="number" step="0.1" value="${c.rating}" ${dis} />
       </div>
       <div class="field-group">
         <label>Slope Rating</label>
-        <input id="${prefix}_slope" type="number" value="${c.slope}" />
+        <input id="${prefix}_slope" type="number" value="${c.slope}" ${dis} />
       </div>
       <div class="field-group">
         <label>Handicap Allowance %</label>
-        <input id="${prefix}_allowance" type="number" value="${c.allowance||100}" />
+        <input id="${prefix}_allowance" type="number" value="${c.allowance||100}" ${dis} />
       </div>
     </div>
-    <p class="sub" style="margin-bottom:10px">Enter par and stroke index (SI 1=hardest, 18=easiest) for each hole. Par totals automatically.</p>
+    <p class="sub" style="margin-bottom:10px">${editable ? "Enter par and stroke index (SI 1=hardest, 18=easiest) for each hole. Par totals automatically." : "🔒 Course details can only be edited by Mitchell."}</p>
     <div style="overflow-x:auto">
       <table class="hole-editor-table">
         <thead><tr><th>Hole</th><th>Par</th><th>SI</th></tr></thead>
@@ -792,9 +794,7 @@ function renderSetup(){
       ${buildCoursePanel("day1")}
       ${buildCoursePanel("day2")}
       ${buildCoursePanel("day3")}
-      <div style="margin-top:16px">
-        <button class="btn-primary" onclick="saveCoursesToStorage()">💾 Save Course Data</button>
-      </div>
+      ${state.currentPlayerId === "mitchell" ? `<div style="margin-top:16px"><button class="btn-primary" onclick="saveCoursesToStorage()">💾 Save Course Data</button></div>` : ""}
       <div id="courseSaveBanner" class="save-banner">✅ Course data saved to this device.</div>
     </div>
 
