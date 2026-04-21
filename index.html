@@ -342,61 +342,46 @@
     }
     .offline-toast.show{display:block}
 
+
   </style>
 </head>
 <body>
 
-<div class="login-screen" id="loginScreen">
-  <!-- APP BAR inside login screen -->
-  <header class="app-bar">
-    <div class="app-bar-left">
-      <span class="app-bar-flag">⛳</span>
-      <div class="app-bar-title">
-        <strong>Cyprus Golf Tour '26</strong>
-        <span>Live Score Card</span>
+<!-- ═══════════════════════════════════════════ -->
+<!-- SETUP / LOGIN SCREEN                         -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="setupScreen" style="
+  position:fixed;inset:0;z-index:9000;
+  background:
+    linear-gradient(to bottom, rgba(2,20,10,.7) 0%, rgba(2,20,10,.3) 45%, rgba(2,20,10,.85) 100%),
+    url('https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=1200&q=85&auto=format&fit=crop') center/cover no-repeat;
+  display:flex;flex-direction:column;overflow:hidden;
+">
+  <!-- Header -->
+  <div style="padding:20px 20px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:28px">⛳</span>
+      <div>
+        <div id="ss_tourName" style="font-family:'Playfair Display',serif;font-size:16px;font-weight:900;color:white;line-height:1.1">Golf Tour</div>
+        <div id="ss_tourDates" style="font-size:11px;color:rgba(255,255,255,.6);font-weight:600;letter-spacing:.04em;text-transform:uppercase"></div>
       </div>
     </div>
-  </header>
+    <div id="ss_stepBadge" style="background:rgba(240,192,64,.2);border:1px solid rgba(240,192,64,.4);color:#f0c040;font-size:11px;font-weight:800;padding:5px 12px;border-radius:999px;letter-spacing:.04em"></div>
+  </div>
 
-  <div class="login-screen-body">
-    <div class="login-title-block">
-      <div class="trophy">🏆</div>
-      <h1>Cyprus Golf Tour<br>'26</h1>
-      <p>Live Score Card · 14–16 May 2026</p>
-    </div>
+  <!-- Step dots -->
+  <div id="ss_dots" style="display:flex;gap:6px;justify-content:center;padding:14px 0 0;flex-shrink:0"></div>
 
-    <div id="statusBox" class="status" style="margin-bottom:12px">Ready. Sign in.</div>
+  <!-- Scrollable content -->
+  <div id="ss_content" style="flex:1;overflow-y:auto;padding:16px 16px 120px;max-width:560px;margin:0 auto;width:100%"></div>
 
-    <div class="login-float-card" id="loginCard">
-      <h2 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;margin-bottom:4px">Enter the App</h2>
-      <p class="sub" style="margin-bottom:18px">Sign in to record your scores</p>
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <div>
-          <div class="label">Tournament Code</div>
-          <input id="tournamentCodeInput" value="cyprus-tour-2026" />
-        </div>
-        <div>
-          <div class="label">Select Your Name</div>
-          <select id="playerSelect" onchange="toggleAdminField()"></select>
-        </div>
-        <div id="adminCodeField" style="display:none">
-          <div class="label">Admin Code <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></div>
-          <input id="adminCodeInput" type="password" placeholder="Admin only" />
-        </div>
-      </div>
-      <div style="margin-top:16px">
-        <button class="btn-primary" onclick="enterApp()">ENTER APP</button>
-      </div>
-      <div class="login-security">
-        <span class="icon">🔒</span>
-        <div>
-          <strong>Your Scores Are Protected</strong>
-          <span>You can only edit your own scores.</span>
-        </div>
-      </div>
-    </div>
+  <!-- Fixed bottom nav -->
+  <div style="position:absolute;bottom:0;left:0;right:0;padding:16px;background:linear-gradient(to top,rgba(2,20,10,.95) 60%,transparent);display:flex;gap:10px;max-width:560px;margin:0 auto;left:50%;transform:translateX(-50%)">
+    <button id="ss_backBtn" onclick="ssBack()" style="display:none;flex:0 0 auto;padding:15px 22px;border-radius:14px;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:white;font-size:14px;font-weight:800;cursor:pointer">← Back</button>
+    <button id="ss_nextBtn" onclick="ssNext()" style="flex:1;padding:16px;border-radius:14px;border:none;background:#f0c040;color:#042e19;font-size:15px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 20px rgba(240,192,64,.4)">Continue →</button>
   </div>
 </div>
+
 
 <!-- MAIN APP (hidden until login) -->
 <div id="mainApp" class="hidden" style="display:flex;flex-direction:column;min-height:100vh">
@@ -523,7 +508,28 @@ function countbackArray(hp){ hp = hp.map(v => v ?? 0); return [hp.slice(9).reduc
 function compareCountback(a,b){ for(let i=0;i<a.length;i++){ if (b[i] !== a[i]) return b[i]-a[i]; } return 0; }
 function setStatus(text, cls=""){ const box = $("statusBox"); if(!box) return; box.className = "status" + (cls ? " " + cls : ""); box.textContent = text; }
 function scoreValue(day, playerId, holeNo){ return state.scoreMap[`${day}:${playerId}:${holeNo}`] ?? ""; }
-function canEditPlayer(playerId){ return state.isAdmin || state.currentPlayerId === playerId; }
+function canEditPlayer(playerId){
+  if(state.isAdmin || state.currentPlayerId === playerId) return true;
+  // Allow scoring for team-mates in the same game group
+  const me = state.currentPlayerId;
+  if(!me) return false;
+  const myTeam = getPlayer(me)?.team;
+  const theirTeam = getPlayer(playerId)?.team;
+  if(myTeam !== theirTeam) return false; // can't score for the other team
+  // Check if we're in the same game on any day
+  for(const day of ["day1","day2"]){
+    for(const game of DAY_GAMES[day]){
+      const allInGame = [...game.a, ...game.b];
+      if(allInGame.includes(me) && allInGame.includes(playerId)) return true;
+    }
+  }
+  // Day 3 singles pairings — same group
+  const groups = getDay3GroupsFromSingles();
+  for(const group of groups){
+    if(group.includes(me) && group.includes(playerId)) return true;
+  }
+  return false;
+}
 
 // ── Dark mode ──
 function toggleDark(){
@@ -569,7 +575,8 @@ function renderActivityFeed(){
 
 // ── Navigation ──
 function showSection(id){
-  if(id === "setup" && state.currentPlayerId !== "mitchell") return;
+  const adminId = window._adminPlayerId || "mitchell";
+  if(id === "setup" && state.currentPlayerId !== adminId) return;
   document.querySelectorAll(".section").forEach(el => el.classList.add("hidden"));
   $(id).classList.remove("hidden");
   document.querySelectorAll("#dayTabs button").forEach(btn => btn.classList.remove("active"));
@@ -730,7 +737,7 @@ function myMatchBanner(day){
 
 // ── Score modal with swipe navigation ──
 function openScoreModal(day, playerId, holeNo){
-  if (!canEditPlayer(playerId)){ setStatus("You can only edit your own scores.", "bad"); return; }
+  if (!canEditPlayer(playerId)){ setStatus("You can only score for your own team's players in your group.", "bad"); return; }
   modalState = { day, playerId, holeNo };
   renderScoreModal();
 }
@@ -962,7 +969,8 @@ function loadCoursesFromStorage(){
   }catch(e){ console.warn("loadCoursesFromStorage failed:", e); }
 }
 function saveCoursesToStorage(){
-  if(state.currentPlayerId !== "mitchell"){ setStatus("Only Mitchell can edit course details.", "bad"); return; }
+  const adminId = window._adminPlayerId || "mitchell";
+  if(state.currentPlayerId !== adminId){ setStatus("Only the admin can edit course details.", "bad"); return; }
   ["day1","day2","day3"].forEach(day => {
     const prefix = `ce_${day}`;
     const name = $(`${prefix}_name`)?.value.trim(); if(name) COURSES[day].name = name;
@@ -990,7 +998,10 @@ function buildCoursePanel(day){
   return `<div id="cepanel_${day}" class="${day!==courseEditorDay?"hidden":""}"><div class="course-meta-grid"><div class="field-group full"><label>Course Name</label><input id="${prefix}_name" type="text" value="${c.name}"${dis}/></div><div class="field-group"><label>Total Par (auto)</label><input id="${prefix}_par" type="number" value="${c.par}" readonly style="background:var(--cream);color:var(--muted)"/></div><div class="field-group"><label>Course Rating</label><input id="${prefix}_rating" type="number" step="0.1" value="${c.rating}"${dis}/></div><div class="field-group"><label>Slope</label><input id="${prefix}_slope" type="number" value="${c.slope}"${dis}/></div><div class="field-group"><label>Allowance %</label><input id="${prefix}_allowance" type="number" value="${c.allowance||100}"${dis}/></div></div><p class="sub" style="margin-bottom:10px">${editable?"Par and SI for each hole. Par totals automatically.":"🔒 Only Mitchell can edit course details."}</p><div style="overflow-x:auto"><table class="hole-editor-table"><thead><tr><th>Hole</th><th>Par</th><th>SI</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 function renderSetup(){
-  $("setup").innerHTML = `<div class="card"><div class="card-title"><span class="icon">⚙️</span>Course Setup</div><p class="sub">Course details for each day. Saved locally to this device.</p></div>
+  const adminId = window._adminPlayerId || "mitchell";
+  const isAdmin = state.currentPlayerId === adminId;
+  const wizBtn = isAdmin ? `<div class="card"><div class="card-title"><span class="icon">🧙</span>Setup Wizard</div><p class="sub">Re-run the setup wizard to change players, courses, handicaps or game groups.</p><button class="btn-primary" style="margin-top:14px" onclick="ssLaunch(true)">🔄 Re-run Setup Wizard</button></div>` : "";
+  $("setup").innerHTML = wizBtn + `<div class="card"><div class="card-title"><span class="icon">⚙️</span>Course Setup</div><p class="sub">Course details for each day. Saved locally to this device.</p></div>
   <div class="card"><div class="course-editor-tabs"><button id="cetab_day1" class="${courseEditorDay==="day1"?"active":""}" onclick="switchCourseEditorTab('day1')">Day 1</button><button id="cetab_day2" class="${courseEditorDay==="day2"?"active":""}" onclick="switchCourseEditorTab('day2')">Day 2</button><button id="cetab_day3" class="${courseEditorDay==="day3"?"active":""}" onclick="switchCourseEditorTab('day3')">Day 3</button></div>${buildCoursePanel("day1")}${buildCoursePanel("day2")}${buildCoursePanel("day3")}${state.currentPlayerId==="mitchell"?`<div style="margin-top:16px"><button class="btn-primary" onclick="saveCoursesToStorage()">💾 Save Course Data</button></div>`:""}<div id="courseSaveBanner" class="save-banner">✅ Saved to this device.</div></div>
   <div class="card"><div class="card-title"><span class="icon">👥</span>Players</div><div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Player</th><th>Team</th><th>Index</th></tr></thead><tbody>${PLAYERS.map(p=>`<tr><td>${p.first}</td><td>${p.team}</td><td>${p.hi.toFixed(1)}</td></tr>`).join("")}</tbody></table></div></div>`;
 }
@@ -1046,16 +1057,17 @@ async function enterApp(){
     await loadScores(); subscribeRealtime();
     $("whoAmI").textContent = "👤 " + getPlayer(playerId).first;
     $("whoAmIApp").textContent = getPlayer(playerId).first;
-    $("accessSummary").textContent = state.isAdmin ? "Admin access — can edit any player." : "Player access — editing your own card.";
+    $("accessSummary").textContent = state.isAdmin ? "Admin access — can edit any player." : "Scorer for your team's players in your group.";
     $("appBarRight").style.display = "flex";
-    $("loginScreen").classList.add("hidden");
+    ssHideScreen();
     $("mainApp").classList.remove("hidden");
     $("bottomNav").classList.remove("hidden");
     $("syncState").textContent = "● Live";
     setStatus("Connected. Live scores syncing.", "ok");
-    const isMitchell = playerId === "mitchell";
-    $("tab_setup").style.display = isMitchell ? "" : "none";
-    $("bnav_setup").style.display = isMitchell ? "" : "none";
+    const adminId = window._adminPlayerId || "mitchell";
+    const isAdmin = playerId === adminId || state.isAdmin;
+    $("tab_setup").style.display = isAdmin ? "" : "none";
+    $("bnav_setup").style.display = isAdmin ? "" : "none";
     localStorage.setItem("cyprusTourV3Login", JSON.stringify({ code, playerId }));
   }catch(e){
     console.error("enterApp error:", e);
@@ -1071,23 +1083,574 @@ function logOut(){
   if(channel && sb){ sb.removeChannel(channel); channel = null; }
   $("mainApp").classList.add("hidden");
   $("bottomNav").classList.add("hidden");
-  $("loginScreen").classList.remove("hidden");
-  $("adminCodeInput").value = "";
+  $("adminCodeInput") && ($("adminCodeInput").value = "");
   toggleAdminField();
-  setStatus("Signed out. Select a player to continue.", "");
   localStorage.removeItem("cyprusTourV3Login");
+  // Go back to sign-in step of setup screen
+  ss.step = SS_STEPS.findIndex(s=>s.id==="signin");
+  ssShowScreen();
+  ssRender();
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-  try{ loadCoursesFromStorage(); }catch(e){ console.warn("Could not load saved courses:", e); }
-  populatePlayers();
+
+// ═══════════════════════════════════════════════════════════
+// SETUP WIZARD v2 — Full replacement
+// ═══════════════════════════════════════════════════════════
+
+const SS_STEPS = [
+  { id:"welcome"    },
+  { id:"tournament" },
+  { id:"players"    },
+  { id:"courses"    },
+  { id:"holes"      },
+  { id:"games"      },
+  { id:"signin"     },
+];
+
+let ss = {
+  step: 0,
+  adminId: "mitchell", // id of admin player
+  data: {
+    tournament: { name:"", dates:"", numDays:3 },
+    players: [],
+    courses: {
+      day1:{ name:"", tees:"Yellow", par:71, rating:68.8, slope:126, allowance:95 },
+      day2:{ name:"", tees:"Yellow", par:72, rating:72.1, slope:134, allowance:100 },
+      day3:{ name:"", tees:"Yellow", par:71, rating:72.5, slope:149, allowance:100 },
+    },
+    holes: {
+      day1: Array.from({length:18},(_,i)=>({par:4,si:i+1})),
+      day2: Array.from({length:18},(_,i)=>({par:4,si:i+1})),
+      day3: Array.from({length:18},(_,i)=>({par:4,si:i+1})),
+    },
+    holeTab: "day1",
+    games: { day1:[], day2:[] },
+  }
+};
+
+function ssShowScreen(){
+  $("setupScreen").style.display = "flex";
+  $("loginScreen") && $("loginScreen").classList && $("loginScreen").classList.add("hidden");
+  $("mainApp").classList.add("hidden");
+  $("bottomNav").classList.add("hidden");
+  $("wizardScreen") && $("wizardScreen").classList.add("hidden");
+}
+
+function ssHideScreen(){
+  $("setupScreen").style.display = "none";
+}
+
+function ssLaunch(prefill){
+  if(prefill) ssLoadExisting();
+  ss.step = 0;
+  ssShowScreen();
+  ssRender();
+}
+
+function ssLoadExisting(){
+  ss.data.players = PLAYERS.map(p=>({id:p.id,first:p.first,hi:p.hi,team:p.team}));
+  ["day1","day2","day3"].forEach(d=>{
+    ss.data.courses[d] = {name:COURSES[d].name,tees:COURSES[d].tees||"Yellow",par:COURSES[d].par,rating:COURSES[d].rating,slope:COURSES[d].slope,allowance:COURSES[d].allowance};
+    ss.data.holes[d] = COURSES[d].holes.map(h=>({par:h.par,si:h.si}));
+  });
+  ss.data.games.day1 = DAY_GAMES.day1.map(g=>({name:g.name,a:[...g.a],b:[...g.b]}));
+  ss.data.games.day2 = DAY_GAMES.day2.map(g=>({name:g.name,a:[...g.a],b:[...g.b]}));
+}
+
+function ssRender(){
+  const step = SS_STEPS[ss.step];
+  const total = SS_STEPS.length;
+
+  // Header
+  $("ss_tourName").textContent = ss.data.tournament.name || "Golf Tour Setup";
+  $("ss_tourDates").textContent = ss.data.tournament.dates || "";
+  $("ss_stepBadge").textContent = step.id === "signin" ? "Sign In" : `${ss.step} / ${total - 1}`;
+
+  // Dots (exclude signin step)
+  const dotSteps = total - 1;
+  $("ss_dots").innerHTML = Array.from({length:dotSteps},(_,i)=>`
+    <div style="width:${i===ss.step?24:8}px;height:8px;border-radius:999px;background:${i===ss.step?'#f0c040':i<ss.step?'rgba(240,192,64,.4)':'rgba(255,255,255,.2)'};transition:all .25s"></div>
+  `).join("");
+
+  // Back button
+  const back = $("ss_backBtn");
+  back.style.display = ss.step > 0 ? "block" : "none";
+
+  // Next button
+  const next = $("ss_nextBtn");
+  if(step.id === "signin") next.style.display = "none";
+  else if(step.id === "games") next.textContent = "Save & Continue →";
+  else if(ss.step === total - 2) next.textContent = "Save & Sign In →";
+  else next.textContent = "Continue →";
+
+  // Content
+  const content = $("ss_content");
+  content.scrollTop = 0;
+  switch(step.id){
+    case "welcome":    content.innerHTML = ssWelcome(); break;
+    case "tournament": content.innerHTML = ssTournament(); break;
+    case "players":    content.innerHTML = ssPlayers(); break;
+    case "courses":    content.innerHTML = ssCourses(); break;
+    case "holes":      content.innerHTML = ssHoles(); break;
+    case "games":      content.innerHTML = ssGames(); break;
+    case "signin":     content.innerHTML = ssSignIn(); break;
+  }
+}
+
+function ssBack(){
+  if(ss.step > 0){ ssSaveCurrentStep(); ss.step--; ssRender(); }
+}
+
+function ssNext(){
+  if(!ssValidate()) return;
+  ssSaveCurrentStep();
+  const isLast = ss.step >= SS_STEPS.length - 2; // before signin
+  if(isLast){
+    ssApplyAndSave();
+    ss.step = SS_STEPS.length - 1; // go to signin
+    ssRender();
+  } else {
+    ss.step++;
+    ssRender();
+  }
+}
+
+function ssValidate(){
+  const id = SS_STEPS[ss.step].id;
+  if(id === "tournament"){
+    if(!document.getElementById("ss_tname")?.value.trim()){ ssError("Please enter a tournament name."); return false; }
+  }
+  if(id === "players"){
+    if(ss.data.players.length < 2){ ssError("Please add at least 2 players."); return false; }
+    for(const p of ss.data.players){ if(!p.first.trim()){ ssError("All players must have a name."); return false; } }
+    const a = ss.data.players.filter(p=>p.team==="A").length;
+    const b = ss.data.players.filter(p=>p.team==="B").length;
+    if(a !== b){ ssError(`Teams must be equal size. Team A: ${a}, Team B: ${b}.`); return false; }
+  }
+  if(id === "courses"){
+    const days = ["day1","day2","day3"].slice(0, ss.data.tournament.numDays);
+    for(const d of days){
+      if(!ss.data.courses[d].name.trim()){ ssError(`Please enter a name for ${d.replace("day","Day ")}.`); return false; }
+    }
+  }
+  return true;
+}
+
+function ssError(msg){
+  const existing = document.getElementById("ss_error");
+  if(existing) existing.remove();
+  const el = document.createElement("div");
+  el.id = "ss_error";
+  el.style.cssText = "background:#fff0ed;border:1px solid #f1c8c1;color:#9b2f24;border-radius:12px;padding:12px 14px;font-size:13px;font-weight:700;margin-bottom:12px";
+  el.textContent = "⚠️ " + msg;
+  $("ss_content").prepend(el);
+  $("ss_content").scrollTop = 0;
+  setTimeout(()=>el.remove(), 4000);
+}
+
+function ssSaveCurrentStep(){
+  const id = SS_STEPS[ss.step].id;
+  if(id === "tournament"){
+    ss.data.tournament.name = document.getElementById("ss_tname")?.value.trim() || ss.data.tournament.name;
+    ss.data.tournament.dates = document.getElementById("ss_tdates")?.value.trim() || ss.data.tournament.dates;
+    ss.data.tournament.numDays = parseInt(document.getElementById("ss_tdays")?.value) || 3;
+  }
+}
+
+// ── STEP RENDERS ────────────────────────────────
+
+function ssWelcome(){
+  return `
+  <div style="text-align:center;padding:20px 0 10px">
+    <div style="font-size:72px;margin-bottom:16px;filter:drop-shadow(0 8px 20px rgba(0,0,0,.5))">🏆</div>
+    <h1 style="font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:white;line-height:1.15;text-shadow:0 2px 16px rgba(0,0,0,.5)">Welcome to<br>Golf Tour Live</h1>
+    <p style="color:rgba(255,255,255,.8);font-size:15px;margin-top:12px;line-height:1.6">Let's set up your tournament in a few quick steps. You'll enter player names, handicaps, course details and competition format.</p>
+    <p style="color:rgba(240,192,64,.9);font-size:13px;font-weight:700;margin-top:16px;background:rgba(240,192,64,.1);border:1px solid rgba(240,192,64,.3);border-radius:12px;padding:10px">🔐 Only the tournament organiser should complete setup</p>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px">
+    ${[["👥","Players","Names & handicaps"],["⛳","Courses","Name, rating & slope"],["🏌️","Format","Days & competition style"],["🎯","Scoring","Stableford & matchplay"]].map(([icon,title,desc])=>`
+    <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:14px">
+      <div style="font-size:24px">${icon}</div>
+      <div style="font-size:14px;font-weight:800;color:white;margin-top:6px">${title}</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:2px">${desc}</div>
+    </div>`).join("")}
+  </div>`;
+}
+
+function ssTournament(){
+  const t = ss.data.tournament;
+  const formats = ["Stableford Matchplay","Best Ball Stableford","Singles Stableford","Medal","Scramble"];
+  return `
+  <div style="margin-bottom:20px">
+    <h2 style="font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:white">Tournament Details</h2>
+    <p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Give your tournament a name and set the dates</p>
+  </div>
+  ${ssField("Tournament Name","ss_tname","text",t.name,"e.g. Cyprus Golf Tour 2026")}
+  ${ssField("Dates","ss_tdates","text",t.dates,"e.g. 14–16 May 2026")}
+  <div style="margin-bottom:14px">
+    <label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">Number of Days</label>
+    <div style="display:flex;gap:10px">
+      ${[1,2,3].map(n=>`<button onclick="ss.data.tournament.numDays=${n};ssRender()" style="flex:1;padding:14px;border-radius:12px;border:2px solid ${t.numDays===n?'#f0c040':'rgba(255,255,255,.2)'};background:${t.numDays===n?'rgba(240,192,64,.2)':'rgba(255,255,255,.05)'};color:${t.numDays===n?'#f0c040':'rgba(255,255,255,.7)'};font-size:16px;font-weight:900;cursor:pointer">${n} Day${n>1?'s':''}</button>`).join("")}
+    </div>
+  </div>
+  <div style="margin-bottom:14px">
+    <label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">Competition Format</label>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${formats.map((f,i)=>`<button onclick="ss.data.tournament.format='${f}';ssRender()" style="padding:13px 16px;border-radius:12px;border:2px solid ${ss.data.tournament.format===f?'#f0c040':'rgba(255,255,255,.2)'};background:${ss.data.tournament.format===f?'rgba(240,192,64,.15)':'rgba(255,255,255,.05)'};color:${ss.data.tournament.format===f?'#f0c040':'rgba(255,255,255,.8)'};font-size:14px;font-weight:700;cursor:pointer;text-align:left">${ss.data.tournament.format===f?'✓ ':''} ${f}</button>`).join("")}
+    </div>
+  </div>`;
+}
+
+function ssField(label, id, type, value, placeholder, extra){
+  return `<div style="margin-bottom:14px">
+    <label for="${id}" style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">${label}</label>
+    <input id="${id}" type="${type}" value="${value||''}" placeholder="${placeholder||''}" ${extra||''} style="width:100%;padding:14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:16px;font-family:'Inter',sans-serif;backdrop-filter:blur(10px)" />
+  </div>`;
+}
+
+function ssNumField(label, id, value, min, max, step){
+  return `<div style="margin-bottom:14px">
+    <label for="${id}" style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">${label}</label>
+    <input id="${id}" type="number" value="${value||''}" min="${min}" max="${max}" step="${step||1}" style="width:100%;padding:14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:16px;font-family:'Inter',sans-serif" />
+  </div>`;
+}
+
+function ssPlayers(){
+  if(!ss.data.players.length){
+    ss.data.players = PLAYERS.map(p=>({id:p.id,first:p.first,hi:p.hi,team:p.team}));
+  }
+  const aPlayers = ss.data.players.filter(p=>p.team==="A");
+  const bPlayers = ss.data.players.filter(p=>p.team==="B");
+
+  const renderTeam = (team, label, color) => `
+    <div style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:13px;font-weight:800;color:${color};text-transform:uppercase;letter-spacing:.06em">${label} — ${ss.data.players.filter(p=>p.team===team).length} players</div>
+        <button onclick="ssAddPlayer('${team}')" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:white;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:800;cursor:pointer">+ Add</button>
+      </div>
+      ${ss.data.players.map((p,i)=>p.team!==team?'':ssPlayerRow(p,i,color)).join("")}
+    </div>`;
+
+  return `
+  <div style="margin-bottom:20px">
+    <h2 style="font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:white">Players</h2>
+    <p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Add all players with their handicap index. Both teams must have equal numbers.</p>
+  </div>
+  <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:4px 10px 6px;margin-bottom:14px;font-size:12px;color:rgba(255,255,255,.5);display:grid;grid-template-columns:1fr 100px 70px 36px;gap:8px;align-items:center">
+    <span>Full Name</span><span>Team</span><span>Index</span><span></span>
+  </div>
+  ${renderTeam("A", "Team A", "#86efac")}
+  ${renderTeam("B", "Team B", "#fcd34d")}
+  <p style="color:rgba(255,255,255,.5);font-size:12px;text-align:center;margin-top:8px">Teams A and B: ${aPlayers.length} vs ${bPlayers.length} players</p>`;
+}
+
+function ssPlayerRow(p,i,color){
+  return `<div style="display:grid;grid-template-columns:1fr 100px 70px 36px;gap:8px;align-items:center;margin-bottom:8px">
+    <input value="${p.first}" oninput="ss.data.players[${i}].first=this.value;ss.data.players[${i}].id=this.value.toLowerCase().replace(/[^a-z0-9]/g,'_')" placeholder="Full name" style="padding:12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:14px;width:100%" />
+    <select onchange="ss.data.players[${i}].team=this.value;ssRender()" style="padding:12px 8px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:13px;width:100%">
+      <option value="A" ${p.team==="A"?"selected":""} style="background:#063d22">A</option>
+      <option value="B" ${p.team==="B"?"selected":""} style="background:#063d22">B</option>
+    </select>
+    <input type="number" value="${p.hi}" min="0" max="54" step="0.1" oninput="ss.data.players[${i}].hi=parseFloat(this.value)||0" style="padding:12px 6px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:14px;text-align:center;width:100%" />
+    <button onclick="ssRemovePlayer(${i})" style="background:rgba(255,100,80,.2);border:1px solid rgba(255,100,80,.3);color:#ff9080;border-radius:10px;padding:10px;font-size:14px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center">✕</button>
+  </div>`;
+}
+
+function ssAddPlayer(team){
+  ss.data.players.push({id:"player_"+Date.now(),first:"",hi:18.0,team});
+  ssRender();
+}
+function ssRemovePlayer(i){ ss.data.players.splice(i,1); ssRender(); }
+
+function ssCourses(){
+  const days = ["day1","day2","day3"].slice(0, ss.data.tournament.numDays);
+  const labels = {day1:"Day 1",day2:"Day 2",day3:"Day 3"};
+  const teeColors = {Yellow:"#d4a800",White:"#888",Red:"#c0392b",Blue:"#2980b9"};
+
+  let html = `
+  <div style="margin-bottom:20px">
+    <h2 style="font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:white">Course Details</h2>
+    <p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Enter the course information for each day of the tournament</p>
+  </div>`;
+
+  days.forEach(day=>{
+    const c = ss.data.courses[day];
+    html += `
+    <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:18px;padding:18px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:800;color:#f0c040;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px">📅 ${labels[day]}</div>
+      ${ssField(`Course Name`,`sc_${day}_name`,"text",c.name,"e.g. PGA National Cyprus")}
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">Tee Colour</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${Object.entries(teeColors).map(([tee,col])=>`
+          <button onclick="ss.data.courses['${day}'].tees='${tee}';ssRender()" style="flex:1;min-width:60px;padding:10px 6px;border-radius:10px;border:2px solid ${c.tees===tee?col:'rgba(255,255,255,.15)'};background:${c.tees===tee?col+'22':'rgba(255,255,255,.05)'};color:${c.tees===tee?'white':'rgba(255,255,255,.6)'};font-size:13px;font-weight:800;cursor:pointer">${tee}</button>
+          `).join("")}
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        ${ssInlineField("Par","sc_"+day+"_par","number",c.par,60,80,1)}
+        ${ssInlineField("Course Rating","sc_"+day+"_rating","number",c.rating,55,80,0.1)}
+        ${ssInlineField("Slope Rating","sc_"+day+"_slope","number",c.slope,55,155,1)}
+        ${ssInlineField("Allowance %","sc_"+day+"_allowance","number",c.allowance,50,100,5)}
+      </div>
+    </div>`;
+  });
+  return html;
+}
+
+function ssInlineField(label,id,type,value,min,max,step){
+  return `<div>
+    <label style="display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.6);margin-bottom:6px">${label}</label>
+    <input id="${id}" type="${type}" value="${value||''}" min="${min}" max="${max}" step="${step||1}" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:15px;font-weight:700" />
+  </div>`;
+}
+
+function ssHoles(){
+  const days = ["day1","day2","day3"].slice(0, ss.data.tournament.numDays);
+  const labels = {day1:"Day 1",day2:"Day 2",day3:"Day 3"};
+  const active = ss.data.holeTab;
+
+  let tabs = `<div style="display:flex;gap:8px;margin-bottom:16px">`;
+  days.forEach(d=>{
+    tabs += `<button onclick="ss.data.holeTab='${d}';ssRender()" style="flex:1;padding:10px;border-radius:12px;border:2px solid ${d===active?'#f0c040':'rgba(255,255,255,.2)'};background:${d===active?'rgba(240,192,64,.2)':'rgba(255,255,255,.05)'};color:${d===active?'#f0c040':'rgba(255,255,255,.6)'};font-size:13px;font-weight:800;cursor:pointer">${labels[d]}</button>`;
+  });
+  tabs += `</div>`;
+
+  const holes = ss.data.holes[active];
+  const c = ss.data.courses[active];
+
+  // 6-column grid: 3 columns of 6 holes each displayed as pairs (front/back)
+  let grid = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">`;
+  holes.forEach((h,i)=>{
+    grid += `<div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 8px">
+      <div style="font-size:10px;font-weight:800;color:rgba(255,255,255,.5);text-align:center;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Hole ${i+1}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        <div>
+          <div style="font-size:9px;color:rgba(255,255,255,.4);text-align:center;margin-bottom:3px">PAR</div>
+          <input type="number" value="${h.par}" min="3" max="5" oninput="ss.data.holes['${active}'][${i}].par=parseInt(this.value)||4" style="width:100%;padding:8px 4px;border-radius:8px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:15px;font-weight:900;text-align:center" />
+        </div>
+        <div>
+          <div style="font-size:9px;color:rgba(255,255,255,.4);text-align:center;margin-bottom:3px">SI</div>
+          <input type="number" value="${h.si}" min="1" max="18" oninput="ss.data.holes['${active}'][${i}].si=parseInt(this.value)||${i+1}" style="width:100%;padding:8px 4px;border-radius:8px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:rgba(240,192,64,.9);font-size:14px;font-weight:800;text-align:center" />
+        </div>
+      </div>
+    </div>`;
+  });
+  grid += `</div>`;
+
+  return `
+  <div style="margin-bottom:20px">
+    <h2 style="font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:white">Hole Data</h2>
+    <p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Par (white) and Stroke Index / SI (gold) for each hole. SI 1 = hardest.</p>
+  </div>
+  ${tabs}
+  <div style="font-size:12px;font-weight:700;color:rgba(240,192,64,.8);margin-bottom:10px">${c.name||labels[active]} · ${c.tees} tees · Par ${c.par}</div>
+  ${grid}`;
+}
+
+function ssGames(){
+  const teamA = ss.data.players.filter(p=>p.team==="A");
+  const teamB = ss.data.players.filter(p=>p.team==="B");
+  const numGames = Math.floor(Math.min(teamA.length,teamB.length)/2);
+  const days = ss.data.tournament.numDays >= 2 ? ["day1","day2"] : ["day1"];
+  const labels = {day1:"Day 1",day2:"Day 2"};
+
+  // Ensure game arrays are correct size
+  days.forEach(day=>{
+    while(ss.data.games[day].length < numGames) ss.data.games[day].push({name:`Game ${ss.data.games[day].length+1}`,a:[],b:[]});
+    ss.data.games[day] = ss.data.games[day].slice(0,numGames);
+  });
+
+  const makeSelect = (day,gi,team,si,val) => {
+    const pool = ss.data.players.filter(p=>p.team===team);
+    return `<select onchange="ss.data.games['${day}'][${gi}].${team==='A'?'a':'b'}[${si}]=this.value" style="flex:1;padding:10px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:white;font-size:13px">
+      <option value="" style="background:#063d22">— select —</option>
+      ${pool.map(p=>`<option value="${p.id}" ${val===p.id?"selected":""} style="background:#063d22">${p.first}</option>`).join("")}
+    </select>`;
+  };
+
+  let html = `
+  <div style="margin-bottom:20px">
+    <h2 style="font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:white">Game Groups</h2>
+    <p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Assign 2 players from each team to each game group. You can change pairings between days.</p>
+  </div>`;
+
+  days.forEach(day=>{
+    html += `<div style="font-size:13px;font-weight:800;color:#f0c040;text-transform:uppercase;letter-spacing:.06em;margin:16px 0 10px">📅 ${labels[day]}</div>`;
+    for(let g=0;g<numGames;g++){
+      const game = ss.data.games[day][g];
+      html += `<div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px;margin-bottom:10px">
+        <div style="font-size:13px;font-weight:800;color:white;margin-bottom:10px">Game ${g+1}</div>
+        <div style="margin-bottom:8px">
+          <div style="font-size:11px;font-weight:800;color:#86efac;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Team A</div>
+          <div style="display:flex;gap:8px">${makeSelect(day,g,"A",0,game.a[0]||"")}${makeSelect(day,g,"A",1,game.a[1]||"")}</div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:800;color:#fcd34d;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Team B</div>
+          <div style="display:flex;gap:8px">${makeSelect(day,g,"B",0,game.b[0]||"")}${makeSelect(day,g,"B",1,game.b[1]||"")}</div>
+        </div>
+      </div>`;
+    }
+  });
+  return html;
+}
+
+function ssSignIn(){
+  const players = ss.data.players;
+  const adminId = ss.adminId;
   const saved = localStorage.getItem("cyprusTourV3Login");
-  if (saved){ try{ const data = JSON.parse(saved); $("tournamentCodeInput").value = data.code || "cyprus-tour-2026"; $("playerSelect").value = data.playerId || "mitchell"; }catch(e){} }
+  let savedPlayer = "";
+  try{ savedPlayer = JSON.parse(saved||"{}").playerId || ""; }catch(e){}
+
+  return `
+  <div style="text-align:center;padding:10px 0 20px">
+    <div style="font-size:56px;margin-bottom:12px;filter:drop-shadow(0 4px 16px rgba(0,0,0,.5))">⛳</div>
+    <h2 style="font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:white">${ss.data.tournament.name}</h2>
+    <p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">${ss.data.tournament.dates}</p>
+  </div>
+  <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:20px;backdrop-filter:blur(10px)">
+    <div id="statusBox" style="display:none;padding:10px 14px;border-radius:12px;font-weight:700;font-size:13px;margin-bottom:12px"></div>
+    <div style="margin-bottom:14px">
+      <label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">Select Your Name</label>
+      <select id="playerSelect" onchange="toggleAdminField()" style="width:100%;padding:14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:16px;-webkit-appearance:auto">
+        ${players.map(p=>`<option value="${p.id}" ${savedPlayer===p.id?"selected":""} style="background:#063d22;color:white">${p.first} (${p.team})</option>`).join("")}
+      </select>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">Tournament Code</label>
+      <input id="tournamentCodeInput" value="cyprus-tour-2026" style="width:100%;padding:14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:16px" />
+    </div>
+    <div id="adminCodeField" style="display:none;margin-bottom:14px">
+      <label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">Admin Code</label>
+      <input id="adminCodeInput" type="password" placeholder="Admin only" style="width:100%;padding:14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:16px" />
+    </div>
+    <button onclick="enterApp()" style="width:100%;padding:16px;border-radius:14px;border:none;background:#f0c040;color:#042e19;font-size:15px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 20px rgba(240,192,64,.4);margin-top:4px">ENTER APP</button>
+    <div style="display:flex;align-items:flex-start;gap:10px;background:rgba(255,255,255,.07);border-radius:12px;padding:12px;margin-top:14px">
+      <span style="font-size:18px">🤝</span>
+      <div><div style="font-size:13px;font-weight:800;color:white">Team Scoring</div><div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:2px">You can score for all players on your team in your group</div></div>
+    </div>
+    <div style="text-align:center;margin-top:16px">
+      <button onclick="ssLaunch(true)" style="background:transparent;border:none;color:rgba(255,255,255,.4);font-size:12px;font-weight:700;cursor:pointer;text-decoration:underline">⚙️ Edit setup</button>
+    </div>
+  </div>`;
+}
+
+function ssApplyAndSave(){
+  // Read course fields from DOM before applying
+  ["day1","day2","day3"].forEach(day=>{
+    const name = document.getElementById(`sc_${day}_name`)?.value.trim();
+    if(name) ss.data.courses[day].name = name;
+    const rating = parseFloat(document.getElementById(`sc_${day}_rating`)?.value);
+    if(!isNaN(rating)) ss.data.courses[day].rating = rating;
+    const slope = parseInt(document.getElementById(`sc_${day}_slope`)?.value);
+    if(!isNaN(slope)) ss.data.courses[day].slope = slope;
+    const par = parseInt(document.getElementById(`sc_${day}_par`)?.value);
+    if(!isNaN(par)) ss.data.courses[day].par = par;
+    const allowance = parseInt(document.getElementById(`sc_${day}_allowance`)?.value);
+    if(!isNaN(allowance)) ss.data.courses[day].allowance = allowance;
+  });
+
+  // Apply players to global PLAYERS
+  PLAYERS.length = 0;
+  ss.data.players.forEach(p=>{
+    PLAYERS.push({id:p.id||p.first.toLowerCase().replace(/[^a-z0-9]/g,'_'),first:p.first,hi:parseFloat(p.hi)||18,team:p.team});
+  });
+
+  // Find admin (first player or mitchell)
+  const mitchell = PLAYERS.find(p=>p.id==="mitchell"||p.first.toLowerCase()==="mitchell");
+  ss.adminId = mitchell?.id || PLAYERS[0]?.id || "mitchell";
+
+  // Apply courses
+  ["day1","day2","day3"].forEach(day=>{
+    const wc = ss.data.courses[day];
+    COURSES[day] = {
+      name:wc.name||COURSES[day]?.name||day,
+      par:wc.par, rating:wc.rating, slope:wc.slope,
+      allowance:wc.allowance, tees:wc.tees,
+      holes:ss.data.holes[day].map(h=>({par:h.par,si:h.si}))
+    };
+  });
+
+  // Apply games
+  DAY_GAMES.day1 = ss.data.games.day1.map((g,i)=>({name:`Game ${i+1}`,a:g.a.filter(Boolean),b:g.b.filter(Boolean)})).filter(g=>g.a.length&&g.b.length);
+  DAY_GAMES.day2 = ss.data.games.day2.map((g,i)=>({name:`Game ${i+1}`,a:g.a.filter(Boolean),b:g.b.filter(Boolean)})).filter(g=>g.a.length&&g.b.length);
+
+  // Update admin reference
+  window._adminPlayerId = ss.adminId;
+
+  // Save
+  localStorage.setItem("cyprusTourSetup", JSON.stringify({
+    tournament:ss.data.tournament, players:ss.data.players,
+    games:ss.data.games, courses:ss.data.courses, holes:ss.data.holes, version:3
+  }));
+  localStorage.setItem("cyprusTourCourses", JSON.stringify(COURSES));
+
+  // Update title
+  document.querySelectorAll(".app-bar-title strong").forEach(el=>el.textContent=ss.data.tournament.name);
+  document.querySelectorAll("#ss_tourName").forEach(el=>el.textContent=ss.data.tournament.name);
+
+  populatePlayers();
   toggleAdminField();
-  // Restore dark mode preference
+  _summaryCache = {};
+}
+
+function ssLoadFromStorage(){
+  try{
+    const saved = localStorage.getItem("cyprusTourSetup");
+    if(!saved) return false;
+    const data = JSON.parse(saved);
+    if(!data?.players?.length) return false;
+
+    ss.data.tournament = data.tournament || ss.data.tournament;
+    ss.data.players = data.players;
+    ss.data.games = data.games || ss.data.games;
+    ss.data.courses = data.courses || ss.data.courses;
+    ss.data.holes = data.holes || ss.data.holes;
+
+    // Apply to global state
+    ssApplyAndSave();
+    return true;
+  }catch(e){ console.warn("ssLoadFromStorage:", e); return false; }
+}
+
+// Override canEditPlayer to use ss.adminId
+function canEditPlayer(playerId){
+  const adminId = window._adminPlayerId || "mitchell";
+  if(state.currentPlayerId === adminId) return true;
+  if(state.currentPlayerId === playerId) return true;
+  const me = state.currentPlayerId;
+  if(!me) return false;
+  const myTeam = getPlayer(me)?.team;
+  const theirTeam = getPlayer(playerId)?.team;
+  if(!myTeam || myTeam !== theirTeam) return false;
+  for(const day of ["day1","day2"]){
+    for(const game of (DAY_GAMES[day]||[])){
+      const all = [...game.a,...game.b];
+      if(all.includes(me) && all.includes(playerId)) return true;
+    }
+  }
+  const groups = getDay3GroupsFromSingles();
+  for(const group of groups){ if(group.includes(me)&&group.includes(playerId)) return true; }
+  return false;
+}
+
+
+
+window.addEventListener("DOMContentLoaded", () => {
   if(localStorage.getItem("cyprusDark")){ isDark=true; document.body.classList.add("dark"); const btn=document.querySelector(".dark-toggle"); if(btn) btn.textContent="☀️"; }
   setupOfflineDetection();
-  setStatus("Ready. Sign in.", "");
+
+  const hasSetup = ssLoadFromStorage();
+
+  if(hasSetup){
+    // Setup exists — go straight to sign-in step
+    ss.step = SS_STEPS.findIndex(s=>s.id==="signin");
+    ssShowScreen();
+    ssRender();
+  } else {
+    // First time — start wizard from welcome
+    ssLaunch(false);
+  }
 });
 </script>
 </body>
