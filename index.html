@@ -589,6 +589,7 @@ function toggleAdminField(){ $("adminCodeField").style.display = $("playerSelect
 
 // ── Supabase ──
 async function initSupabase(){
+  if(sb) return true; // already initialised on page load
   if (!window.APP_CONFIG || !window.APP_CONFIG.supabaseUrl || !window.APP_CONFIG.supabaseAnonKey){ setStatus("Add your Supabase values to config.js first.", "bad"); return false; }
   sb = window.supabase.createClient(window.APP_CONFIG.supabaseUrl, window.APP_CONFIG.supabaseAnonKey); return true;
 }
@@ -1201,14 +1202,13 @@ function ssBack(){
   if(ss.step > 0){ ssSaveCurrentStep(); ss.step--; ssRender(); }
 }
 
-function ssNext(){
+async function ssNext(){
   if(!ssValidate()) return;
   ssSaveCurrentStep();
-  const isLast = ss.step >= SS_STEPS.length - 2; // before signin
+  const isLast = ss.step >= SS_STEPS.length - 2; // step before signin
   if(isLast){
     ssApplyAndSave();
-    ss.step = SS_STEPS.length - 1; // go to signin
-    ssRender();
+    await ssSaveAndFinish();
   } else {
     ss.step++;
     ssRender();
@@ -1578,13 +1578,6 @@ function ssApplyAndSave(){
   // Update admin reference
   window._adminPlayerId = ss.adminId;
 
-  // Save
-  localStorage.setItem("cyprusTourSetup", JSON.stringify({
-    tournament:ss.data.tournament, players:ss.data.players,
-    games:ss.data.games, courses:ss.data.courses, holes:ss.data.holes, version:3
-  }));
-  localStorage.setItem("cyprusTourCourses", JSON.stringify(COURSES));
-
   // Update title
   document.querySelectorAll(".app-bar-title strong").forEach(el=>el.textContent=ss.data.tournament.name);
   document.querySelectorAll("#ss_tourName").forEach(el=>el.textContent=ss.data.tournament.name);
@@ -1594,24 +1587,60 @@ function ssApplyAndSave(){
   _summaryCache = {};
 }
 
-function ssLoadFromStorage(){
+// ── Save config to Supabase ──
+async function ssSaveToSupabase(){
+  if(!sb){ console.warn("Supabase not ready"); return false; }
+  const slug = ss.data.tournament.slug || "cyprus-tour-2026";
+  ss.data.tournament.slug = slug;
+  const config = {
+    tournament: ss.data.tournament,
+    players: ss.data.players,
+    games: ss.data.games,
+    courses: ss.data.courses,
+    holes: ss.data.holes,
+    version: 3,
+  };
+  const { error } = await sb.from("tournament_config")
+    .upsert({ tournament_slug: slug, config, updated_at: new Date().toISOString() }, { onConflict: "tournament_slug" });
+  if(error){ console.error("ssSaveToSupabase:", error); return false; }
+  return true;
+}
+
+// ── Load config from Supabase ──
+async function ssLoadFromSupabase(slug){
+  if(!sb) return false;
+  slug = slug || "cyprus-tour-2026";
   try{
-    const saved = localStorage.getItem("cyprusTourSetup");
-    if(!saved) return false;
-    const data = JSON.parse(saved);
-    if(!data?.players?.length) return false;
-
-    ss.data.tournament = data.tournament || ss.data.tournament;
-    ss.data.players = data.players;
-    ss.data.games = data.games || ss.data.games;
-    ss.data.courses = data.courses || ss.data.courses;
-    ss.data.holes = data.holes || ss.data.holes;
-
-    // Apply to global state
+    const { data, error } = await sb.from("tournament_config").select("config").eq("tournament_slug", slug).single();
+    if(error || !data?.config) return false;
+    const cfg = data.config;
+    if(!cfg?.players?.length) return false;
+    ss.data.tournament = cfg.tournament || ss.data.tournament;
+    ss.data.players    = cfg.players;
+    ss.data.games      = cfg.games   || ss.data.games;
+    ss.data.courses    = cfg.courses  || ss.data.courses;
+    ss.data.holes      = cfg.holes    || ss.data.holes;
     ssApplyAndSave();
     return true;
-  }catch(e){ console.warn("ssLoadFromStorage:", e); return false; }
+  }catch(e){ console.warn("ssLoadFromSupabase:", e); return false; }
 }
+
+// ── ssNext now saves to Supabase on final step ──
+async function ssSaveAndFinish(){
+  const btn = $("ss_nextBtn");
+  if(btn){ btn.textContent = "Saving…"; btn.disabled = true; }
+  const ok = await ssSaveToSupabase();
+  if(btn){ btn.disabled = false; }
+  if(!ok){
+    ssError("Could not save to Supabase. Check your connection and try again.");
+    if(btn) btn.textContent = "Save & Sign In →";
+    return;
+  }
+  ss.step = SS_STEPS.findIndex(s=>s.id==="signin");
+  ssRender();
+}
+
+function ssLoadFromStorage(){ return false; } // No longer used — Supabase is the source of truth
 
 // Override canEditPlayer to use ss.adminId
 function canEditPlayer(playerId){
@@ -1636,20 +1665,56 @@ function canEditPlayer(playerId){
 
 
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
   if(localStorage.getItem("cyprusDark")){ isDark=true; document.body.classList.add("dark"); const btn=document.querySelector(".dark-toggle"); if(btn) btn.textContent="☀️"; }
   setupOfflineDetection();
 
-  const hasSetup = ssLoadFromStorage();
+  // Show loading state
+  ssShowScreen();
+  $("ss_content").innerHTML = `<div style="text-align:center;padding:60px 20px;color:white">
+    <div style="font-size:48px;margin-bottom:16px">⛳</div>
+    <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:900;margin-bottom:8px">Loading tournament…</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.6)">Connecting to Supabase</div>
+  </div>`;
+  $("ss_dots").innerHTML = "";
+  $("ss_stepBadge").textContent = "";
+  $("ss_backBtn").style.display = "none";
+  $("ss_nextBtn").style.display = "none";
 
-  if(hasSetup){
-    // Setup exists — go straight to sign-in step
+  // Init Supabase
+  try{
+    if(!window.APP_CONFIG?.supabaseUrl || !window.APP_CONFIG?.supabaseAnonKey){
+      throw new Error("Missing Supabase config in config.js");
+    }
+    sb = window.supabase.createClient(window.APP_CONFIG.supabaseUrl, window.APP_CONFIG.supabaseAnonKey);
+  }catch(e){
+    $("ss_content").innerHTML = `<div style="text-align:center;padding:60px 20px;color:white">
+      <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+      <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:900;margin-bottom:8px">Connection Error</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:8px">${e.message}</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:12px">Check config.js has your Supabase URL and anon key</div>
+    </div>`;
+    $("ss_nextBtn").style.display = "block";
+    $("ss_nextBtn").textContent = "Retry";
+    $("ss_nextBtn").onclick = ()=>location.reload();
+    return;
+  }
+
+  // Try loading config from Supabase
+  const slug = "cyprus-tour-2026";
+  const hasConfig = await ssLoadFromSupabase(slug);
+
+  $("ss_nextBtn").style.display = "block";
+  $("ss_nextBtn").onclick = ssNext;
+
+  if(hasConfig){
+    // Config found — go to sign-in
     ss.step = SS_STEPS.findIndex(s=>s.id==="signin");
-    ssShowScreen();
     ssRender();
   } else {
-    // First time — start wizard from welcome
-    ssLaunch(false);
+    // No config — start setup wizard
+    ss.step = 0;
+    ssRender();
   }
 });
 </script>
