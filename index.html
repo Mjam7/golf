@@ -1212,6 +1212,12 @@ function ssBack(){
 }
 
 async function ssNext(){
+  const stepId = SS_STEPS[ss.step].id;
+  if(stepId === "players"){
+    ssFlushPlayers();
+    const names = ss.data.players.map((p,i)=>`[${i}] "${p.first}" (${p.team})`).join(', ');
+    alert('DEBUG players: ' + ss.data.players.length + ' entries\n' + names);
+  }
   if(!ssValidate()) return;
   ssSaveCurrentStep();
   const isLast = ss.step >= SS_STEPS.length - 2;
