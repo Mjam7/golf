@@ -1383,73 +1383,7 @@ function ssNumField(label, id, value, min, max, step){
   </div>`;
 }
 
-function ssPlayers(){
-  if(!ss.data.players.length){
-    ss.data.players = [
-      {id:"",first:"",hi:18.0,team:"A"},
-      {id:"",first:"",hi:18.0,team:"A"},
-      {id:"",first:"",hi:18.0,team:"B"},
-      {id:"",first:"",hi:18.0,team:"B"},
-    ];
-  }
-  const aCount = ss.data.players.filter(p=>p.team==="A").length;
-  const bCount = ss.data.players.filter(p=>p.team==="B").length;
-  const balanced = aCount === bCount;
-  const balanceMsg = balanced
-    ? `<span style="color:#86efac">✓ Teams balanced (${aCount} vs ${bCount})</span>`
-    : `<span style="color:#fca5a5">⚠ Unequal — A: ${aCount}, B: ${bCount}. Balance before continuing.</span>`;
 
-  const renderTeam = (team, label, color) => `
-    <div style="margin-bottom:16px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div style="font-size:13px;font-weight:800;color:${color};text-transform:uppercase;letter-spacing:.06em">${label} — ${ss.data.players.filter(p=>p.team===team).length} players</div>
-        <button onclick="ssAddPlayer('${team}')" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:white;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:800;cursor:pointer">+ Add</button>
-      </div>
-      ${ss.data.players.map((p,i)=>p.team!==team?'':ssPlayerRow(p,i,color)).join("")}
-    </div>`;
-
-  return `
-  <div style="margin-bottom:20px">
-    <h2 style="font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:white">Players</h2>
-    <p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Add all players with their handicap. Both teams must have equal numbers.</p>
-  </div>
-  <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:4px 10px 6px;margin-bottom:14px;font-size:12px;color:rgba(255,255,255,.5);display:grid;grid-template-columns:1fr 100px 70px 36px;gap:8px;align-items:center">
-    <span>Full Name</span><span>Team</span><span>Handicap</span><span></span>
-  </div>
-  ${renderTeam("A","Team A","#86efac")}
-  ${renderTeam("B","Team B","#fcd34d")}
-  <p style="font-size:13px;font-weight:700;text-align:center;margin-top:8px">${balanceMsg}</p>`;
-}
-
-function ssPlayerRow(p,i,color){
-  return `<div style="display:grid;grid-template-columns:1fr 100px 70px 36px;gap:8px;align-items:center;margin-bottom:8px">
-    <input data-player-idx="${i}" data-field="first" value="${p.first||''}" placeholder="Full name"
-      oninput="ss.data.players[${i}].first=this.value.trim();ss.data.players[${i}].id=this.value.trim().toLowerCase().replace(/[^a-z0-9]/g,'_')||'player_${i}'"
-      style="padding:12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:14px;width:100%" />
-    <select data-player-idx="${i}" data-field="team" onchange="ss.data.players[${i}].team=this.value;ssRender()"
-      style="padding:12px 8px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:13px;width:100%">
-      <option value="A" ${p.team==="A"?"selected":""} style="background:#063d22">A</option>
-      <option value="B" ${p.team==="B"?"selected":""} style="background:#063d22">B</option>
-    </select>
-    <input data-player-idx="${i}" data-field="hi" type="number" value="${p.hi||18}" min="0" max="54" step="0.1"
-      oninput="ss.data.players[${i}].hi=parseFloat(this.value)||0"
-      style="padding:12px 6px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:14px;text-align:center;width:100%" />
-    <button onclick="ssRemovePlayer(${i})" style="background:rgba(255,100,80,.2);border:1px solid rgba(255,100,80,.3);color:#ff9080;border-radius:10px;padding:0;font-size:16px;cursor:pointer;width:36px;height:44px;display:flex;align-items:center;justify-content:center">✕</button>
-  </div>`;
-}
-
-function ssFlushPlayers(){
-  document.querySelectorAll('.ss-player-row').forEach(row => {
-    const idx = parseInt(row.getAttribute('data-idx'));
-    if(isNaN(idx) || !ss.data.players[idx]) return;
-    const nameEl = row.querySelector('.ss-pname');
-    const hiEl   = row.querySelector('.ss-phi');
-    const teamEl = row.querySelector('.ss-pteam');
-    if(nameEl){ ss.data.players[idx].first = nameEl.value.trim(); if(nameEl.value.trim()) ss.data.players[idx].id = nameEl.value.trim().toLowerCase().replace(/[^a-z0-9]/g,'_'); }
-    if(hiEl)   ss.data.players[idx].hi   = parseFloat(hiEl.value)||0;
-    if(teamEl) ss.data.players[idx].team = teamEl.value;
-  });
-}
 function ssAddPlayer(team){ ssFlushPlayers(); ss.data.players.push({id:'p'+Date.now(),first:'',hi:18.0,team:team||'A'}); ssRender(); }
 function ssRemovePlayer(idx){ ssFlushPlayers(); ss.data.players.splice(idx,1); ssRender(); }
 function ssChangeTeam(idx,val){ ssFlushPlayers(); ss.data.players[idx].team=val; ssRender(); }
