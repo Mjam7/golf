@@ -1221,6 +1221,16 @@ function ssNext(){
     if(!ss.data.tournament.startDate){ ssError("Please select a start date."); return; }
   }
   if(stepId==="players"){
+    ssFlushPlayers();
+    var debug = "After flush: "+ss.data.players.length+" players\n";
+    ss.data.players.forEach(function(p,i){ debug += i+": '"+p.first+"' ["+p.team+"]\n"; });
+    var domRows = document.querySelectorAll(".ss-player-row");
+    debug += "DOM .ss-player-row count: "+domRows.length+"\n";
+    for(var rr=0;rr<domRows.length;rr++){
+      var nn = domRows[rr].querySelector(".ss-pname");
+      debug += "  row"+rr+" value='"+(nn?nn.value:"NO ELEMENT")+"'\n";
+    }
+    alert(debug);
     ss.data.players = ss.data.players.filter(function(p){ return p.first && p.first.trim()!==""; });
     if(ss.data.players.length<2){ ssError("Please add at least 2 players."); return; }
     var a = ss.data.players.filter(function(p){return p.team==="A";}).length;
