@@ -1284,32 +1284,18 @@ function ssUpdateDates(){
 
 // ── Player management ────────────────────────────
 function ssFlushPlayers(){
-  var rows = document.querySelectorAll(".ss-player-row");
-  for(var ri=0;ri<rows.length;ri++){
-    var row = rows[ri];
-    var idx = parseInt(row.getAttribute("data-idx"));
-    if(isNaN(idx)||idx<0||idx>=ss.data.players.length) continue;
-    var nameEl=row.querySelector(".ss-pname"), hiEl=row.querySelector(".ss-phi"), teamEl=row.querySelector(".ss-pteam");
-    if(nameEl){ ss.data.players[idx].first=nameEl.value.trim(); ss.data.players[idx].id=nameEl.value.trim().toLowerCase().replace(/[^a-z0-9]/g,"_")||("player"+idx); }
-    if(hiEl)   ss.data.players[idx].hi   = parseFloat(hiEl.value)||0;
-    if(teamEl) ss.data.players[idx].team = teamEl.value;
+  for(var i=0;i<ss.data.players.length;i++){
+    var nameEl=document.getElementById("ssp_name_"+i);
+    var hiEl=document.getElementById("ssp_hi_"+i);
+    var teamEl=document.getElementById("ssp_team_"+i);
+    if(nameEl){ ss.data.players[i].first=nameEl.value.trim(); ss.data.players[i].id=nameEl.value.trim().toLowerCase().replace(/[^a-z0-9]/g,"_")||("player"+i); }
+    if(hiEl)   ss.data.players[i].hi=parseFloat(hiEl.value)||0;
+    if(teamEl) ss.data.players[i].team=teamEl.value;
   }
 }
-function ssAddPlayer(team){
-  ssFlushPlayers();
-  ss.data.players.push({id:"p"+Date.now(),first:"",hi:18,team:team||"A"});
-  ssRender();
-}
-function ssRemovePlayer(idx){
-  ssFlushPlayers();
-  ss.data.players.splice(idx,1);
-  ssRender();
-}
-function ssChangeTeam(idx,val){
-  ssFlushPlayers();
-  if(ss.data.players[idx]) ss.data.players[idx].team=val;
-  ssRender();
-}
+function ssAddPlayer(team){ ssFlushPlayers(); ss.data.players.push({id:"p"+Date.now(),first:"",hi:18,team:team||"A"}); ssRender(); }
+function ssRemovePlayer(idx){ ssFlushPlayers(); ss.data.players.splice(idx,1); ssRender(); }
+function ssChangeTeam(idx,val){ ssFlushPlayers(); if(ss.data.players[idx]) ss.data.players[idx].team=val; ssRender(); }
 
 function ssPlayers(){
   if(!ss.data.players.length){
@@ -1319,19 +1305,19 @@ function ssPlayers(){
   var bCount=ss.data.players.filter(function(p){return p.team==="B";}).length;
   var balanced=aCount===bCount;
   var balColor=balanced?"#86efac":"#fca5a5";
-  var balMsg=balanced?"✓ Balanced — "+aCount+" vs "+bCount:"⚠ Unequal — A: "+aCount+", B: "+bCount;
+  var balMsg=balanced?"\u2713 Balanced \u2014 "+aCount+" vs "+bCount:"\u26a0 Unequal \u2014 A: "+aCount+", B: "+bCount;
   var rows="";
   for(var i=0;i<ss.data.players.length;i++){
     var p=ss.data.players[i];
-    var safeFirst=(p.first||"").replace(/"/g,"&quot;");
-    rows+='<div class="ss-player-row" data-idx="'+i+'" style="display:grid;grid-template-columns:1fr 80px 70px 38px;gap:8px;align-items:center;margin-bottom:8px">'
-      +'<input class="ss-pname" value="'+safeFirst+'" placeholder="Full name" style="padding:12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:14px;width:100%;font-family:Inter,sans-serif" />'
-      +'<select class="ss-pteam" onchange="ssChangeTeam('+i+',this.value)" style="padding:10px 6px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(20,50,30,1);color:white;font-size:13px;width:100%">'
-        +'<option value="A"'+(p.team==="A"?' selected':'')+'>A</option>'
-        +'<option value="B"'+(p.team==="B"?' selected':'')+'>B</option>'
+    var safe=(p.first||"").replace(/"/g,"&quot;");
+    rows+='<div style="display:grid;grid-template-columns:1fr 80px 70px 38px;gap:8px;align-items:center;margin-bottom:10px">'
+      +'<input id="ssp_name_'+i+'" type="text" value="'+safe+'" placeholder="Full name" style="padding:12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.12);color:white;font-size:14px;width:100%;font-family:Inter,sans-serif" />'
+      +'<select id="ssp_team_'+i+'" onchange="ssChangeTeam('+i+',this.value)" style="padding:10px 6px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(20,50,30,1);color:white;font-size:13px;width:100%">'
+        +'<option value="A"'+(p.team==="A"?" selected":"")+'>A</option>'
+        +'<option value="B"'+(p.team==="B"?" selected":"")+'>B</option>'
       +'</select>'
-      +'<input class="ss-phi" type="number" value="'+(p.hi||18)+'" min="0" max="54" step="0.1" style="padding:10px 4px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:14px;text-align:center;width:100%" />'
-      +'<button onclick="ssRemovePlayer('+i+')" style="background:rgba(255,80,60,.25);border:1px solid rgba(255,80,60,.4);color:#ff9080;border-radius:10px;width:38px;height:38px;font-size:18px;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center">\u2715</button>'
+      +'<input id="ssp_hi_'+i+'" type="number" value="'+(p.hi||18)+'" min="0" max="54" step="0.1" style="padding:10px 4px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.12);color:white;font-size:14px;text-align:center;width:100%" />'
+      +'<button onclick="ssRemovePlayer('+i+')" style="background:rgba(255,80,60,.25);border:1px solid rgba(255,80,60,.4);color:#ff9080;border-radius:10px;width:38px;height:38px;font-size:18px;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center">\u00d7</button>'
       +'</div>';
   }
   return '<div style="margin-bottom:16px">'
@@ -1339,63 +1325,20 @@ function ssPlayers(){
     +'<p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Enter each player\'s name, team and handicap.</p>'
     +'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 80px 70px 38px;gap:8px;padding:0 2px;margin-bottom:8px">'
-      +'<span style="font-size:11px;font-weight:800;color:rgba(255,255,255,.4);text-transform:uppercase">Name</span>'
-      +'<span style="font-size:11px;font-weight:800;color:rgba(255,255,255,.4);text-transform:uppercase">Team</span>'
-      +'<span style="font-size:11px;font-weight:800;color:rgba(255,255,255,.4);text-transform:uppercase">H\'cap</span>'
+      +'<span style="font-size:11px;font-weight:800;color:rgba(255,255,255,.5);text-transform:uppercase">Name</span>'
+      +'<span style="font-size:11px;font-weight:800;color:rgba(255,255,255,.5);text-transform:uppercase">Team</span>'
+      +'<span style="font-size:11px;font-weight:800;color:rgba(255,255,255,.5);text-transform:uppercase">H\'cap</span>'
       +'<span></span>'
     +'</div>'
     +rows
-    +'<div style="display:flex;gap:8px;margin-top:10px">'
-      +'<button onclick="ssAddPlayer(\'A\')" style="flex:1;padding:11px;border-radius:10px;border:1.5px dashed rgba(134,239,172,.4);background:transparent;color:#86efac;font-size:13px;font-weight:800;cursor:pointer">+ Team A</button>'
-      +'<button onclick="ssAddPlayer(\'B\')" style="flex:1;padding:11px;border-radius:10px;border:1.5px dashed rgba(252,211,77,.4);background:transparent;color:#fcd34d;font-size:13px;font-weight:800;cursor:pointer">+ Team B</button>'
+    +'<div style="display:flex;gap:8px;margin-top:12px">'
+      +'<button onclick="ssAddPlayer(\'A\')" style="flex:1;padding:11px;border-radius:10px;border:1.5px dashed rgba(134,239,172,.5);background:transparent;color:#86efac;font-size:13px;font-weight:800;cursor:pointer">+ Team A</button>'
+      +'<button onclick="ssAddPlayer(\'B\')" style="flex:1;padding:11px;border-radius:10px;border:1.5px dashed rgba(252,211,77,.5);background:transparent;color:#fcd34d;font-size:13px;font-weight:800;cursor:pointer">+ Team B</button>'
     +'</div>'
-    +'<div style="text-align:center;margin-top:12px;font-size:13px;font-weight:700;color:'+balColor+'">'+balMsg+'</div>';
+    +'<div style="text-align:center;margin-top:10px;font-size:13px;font-weight:700;color:'+balColor+'">'+balMsg+'</div>';
 }
 
-// ── Tournament step ──────────────────────────────
-function ssWelcome(){
-  return '<div style="text-align:center;padding:20px 0 10px">'
-    +'<div style="font-size:72px;margin-bottom:16px">🏆</div>'
-    +'<h1 style="font-family:\'Playfair Display\',serif;font-size:32px;font-weight:900;color:white;line-height:1.15">Welcome to<br>Golf Tour Live</h1>'
-    +'<p style="color:rgba(255,255,255,.8);font-size:15px;margin-top:12px;line-height:1.6">Set up your tournament in a few quick steps — players, handicaps, courses and format.</p>'
-    +'<p style="color:rgba(240,192,64,.9);font-size:13px;font-weight:700;margin-top:16px;background:rgba(240,192,64,.1);border:1px solid rgba(240,192,64,.3);border-radius:12px;padding:10px">🔐 Only the tournament organiser should complete setup</p>'
-    +'</div>';
-}
 
-function ssField(label,id,type,value,placeholder,extra){
-  return '<div style="margin-bottom:14px">'
-    +'<label for="'+id+'" style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">'+label+'</label>'
-    +'<input id="'+id+'" type="'+type+'" value="'+(value||'')+'" placeholder="'+(placeholder||'')+'" '+(extra||'')+' style="width:100%;padding:14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:16px;font-family:Inter,sans-serif" />'
-    +'</div>';
-}
-
-function ssTournament(){
-  var t=ss.data.tournament;
-  var inp='width:100%;padding:14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:16px;font-family:Inter,sans-serif;color-scheme:dark';
-  var formats=["Stableford Matchplay","Best Ball Stableford","Singles Stableford","Medal","Scramble"];
-  var days=[1,2,3].map(function(n){
-    var sel=t.numDays===n;
-    return '<button onclick="ss.data.tournament.numDays='+n+';ssRender()" style="flex:1;padding:14px;border-radius:12px;border:2px solid '+(sel?'#f0c040':'rgba(255,255,255,.2)')+';background:'+(sel?'rgba(240,192,64,.2)':'rgba(255,255,255,.05)')+';color:'+(sel?'#f0c040':'rgba(255,255,255,.7)')+';font-size:16px;font-weight:900;cursor:pointer">'+n+' Day'+(n>1?'s':'')+'</button>';
-  }).join('');
-  var fmts=formats.map(function(f){
-    var sel=t.format===f;
-    return '<button onclick="ss.data.tournament.format=\''+f+'\';ssRender()" style="padding:13px 16px;border-radius:12px;border:2px solid '+(sel?'#f0c040':'rgba(255,255,255,.2)')+';background:'+(sel?'rgba(240,192,64,.15)':'rgba(255,255,255,.05)')+';color:'+(sel?'#f0c040':'rgba(255,255,255,.8)')+';font-size:14px;font-weight:700;cursor:pointer;text-align:left">'+(sel?'✓ ':'')+f+'</button>';
-  }).join('');
-  return '<div style="margin-bottom:20px"><h2 style="font-family:\'Playfair Display\',serif;font-size:24px;font-weight:900;color:white">Tournament Details</h2><p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Give your tournament a name and set the dates</p></div>'
-    +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">Tournament Name</label>'
-    +'<input id="ss_tname" type="text" value="'+(t.name||'')+'" placeholder="e.g. Cyprus Golf Tour 2026" oninput="ss.data.tournament.name=this.value" style="'+inp+'" /></div>'
-    +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">Tournament Dates</label>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
-    +'<div><div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:5px;font-weight:700">Start Date</div><input id="ss_startdate" type="date" value="'+(t.startDate||'')+'" onchange="ss.data.tournament.startDate=this.value;ssUpdateDates()" style="'+inp+'" /></div>'
-    +'<div><div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:5px;font-weight:700">End Date</div><input id="ss_enddate" type="date" value="'+(t.endDate||'')+'" onchange="ss.data.tournament.endDate=this.value;ssUpdateDates()" style="'+inp+'" /></div>'
-    +'</div><div id="ss_datepreview" style="font-size:13px;color:rgba(240,192,64,.9);font-weight:700;margin-top:8px;min-height:18px">'+(t.dates||'')+'</div></div>'
-    +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">Number of Days</label>'
-    +'<div style="display:flex;gap:10px">'+days+'</div></div>'
-    +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">Competition Format</label>'
-    +'<div style="display:flex;flex-direction:column;gap:8px">'+fmts+'</div></div>';
-}
-
-// ── Courses step ──────────────────────────────────
 function ssCourses(){
   var numDays=ss.data.tournament.numDays||3;
   var days=["day1","day2","day3"].slice(0,numDays);
