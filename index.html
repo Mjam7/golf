@@ -1184,10 +1184,14 @@ function ssRender(){
 
   // Next button
   const next = $("ss_nextBtn");
-  if(step.id === "signin") next.style.display = "none";
-  else if(step.id === "games") next.textContent = "Save & Continue →";
-  else if(ss.step === total - 2) next.textContent = "Save & Sign In →";
-  else next.textContent = "Continue →";
+  if(step.id === "signin"){
+    next.style.display = "none";
+  } else {
+    next.style.display = "block";
+    if(step.id === "games") next.textContent = "Save & Continue →";
+    else if(ss.step === total - 2) next.textContent = "Save & Sign In →";
+    else next.textContent = "Continue →";
+  }
 
   // Content
   const content = $("ss_content");
@@ -1230,7 +1234,7 @@ function ssValidate(){
   }
   if(id === "players"){
     ssFlushPlayers();
-    ss.data.players = ss.data.players.filter(p => p.first && p.first.trim());
+    ss.data.players = ss.data.players.filter(function(p){ return p.first && p.first.trim() !== ''; });
     if(ss.data.players.length < 2){ ssError("Please add at least 2 players."); return false; }
     const a = ss.data.players.filter(p=>p.team==="A").length;
     const b = ss.data.players.filter(p=>p.team==="B").length;
@@ -1384,9 +1388,24 @@ function ssNumField(label, id, value, min, max, step){
 }
 
 
+function ssFlushPlayers(){
+  document.querySelectorAll('.ss-player-row').forEach(function(row){
+    var idx = parseInt(row.getAttribute('data-idx'));
+    if(isNaN(idx) || !ss.data.players[idx]) return;
+    var nameEl = row.querySelector('.ss-pname');
+    var hiEl   = row.querySelector('.ss-phi');
+    var teamEl = row.querySelector('.ss-pteam');
+    if(nameEl){ 
+      ss.data.players[idx].first = nameEl.value.trim(); 
+      ss.data.players[idx].id = nameEl.value.trim().toLowerCase().replace(/[^a-z0-9]/g,'_') || ('player'+idx);
+    }
+    if(hiEl)   ss.data.players[idx].hi   = parseFloat(hiEl.value)||0;
+    if(teamEl) ss.data.players[idx].team = teamEl.value;
+  });
+}
 function ssAddPlayer(team){ ssFlushPlayers(); ss.data.players.push({id:'p'+Date.now(),first:'',hi:18.0,team:team||'A'}); ssRender(); }
 function ssRemovePlayer(idx){ ssFlushPlayers(); ss.data.players.splice(idx,1); ssRender(); }
-function ssChangeTeam(idx,val){ ssFlushPlayers(); ss.data.players[idx].team=val; ssRender(); }
+function ssChangeTeam(idx,val){ ssFlushPlayers(); if(ss.data.players[idx]) ss.data.players[idx].team=val; ssRender(); }
 
 function ssPlayers(){
   if(!ss.data.players.length){
