@@ -1503,8 +1503,8 @@ async function ssLoadFromSupabase(slug){
   if(!sb) return false;
   slug=slug||"cyprus-tour-2026";
   try{
-    var result=await sb.from("tournament_config").select("config").eq("tournament_slug",slug).single();
-    if(result.error||!result.data||!result.data.config) return false;
+    var result=await sb.from("tournament_config").select("config").eq("tournament_slug",slug).maybeSingle();
+    if(!result||result.error||!result.data||!result.data.config) return false;
     var cfg=result.data.config;
     if(!cfg||!cfg.players||!cfg.players.length) return false;
     ss.data.tournament=cfg.tournament||ss.data.tournament;
@@ -1564,9 +1564,18 @@ window.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // Try loading config from Supabase
+  // Try loading config from Supabase with timeout
   const slug = "cyprus-tour-2026";
-  const hasConfig = await ssLoadFromSupabase(slug);
+  let hasConfig = false;
+  try{
+    const timeoutPromise = new Promise(function(_, reject){ setTimeout(function(){ reject(new Error("Timeout after 5s")); }, 5000); });
+    hasConfig = await Promise.race([ssLoadFromSupabase(slug), timeoutPromise]);
+  }catch(e){
+    console.warn("Config load failed or timed out:", e.message);
+    hasConfig = false;
+  }
+
+  $("ss_content").innerHTML = ""; // clear loading screen
 
   if(hasConfig){
     ss.step = SS_STEPS.findIndex(function(s){return s.id==="signin";});
