@@ -1173,9 +1173,6 @@ function ssRender(){
     return '<div style="width:'+w+'px;height:8px;border-radius:999px;background:'+bg+';transition:all .25s"></div>';
   }).join("");
 
-  var back = document.getElementById("ss_backBtn");
-  back.style.display = ss.step>0 ? "block" : "none";
-
   var contentEl = document.getElementById("ss_content");
   contentEl.scrollTop = 0;
   var body = "";
@@ -1574,15 +1571,16 @@ async function ssLoadFromSupabase(slug){
 }
 
 async function ssSaveAndFinish(){
-  var btn=document.getElementById("ss_nextBtn");
-  if(btn){btn.textContent="Saving…";btn.disabled=true;}
-  var ok=await ssSaveToSupabase();
-  if(btn){btn.disabled=false;btn.textContent="Save & Sign In →";}
+  // Show saving state in content
+  var saveBtn = document.querySelector('#ss_content button[onclick="ssNext()"]');
+  if(saveBtn){ saveBtn.textContent="Saving…"; saveBtn.disabled=true; }
+  var ok = await ssSaveToSupabase();
   if(!ok){
+    if(saveBtn){ saveBtn.disabled=false; saveBtn.textContent="Save & Sign In →"; }
     ssError("Could not save to Supabase. Check your connection.");
     return;
   }
-  ss.step=SS_STEPS.findIndex(function(s){return s.id==="signin";});
+  ss.step = SS_STEPS.findIndex(function(s){return s.id==="signin";});
   ssRender();
 }
 
@@ -1594,15 +1592,13 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   // Show loading state
   ssShowScreen();
-  $("ss_content").innerHTML = `<div style="text-align:center;padding:60px 20px;color:white">
-    <div style="font-size:48px;margin-bottom:16px">⛳</div>
-    <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:900;margin-bottom:8px">Loading tournament…</div>
-    <div style="font-size:13px;color:rgba(255,255,255,.6)">Connecting to Supabase</div>
-  </div>`;
+  $("ss_content").innerHTML = '<div style="text-align:center;padding:60px 20px;color:white">'
+    +'<div style="font-size:48px;margin-bottom:16px">⛳</div>'
+    +'<div style="font-family:\'Playfair Display\',serif;font-size:20px;font-weight:900;margin-bottom:8px">Loading tournament…</div>'
+    +'<div style="font-size:13px;color:rgba(255,255,255,.6)">Connecting to Supabase</div>'
+    +'</div>';
   $("ss_dots").innerHTML = "";
   $("ss_stepBadge").textContent = "";
-  $("ss_backBtn").style.display = "none";
-  $("ss_nextBtn").style.display = "none";
 
   // Init Supabase
   try{
@@ -1618,7 +1614,6 @@ window.addEventListener("DOMContentLoaded", async () => {
       +'<div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:12px">Check config.js has your Supabase URL and anon key</div>'
       +'<button onclick="location.reload()" style="margin-top:20px;padding:14px 28px;border-radius:14px;border:none;background:#f0c040;color:#042e19;font-size:15px;font-weight:900;cursor:pointer">Retry</button>'
       +'</div>';
-    $("ss_nextBtn").style.display = "none";
     return;
   }
 
@@ -1626,15 +1621,12 @@ window.addEventListener("DOMContentLoaded", async () => {
   const slug = "cyprus-tour-2026";
   const hasConfig = await ssLoadFromSupabase(slug);
 
-  $("ss_nextBtn").style.display = "block";
-
   if(hasConfig){
     ss.step = SS_STEPS.findIndex(function(s){return s.id==="signin";});
-    ssRender();
   } else {
     ss.step = 0;
-    ssRender();
   }
+  ssRender();
 });
 </script>
 </body>
