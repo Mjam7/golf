@@ -1573,10 +1573,9 @@ async function ssSaveAndFinish(){
   var btn=document.getElementById("ss_nextBtn");
   if(btn){btn.textContent="Saving…";btn.disabled=true;}
   var ok=await ssSaveToSupabase();
-  if(btn){btn.disabled=false;btn.style.display="none";}
+  if(btn){btn.disabled=false;btn.textContent="Save & Sign In →";}
   if(!ok){
     ssError("Could not save to Supabase. Check your connection.");
-    if(btn){btn.style.display="block";btn.textContent="Save & Sign In →";}
     return;
   }
   ss.step=SS_STEPS.findIndex(function(s){return s.id==="signin";});
@@ -1608,15 +1607,14 @@ window.addEventListener("DOMContentLoaded", async () => {
     }
     sb = window.supabase.createClient(window.APP_CONFIG.supabaseUrl, window.APP_CONFIG.supabaseAnonKey);
   }catch(e){
-    $("ss_content").innerHTML = `<div style="text-align:center;padding:60px 20px;color:white">
-      <div style="font-size:48px;margin-bottom:16px">⚠️</div>
-      <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:900;margin-bottom:8px">Connection Error</div>
-      <div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:8px">${e.message}</div>
-      <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:12px">Check config.js has your Supabase URL and anon key</div>
-    </div>`;
-    $("ss_nextBtn").style.display = "block";
-    $("ss_nextBtn").textContent = "Retry";
-    $("ss_nextBtn").onclick = ()=>location.reload();
+    $("ss_content").innerHTML = '<div style="text-align:center;padding:60px 20px;color:white">'
+      +'<div style="font-size:48px;margin-bottom:16px">⚠️</div>'
+      +'<div style="font-family:\'Playfair Display\',serif;font-size:20px;font-weight:900;margin-bottom:8px">Connection Error</div>'
+      +'<div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:8px">'+e.message+'</div>'
+      +'<div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:12px">Check config.js has your Supabase URL and anon key</div>'
+      +'<button onclick="location.reload()" style="margin-top:20px;padding:14px 28px;border-radius:14px;border:none;background:#f0c040;color:#042e19;font-size:15px;font-weight:900;cursor:pointer">Retry</button>'
+      +'</div>';
+    $("ss_nextBtn").style.display = "none";
     return;
   }
 
@@ -1625,14 +1623,11 @@ window.addEventListener("DOMContentLoaded", async () => {
   const hasConfig = await ssLoadFromSupabase(slug);
 
   $("ss_nextBtn").style.display = "block";
-  $("ss_nextBtn").onclick = ssNext;
 
   if(hasConfig){
-    // Config found — go to sign-in
-    ss.step = SS_STEPS.findIndex(s=>s.id==="signin");
+    ss.step = SS_STEPS.findIndex(function(s){return s.id==="signin";});
     ssRender();
   } else {
-    // No config — start setup wizard
     ss.step = 0;
     ssRender();
   }
