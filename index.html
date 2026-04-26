@@ -1142,7 +1142,12 @@ function ssHideScreen(){
 }
 
 function ssLaunch(prefill){
-  if(prefill) ssLoadExisting();
+  if(prefill){
+    ssLoadExisting();
+  } else {
+    // Fresh setup — clear players so blank rows appear
+    ss.data.players = [];
+  }
   ss.step = 0;
   ssShowScreen();
   ssRender();
@@ -1218,7 +1223,10 @@ async function ssNext(){
 function ssValidate(){
   const id = SS_STEPS[ss.step].id;
   if(id === "tournament"){
-    if(!document.getElementById("ss_tname")?.value.trim()){ ssError("Please enter a tournament name."); return false; }
+    const name = document.getElementById("ss_tname")?.value.trim() || ss.data.tournament.name;
+    if(!name){ ssError("Please enter a tournament name."); return false; }
+    ss.data.tournament.name = name;
+    if(!ss.data.tournament.startDate){ ssError("Please select a start date."); return false; }
   }
   if(id === "players"){
     if(ss.data.players.length < 2){ ssError("Please add at least 2 players."); return false; }
@@ -1230,7 +1238,9 @@ function ssValidate(){
   if(id === "courses"){
     const days = ["day1","day2","day3"].slice(0, ss.data.tournament.numDays);
     for(const d of days){
-      if(!ss.data.courses[d].name.trim()){ ssError(`Please enter a name for ${d.replace("day","Day ")}.`); return false; }
+      const name = document.getElementById(`sc_${d}_name`)?.value.trim() || ss.data.courses[d].name;
+      ss.data.courses[d].name = name;
+      if(!name){ ssError(`Please enter a course name for ${d.replace("day","Day ")}.`); return false; }
     }
   }
   return true;
@@ -1248,12 +1258,35 @@ function ssError(msg){
   setTimeout(()=>el.remove(), 4000);
 }
 
+function ssUpdateDates(){
+  const start = ss.data.tournament.startDate || "";
+  const end   = ss.data.tournament.endDate   || "";
+  if(!start && !end){ ss.data.tournament.dates = ""; return; }
+  const fmt = (d) => {
+    if(!d) return "";
+    const [y,m,day] = d.split("-");
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return `${parseInt(day)} ${months[parseInt(m)-1]} ${y}`;
+  };
+  ss.data.tournament.dates = start === end || !end ? fmt(start) : `${fmt(start)} – ${fmt(end)}`;
+  const preview = $("ss_datepreview");
+  if(preview) preview.textContent = ss.data.tournament.dates;
+  $("ss_tourDates") && ($("ss_tourDates").textContent = ss.data.tournament.dates);
+}
+
 function ssSaveCurrentStep(){
   const id = SS_STEPS[ss.step].id;
   if(id === "tournament"){
-    ss.data.tournament.name = document.getElementById("ss_tname")?.value.trim() || ss.data.tournament.name;
-    ss.data.tournament.dates = document.getElementById("ss_tdates")?.value.trim() || ss.data.tournament.dates;
-    ss.data.tournament.numDays = parseInt(document.getElementById("ss_tdays")?.value) || 3;
+    // Fields already save live via oninput — just ensure we capture final values
+    const name = document.getElementById("ss_tname")?.value.trim();
+    if(name) ss.data.tournament.name = name;
+    const start = document.getElementById("ss_startdate")?.value;
+    if(start !== undefined) ss.data.tournament.startDate = start;
+    const end = document.getElementById("ss_enddate")?.value;
+    if(end !== undefined) ss.data.tournament.endDate = end;
+    const days = parseInt(document.getElementById("ss_tdays")?.value);
+    if(!isNaN(days)) ss.data.tournament.numDays = days;
+    ssUpdateDates();
   }
 }
 
@@ -1280,23 +1313,55 @@ function ssWelcome(){
 function ssTournament(){
   const t = ss.data.tournament;
   const formats = ["Stableford Matchplay","Best Ball Stableford","Singles Stableford","Medal","Scramble"];
+
+  // Parse existing dates back into start/end for the pickers
+  let startDate = t.startDate || "", endDate = t.endDate || "";
+
+  const inputStyle = "width:100%;padding:14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:16px;font-family:'Inter',sans-serif;backdrop-filter:blur(10px);color-scheme:dark";
+
   return `
   <div style="margin-bottom:20px">
     <h2 style="font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:white">Tournament Details</h2>
     <p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Give your tournament a name and set the dates</p>
   </div>
-  ${ssField("Tournament Name","ss_tname","text",t.name,"e.g. Cyprus Golf Tour 2026")}
-  ${ssField("Dates","ss_tdates","text",t.dates,"e.g. 14–16 May 2026")}
+
+  <div style="margin-bottom:14px">
+    <label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">Tournament Name</label>
+    <input id="ss_tname" type="text" value="${t.name||''}" placeholder="e.g. Cyprus Golf Tour 2026"
+      oninput="ss.data.tournament.name=this.value;$('ss_tourName').textContent=this.value||'Golf Tour Setup'"
+      style="${inputStyle}" />
+  </div>
+
+  <div style="margin-bottom:14px">
+    <label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">Tournament Dates</label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:5px;font-weight:700">Start Date</div>
+        <input id="ss_startdate" type="date" value="${startDate}"
+          oninput="ss.data.tournament.startDate=this.value;ssUpdateDates()"
+          style="${inputStyle}" />
+      </div>
+      <div>
+        <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:5px;font-weight:700">End Date</div>
+        <input id="ss_enddate" type="date" value="${endDate}"
+          oninput="ss.data.tournament.endDate=this.value;ssUpdateDates()"
+          style="${inputStyle}" />
+      </div>
+    </div>
+    <div id="ss_datepreview" style="font-size:13px;color:rgba(240,192,64,.9);font-weight:700;margin-top:8px;min-height:18px">${t.dates||''}</div>
+  </div>
+
   <div style="margin-bottom:14px">
     <label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">Number of Days</label>
     <div style="display:flex;gap:10px">
       ${[1,2,3].map(n=>`<button onclick="ss.data.tournament.numDays=${n};ssRender()" style="flex:1;padding:14px;border-radius:12px;border:2px solid ${t.numDays===n?'#f0c040':'rgba(255,255,255,.2)'};background:${t.numDays===n?'rgba(240,192,64,.2)':'rgba(255,255,255,.05)'};color:${t.numDays===n?'#f0c040':'rgba(255,255,255,.7)'};font-size:16px;font-weight:900;cursor:pointer">${n} Day${n>1?'s':''}</button>`).join("")}
     </div>
   </div>
+
   <div style="margin-bottom:14px">
     <label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">Competition Format</label>
     <div style="display:flex;flex-direction:column;gap:8px">
-      ${formats.map((f,i)=>`<button onclick="ss.data.tournament.format='${f}';ssRender()" style="padding:13px 16px;border-radius:12px;border:2px solid ${ss.data.tournament.format===f?'#f0c040':'rgba(255,255,255,.2)'};background:${ss.data.tournament.format===f?'rgba(240,192,64,.15)':'rgba(255,255,255,.05)'};color:${ss.data.tournament.format===f?'#f0c040':'rgba(255,255,255,.8)'};font-size:14px;font-weight:700;cursor:pointer;text-align:left">${ss.data.tournament.format===f?'✓ ':''} ${f}</button>`).join("")}
+      ${formats.map(f=>`<button onclick="ss.data.tournament.format='${f}';ssRender()" style="padding:13px 16px;border-radius:12px;border:2px solid ${ss.data.tournament.format===f?'#f0c040':'rgba(255,255,255,.2)'};background:${ss.data.tournament.format===f?'rgba(240,192,64,.15)':'rgba(255,255,255,.05)'};color:${ss.data.tournament.format===f?'#f0c040':'rgba(255,255,255,.8)'};font-size:14px;font-weight:700;cursor:pointer;text-align:left">${ss.data.tournament.format===f?'✓ ':''} ${f}</button>`).join("")}
     </div>
   </div>`;
 }
@@ -1317,7 +1382,13 @@ function ssNumField(label, id, value, min, max, step){
 
 function ssPlayers(){
   if(!ss.data.players.length){
-    ss.data.players = PLAYERS.map(p=>({id:p.id,first:p.first,hi:p.hi,team:p.team}));
+    // Start with 4 blank slots (2 per team) rather than seeding from hardcoded data
+    ss.data.players = [
+      {id:"",first:"",hi:18.0,team:"A"},
+      {id:"",first:"",hi:18.0,team:"A"},
+      {id:"",first:"",hi:18.0,team:"B"},
+      {id:"",first:"",hi:18.0,team:"B"},
+    ];
   }
   const aPlayers = ss.data.players.filter(p=>p.team==="A");
   const bPlayers = ss.data.players.filter(p=>p.team==="B");
@@ -1337,7 +1408,7 @@ function ssPlayers(){
     <p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Add all players with their handicap index. Both teams must have equal numbers.</p>
   </div>
   <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:4px 10px 6px;margin-bottom:14px;font-size:12px;color:rgba(255,255,255,.5);display:grid;grid-template-columns:1fr 100px 70px 36px;gap:8px;align-items:center">
-    <span>Full Name</span><span>Team</span><span>Index</span><span></span>
+    <span>Full Name</span><span>Team</span><span>Handicap</span><span></span>
   </div>
   ${renderTeam("A", "Team A", "#86efac")}
   ${renderTeam("B", "Team B", "#fcd34d")}
@@ -1378,7 +1449,7 @@ function ssCourses(){
     html += `
     <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:18px;padding:18px;margin-bottom:16px">
       <div style="font-size:14px;font-weight:800;color:#f0c040;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px">📅 ${labels[day]}</div>
-      ${ssField(`Course Name`,`sc_${day}_name`,"text",c.name,"e.g. PGA National Cyprus")}
+      ${ssField(`Course Name`,`sc_${day}_name`,"text",c.name,"e.g. PGA National Cyprus",`oninput="ss.data.courses['${day}'].name=this.value"`)}
       <div style="margin-bottom:14px">
         <label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">Tee Colour</label>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -1388,20 +1459,20 @@ function ssCourses(){
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        ${ssInlineField("Par","sc_"+day+"_par","number",c.par,60,80,1)}
-        ${ssInlineField("Course Rating","sc_"+day+"_rating","number",c.rating,55,80,0.1)}
-        ${ssInlineField("Slope Rating","sc_"+day+"_slope","number",c.slope,55,155,1)}
-        ${ssInlineField("Allowance %","sc_"+day+"_allowance","number",c.allowance,50,100,5)}
+        ${ssInlineField("Par","sc_"+day+"_par","number",c.par,60,80,1,`oninput="ss.data.courses['${day}'].par=parseInt(this.value)||71"`)}
+        ${ssInlineField("Course Rating","sc_"+day+"_rating","number",c.rating,55,80,0.1,`oninput="ss.data.courses['${day}'].rating=parseFloat(this.value)||72"`)}
+        ${ssInlineField("Slope Rating","sc_"+day+"_slope","number",c.slope,55,155,1,`oninput="ss.data.courses['${day}'].slope=parseInt(this.value)||113"`)}
+        ${ssInlineField("Allowance %","sc_"+day+"_allowance","number",c.allowance,50,100,5,`oninput="ss.data.courses['${day}'].allowance=parseInt(this.value)||100"`)}
       </div>
     </div>`;
   });
   return html;
 }
 
-function ssInlineField(label,id,type,value,min,max,step){
+function ssInlineField(label,id,type,value,min,max,step,extra){
   return `<div>
     <label style="display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.6);margin-bottom:6px">${label}</label>
-    <input id="${id}" type="${type}" value="${value||''}" min="${min}" max="${max}" step="${step||1}" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:15px;font-weight:700" />
+    <input id="${id}" type="${type}" value="${value||''}" min="${min}" max="${max}" step="${step||1}" ${extra||''} style="width:100%;padding:12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:15px;font-weight:700" />
   </div>`;
 }
 
