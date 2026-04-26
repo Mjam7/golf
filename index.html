@@ -1210,7 +1210,7 @@ function ssBack(){
 async function ssNext(){
   if(!ssValidate()) return;
   ssSaveCurrentStep();
-  const isLast = ss.step >= SS_STEPS.length - 2; // step before signin
+  const isLast = ss.step >= SS_STEPS.length - 2;
   if(isLast){
     ssApplyAndSave();
     await ssSaveAndFinish();
@@ -1229,12 +1229,14 @@ function ssValidate(){
     if(!ss.data.tournament.startDate){ ssError("Please select a start date."); return false; }
   }
   if(id === "players"){
-    // Flush any typed-but-not-saved values from DOM inputs
-    ss.data.players.forEach((p,i) => {
-      const input = document.querySelector(`input[oninput*="players[${i}].first"]`);
-      if(input) p.first = input.value.trim();
+    // Read ALL name inputs from DOM directly — oninput may not have fired on mobile
+    document.querySelectorAll('input[placeholder="Full name"]').forEach((el, i) => {
+      if(ss.data.players[i] !== undefined){
+        ss.data.players[i].first = el.value.trim();
+        ss.data.players[i].id = el.value.trim().toLowerCase().replace(/[^a-z0-9]/g,'_') || `player_${i}`;
+      }
     });
-    // Strip completely empty rows
+    // Strip blank rows
     ss.data.players = ss.data.players.filter(p => p.first.trim());
     if(ss.data.players.length < 2){ ssError("Please add at least 2 players."); return false; }
     const a = ss.data.players.filter(p=>p.team==="A").length;
@@ -1546,11 +1548,13 @@ function ssGames(){
   const teamA = ss.data.players.filter(p=>p.team==="A");
   const teamB = ss.data.players.filter(p=>p.team==="B");
   const numGames = Math.floor(Math.min(teamA.length,teamB.length)/2);
-  const days = ss.data.tournament.numDays >= 2 ? ["day1","day2"] : ["day1"];
-  const labels = {day1:"Day 1",day2:"Day 2"};
+  const numDays = ss.data.tournament.numDays || 3;
+  const allDays = ["day1","day2","day3"].slice(0, numDays);
+  const labels = {day1:"Day 1",day2:"Day 2",day3:"Day 3"};
 
-  // Ensure game arrays are correct size
-  days.forEach(day=>{
+  // Ensure ss.data.games has all days
+  if(!ss.data.games.day3) ss.data.games.day3 = [];
+  allDays.forEach(day=>{
     while(ss.data.games[day].length < numGames) ss.data.games[day].push({name:`Game ${ss.data.games[day].length+1}`,a:[],b:[]});
     ss.data.games[day] = ss.data.games[day].slice(0,numGames);
   });
@@ -1566,10 +1570,10 @@ function ssGames(){
   let html = `
   <div style="margin-bottom:20px">
     <h2 style="font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:white">Game Groups</h2>
-    <p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Assign 2 players from each team to each game group. You can change pairings between days.</p>
+    <p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Assign 2 players from each team to each game group. Pairings can change between days.</p>
   </div>`;
 
-  days.forEach(day=>{
+  allDays.forEach(day=>{
     html += `<div style="font-size:13px;font-weight:800;color:#f0c040;text-transform:uppercase;letter-spacing:.06em;margin:16px 0 10px">📅 ${labels[day]}</div>`;
     for(let g=0;g<numGames;g++){
       const game = ss.data.games[day][g];
@@ -1668,6 +1672,7 @@ function ssApplyAndSave(){
   // Apply games
   DAY_GAMES.day1 = ss.data.games.day1.map((g,i)=>({name:`Game ${i+1}`,a:g.a.filter(Boolean),b:g.b.filter(Boolean)})).filter(g=>g.a.length&&g.b.length);
   DAY_GAMES.day2 = ss.data.games.day2.map((g,i)=>({name:`Game ${i+1}`,a:g.a.filter(Boolean),b:g.b.filter(Boolean)})).filter(g=>g.a.length&&g.b.length);
+  if(ss.data.games.day3) DAY_GAMES.day3 = ss.data.games.day3.map((g,i)=>({name:`Game ${i+1}`,a:g.a.filter(Boolean),b:g.b.filter(Boolean)})).filter(g=>g.a.length&&g.b.length);
 
   // Update admin reference
   window._adminPlayerId = ss.adminId;
