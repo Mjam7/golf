@@ -1229,19 +1229,27 @@ function ssValidate(){
     if(!ss.data.tournament.startDate){ ssError("Please select a start date."); return false; }
   }
   if(id === "players"){
-    // Read ALL name inputs from DOM directly — oninput may not have fired on mobile
-    document.querySelectorAll('input[placeholder="Full name"]').forEach((el, i) => {
-      if(ss.data.players[i] !== undefined){
-        ss.data.players[i].first = el.value.trim();
-        ss.data.players[i].id = el.value.trim().toLowerCase().replace(/[^a-z0-9]/g,'_') || `player_${i}`;
+    // Read all name inputs using data-player-idx for reliable mapping
+    document.querySelectorAll('input[data-field="first"]').forEach(el => {
+      const idx = parseInt(el.getAttribute("data-player-idx"));
+      if(!isNaN(idx) && ss.data.players[idx] !== undefined){
+        ss.data.players[idx].first = el.value.trim();
+        if(el.value.trim()) ss.data.players[idx].id = el.value.trim().toLowerCase().replace(/[^a-z0-9]/g,'_');
+      }
+    });
+    // Read handicap inputs too
+    document.querySelectorAll('input[data-field="hi"]').forEach(el => {
+      const idx = parseInt(el.getAttribute("data-player-idx"));
+      if(!isNaN(idx) && ss.data.players[idx] !== undefined){
+        ss.data.players[idx].hi = parseFloat(el.value) || 0;
       }
     });
     // Strip blank rows
-    ss.data.players = ss.data.players.filter(p => p.first.trim());
+    ss.data.players = ss.data.players.filter(p => p.first && p.first.trim());
     if(ss.data.players.length < 2){ ssError("Please add at least 2 players."); return false; }
     const a = ss.data.players.filter(p=>p.team==="A").length;
     const b = ss.data.players.filter(p=>p.team==="B").length;
-    if(a !== b){ ssError(`Teams must be equal size. Team A has ${a} player${a!==1?'s':''}, Team B has ${b}. Please balance the teams before continuing.`); return false; }
+    if(a !== b){ ssError(`Teams must be equal size. Team A has ${a} player${a!==1?'s':''}, Team B has ${b}.`); return false; }
   }
   if(id === "courses"){
     const days = ["day1","day2","day3"].slice(0, ss.data.tournament.numDays);
@@ -1430,13 +1438,18 @@ function ssPlayers(){
 
 function ssPlayerRow(p,i,color){
   return `<div style="display:grid;grid-template-columns:1fr 100px 70px 36px;gap:8px;align-items:center;margin-bottom:8px">
-    <input value="${p.first}" oninput="ss.data.players[${i}].first=this.value;ss.data.players[${i}].id=this.value.toLowerCase().replace(/[^a-z0-9]/g,'_')" placeholder="Full name" style="padding:12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:14px;width:100%" />
-    <select onchange="ss.data.players[${i}].team=this.value;ssRender()" style="padding:12px 8px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:13px;width:100%">
+    <input data-player-idx="${i}" data-field="first" value="${p.first||''}" placeholder="Full name"
+      oninput="ss.data.players[${i}].first=this.value.trim();ss.data.players[${i}].id=this.value.trim().toLowerCase().replace(/[^a-z0-9]/g,'_')||'player_${i}'"
+      style="padding:12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:14px;width:100%" />
+    <select data-player-idx="${i}" data-field="team" onchange="ss.data.players[${i}].team=this.value;ssRender()"
+      style="padding:12px 8px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:13px;width:100%">
       <option value="A" ${p.team==="A"?"selected":""} style="background:#063d22">A</option>
       <option value="B" ${p.team==="B"?"selected":""} style="background:#063d22">B</option>
     </select>
-    <input type="number" value="${p.hi}" min="0" max="54" step="0.1" oninput="ss.data.players[${i}].hi=parseFloat(this.value)||0" style="padding:12px 6px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:14px;text-align:center;width:100%" />
-    <button onclick="ssRemovePlayer(${i})" style="background:rgba(255,100,80,.2);border:1px solid rgba(255,100,80,.3);color:#ff9080;border-radius:10px;padding:10px;font-size:14px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center">✕</button>
+    <input data-player-idx="${i}" data-field="hi" type="number" value="${p.hi||18}" min="0" max="54" step="0.1"
+      oninput="ss.data.players[${i}].hi=parseFloat(this.value)||0"
+      style="padding:12px 6px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:14px;text-align:center;width:100%" />
+    <button onclick="ssRemovePlayer(${i})" style="background:rgba(255,100,80,.2);border:1px solid rgba(255,100,80,.3);color:#ff9080;border-radius:10px;padding:0;font-size:16px;cursor:pointer;width:36px;height:44px;display:flex;align-items:center;justify-content:center">✕</button>
   </div>`;
 }
 
