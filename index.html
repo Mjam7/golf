@@ -1162,10 +1162,10 @@ function ssLoadExisting(){
 
 function ssWelcome(){
   return '<div style="text-align:center;padding:20px 0 10px">'
-    +'<div style="font-size:72px;margin-bottom:16px">\uD83C\uDFC6</div>'
-    +'<h1 style="font-family:\'Playfair Display\',serif;font-size:32px;font-weight:900;color:white;line-height:1.15">Welcome to<br>Golf Tour Live</h1>'
-    +'<p style="color:rgba(255,255,255,.8);font-size:15px;margin-top:12px;line-height:1.6">Set up your tournament in a few quick steps — players, handicaps, courses and format.</p>'
-    +'<p style="color:rgba(240,192,64,.9);font-size:13px;font-weight:700;margin-top:16px;background:rgba(240,192,64,.1);border:1px solid rgba(240,192,64,.3);border-radius:12px;padding:10px">\uD83D\uDD10 Only the tournament organiser should complete setup</p>'
+    +'<div style="font-size:64px;margin-bottom:16px">&#127942;</div>'
+    +'<h1 style="font-family:Playfair Display,serif;font-size:32px;font-weight:900;color:white;line-height:1.15">Welcome to<br>Golf Tour Live</h1>'
+    +'<p style="color:rgba(255,255,255,.8);font-size:15px;margin-top:12px;line-height:1.6">Set up your tournament in a few quick steps.</p>'
+    +'<p style="color:rgba(240,192,64,.9);font-size:13px;font-weight:700;margin-top:16px;background:rgba(240,192,64,.1);border:1px solid rgba(240,192,64,.3);border-radius:12px;padding:10px">Only the tournament organiser should complete setup</p>'
     +'</div>';
 }
 
@@ -1179,13 +1179,13 @@ function ssTournament(){
   }).join('');
   var fmtBtns=formats.map(function(f){
     var sel=t.format===f;
-    return '<button onclick="ss.data.tournament.format=\''+f+'\';ssRender()" style="padding:13px 16px;border-radius:12px;border:2px solid '+(sel?'#f0c040':'rgba(255,255,255,.2)')+';background:'+(sel?'rgba(240,192,64,.15)':'rgba(255,255,255,.05)')+';color:'+(sel?'#f0c040':'rgba(255,255,255,.8)')+';font-size:14px;font-weight:700;cursor:pointer;text-align:left;width:100%">'+(sel?'\u2713 ':'')+f+'</button>';
+    return '<button onclick="ss.data.tournament.format=\''+f+'\';ssRender()" style="padding:13px 16px;border-radius:12px;border:2px solid '+(sel?'#f0c040':'rgba(255,255,255,.2)')+';background:'+(sel?'rgba(240,192,64,.15)':'rgba(255,255,255,.05)')+';color:'+(sel?'#f0c040':'rgba(255,255,255,.8)')+';font-size:14px;font-weight:700;cursor:pointer;text-align:left;width:100%">'+(sel?'&#10003; ':'')+f+'</button>';
   }).join('');
   return '<div style="margin-bottom:20px">'
-    +'<h2 style="font-family:\'Playfair Display\',serif;font-size:24px;font-weight:900;color:white">Tournament Details</h2>'
+    +'<h2 style="font-family:Playfair Display,serif;font-size:24px;font-weight:900;color:white">Tournament Details</h2>'
     +'<p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Name, dates and format</p></div>'
     +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:8px">Tournament Name</label>'
-    +'<input id="ss_tname" type="text" value="'+(t.name||'')+'" placeholder="e.g. Cyprus Golf Tour 2026" oninput="ss.data.tournament.name=this.value;document.getElementById(\'ss_tourName\').textContent=this.value||\'\'" style="'+inp+'" /></div>'
+    +'<input id="ss_tname" type="text" value="'+(t.name||'')+'" placeholder="e.g. Cyprus Golf Tour 2026" oninput="ss.data.tournament.name=this.value" style="'+inp+'" /></div>'
     +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:8px">Dates</label>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
     +'<div><div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:5px">Start</div>'
@@ -1198,6 +1198,7 @@ function ssTournament(){
     +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:8px">Format</label>'
     +'<div style="display:flex;flex-direction:column;gap:8px">'+fmtBtns+'</div></div>';
 }
+
 
 function ssRender(){
   var step = SS_STEPS[ss.step];
