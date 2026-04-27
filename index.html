@@ -1674,9 +1674,10 @@ window.addEventListener("DOMContentLoaded", async () => {
   ssShowScreen();
   ss.step = 0;
   try {
-    ssRender();
+    var welcomeHtml = ssWelcome();
+    document.getElementById("ss_content").innerHTML = welcomeHtml || "<p style='color:red'>ssWelcome returned empty</p>";
   } catch(e) {
-    document.getElementById("ss_content").innerHTML = '<div style="color:white;padding:20px;font-size:16px">Error: ' + e.message + '</div>';
+    document.getElementById("ss_content").innerHTML = "<p style='color:red'>Error: " + e.message + "</p>";
   }
 });
 </script>
