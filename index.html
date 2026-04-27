@@ -350,9 +350,7 @@
 <!-- ═══════════════════════════════════════════ -->
 <div id="setupScreen" style="
   position:fixed;inset:0;z-index:9000;
-  background:
-    linear-gradient(to bottom, rgba(2,20,10,.7) 0%, rgba(2,20,10,.3) 45%, rgba(2,20,10,.85) 100%),
-    url('https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=1200&q=85&auto=format&fit=crop') center/cover no-repeat;
+  background:#000;
   display:flex;flex-direction:column;
 ">
   <!-- Header -->
@@ -1170,7 +1168,7 @@ function ssWelcome(){
     +'<div style="font-size:64px;margin-bottom:16px">&#127942;</div>'
     +'<h1 style="font-family:Playfair Display,serif;font-size:32px;font-weight:900;color:white;line-height:1.15">Welcome to<br>Golf Tour Live</h1>'
     +'<p style="color:rgba(255,255,255,.8);font-size:15px;margin-top:12px;line-height:1.6">Set up your tournament in a few quick steps.</p>'
-    +'<p style="color:rgba(240,192,64,.9);font-size:13px;font-weight:700;margin-top:16px;background:rgba(240,192,64,.1);border:1px solid rgba(240,192,64,.3);border-radius:12px;padding:10px">Only the tournament organiser should complete setup</p>'
+    +'<p style="color:#ff6b6b;font-size:13px;font-weight:700;margin-top:16px">Only the tournament organiser should complete setup</p>'
     +'</div>';
 }
 
@@ -1228,9 +1226,9 @@ function ssRender(){
   if(step.id !== "signin"){
     var btnLabel = step.id==="games" ? "Save &amp; Continue \u2192" : ss.step===total-2 ? "Save &amp; Sign In \u2192" : "Continue \u2192";
     var backBtn = ss.step > 0 ? '<button onclick="ssBack()" style="flex:0 0 auto;padding:16px 22px;border-radius:14px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:white;font-size:14px;font-weight:800;cursor:pointer">← Back</button>' : "";
-    body += '<div style="position:sticky;bottom:0;display:flex;gap:10px;margin-top:24px;padding:16px 0 8px;background:linear-gradient(to top,rgba(2,20,10,.98) 60%,transparent)">'
+    body += '<div style="position:sticky;bottom:0;display:flex;gap:10px;margin-top:24px;padding:16px 0 8px;background:transparent">'
       + backBtn
-      + '<button onclick="ssNext()" style="flex:1;padding:18px;border-radius:14px;border:none;background:#f0c040;color:#042e19;font-size:16px;font-weight:900;cursor:pointer;letter-spacing:.04em;text-transform:uppercase">' + btnLabel + '</button>'
+      + '<button onclick="ssNext()" style="flex:1;max-width:220px;margin:0 auto;padding:16px 24px;border-radius:14px;border:none;background:#f0c040;color:#042e19;font-size:16px;font-weight:900;cursor:pointer;letter-spacing:.04em;text-transform:uppercase">' + btnLabel + '</button>'
       + '</div>';
   }
   contentEl.innerHTML = body;
@@ -1616,4 +1614,7 @@ function ssScorers(){
       var teamBPlayers = game.b.map(function(id){ return ss.data.players.find(function(p){return p.id===id;}); }).filter(Boolean);
 
       var aOpts = '<option value="">— select —</option>' + teamAPlayers.map(function(p){ return '<option value="'+p.id+'"'+(sc.A===p.id?' selected':'')+'>'+p.first+'</option>'; }).join('');
-      var bOpts = '<option value="">— select —</option>' + teamBPlayers.map(function(p){ return '<option valu
+      var bOpts = '<option value="">— select —</option>' + teamBPlayers.map(function(p){ return '<option value="'+p.id+'"'+(sc.B===p.id?' selected':'')+'>'+p.first+'</option>'; }).join('');
+
+      html += '<div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px;margin-bottom:10px">'
+        +'<div style="font-size:13px;font-weight:800;color:white;margin-bottom:12px">Game
