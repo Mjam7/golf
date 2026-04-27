@@ -1159,6 +1159,46 @@ function ssLoadExisting(){
 }
 
 // ── Render ──────────────────────────────────────
+
+function ssWelcome(){
+  return '<div style="text-align:center;padding:20px 0 10px">'
+    +'<div style="font-size:72px;margin-bottom:16px">\uD83C\uDFC6</div>'
+    +'<h1 style="font-family:\'Playfair Display\',serif;font-size:32px;font-weight:900;color:white;line-height:1.15">Welcome to<br>Golf Tour Live</h1>'
+    +'<p style="color:rgba(255,255,255,.8);font-size:15px;margin-top:12px;line-height:1.6">Set up your tournament in a few quick steps — players, handicaps, courses and format.</p>'
+    +'<p style="color:rgba(240,192,64,.9);font-size:13px;font-weight:700;margin-top:16px;background:rgba(240,192,64,.1);border:1px solid rgba(240,192,64,.3);border-radius:12px;padding:10px">\uD83D\uDD10 Only the tournament organiser should complete setup</p>'
+    +'</div>';
+}
+
+function ssTournament(){
+  var t=ss.data.tournament;
+  var inp='width:100%;padding:14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:16px;font-family:Inter,sans-serif;color-scheme:dark';
+  var formats=["Stableford Matchplay","Best Ball Stableford","Singles Stableford","Medal","Scramble"];
+  var dayBtns=[1,2,3].map(function(n){
+    var sel=t.numDays===n;
+    return '<button onclick="ss.data.tournament.numDays='+n+';ssRender()" style="flex:1;padding:14px;border-radius:12px;border:2px solid '+(sel?'#f0c040':'rgba(255,255,255,.2)')+';background:'+(sel?'rgba(240,192,64,.2)':'rgba(255,255,255,.05)')+';color:'+(sel?'#f0c040':'rgba(255,255,255,.7)')+';font-size:16px;font-weight:900;cursor:pointer">'+n+' Day'+(n>1?'s':'')+'</button>';
+  }).join('');
+  var fmtBtns=formats.map(function(f){
+    var sel=t.format===f;
+    return '<button onclick="ss.data.tournament.format=\''+f+'\';ssRender()" style="padding:13px 16px;border-radius:12px;border:2px solid '+(sel?'#f0c040':'rgba(255,255,255,.2)')+';background:'+(sel?'rgba(240,192,64,.15)':'rgba(255,255,255,.05)')+';color:'+(sel?'#f0c040':'rgba(255,255,255,.8)')+';font-size:14px;font-weight:700;cursor:pointer;text-align:left;width:100%">'+(sel?'\u2713 ':'')+f+'</button>';
+  }).join('');
+  return '<div style="margin-bottom:20px">'
+    +'<h2 style="font-family:\'Playfair Display\',serif;font-size:24px;font-weight:900;color:white">Tournament Details</h2>'
+    +'<p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Name, dates and format</p></div>'
+    +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:8px">Tournament Name</label>'
+    +'<input id="ss_tname" type="text" value="'+(t.name||'')+'" placeholder="e.g. Cyprus Golf Tour 2026" oninput="ss.data.tournament.name=this.value;document.getElementById(\'ss_tourName\').textContent=this.value||\'\'" style="'+inp+'" /></div>'
+    +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:8px">Dates</label>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+    +'<div><div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:5px">Start</div>'
+    +'<input id="ss_startdate" type="date" value="'+(t.startDate||'')+'" onchange="ss.data.tournament.startDate=this.value;ssUpdateDates()" style="'+inp+'" /></div>'
+    +'<div><div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:5px">End</div>'
+    +'<input id="ss_enddate" type="date" value="'+(t.endDate||'')+'" onchange="ss.data.tournament.endDate=this.value;ssUpdateDates()" style="'+inp+'" /></div>'
+    +'</div><div id="ss_datepreview" style="font-size:13px;color:rgba(240,192,64,.9);font-weight:700;margin-top:8px">'+(t.dates||'')+'</div></div>'
+    +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:8px">Number of Days</label>'
+    +'<div style="display:flex;gap:10px">'+dayBtns+'</div></div>'
+    +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:8px">Format</label>'
+    +'<div style="display:flex;flex-direction:column;gap:8px">'+fmtBtns+'</div></div>';
+}
+
 function ssRender(){
   var step = SS_STEPS[ss.step];
   var total = SS_STEPS.length;
