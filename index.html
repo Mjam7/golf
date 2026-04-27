@@ -1235,6 +1235,12 @@ function ssRender(){
       + '</div>';
   }
   contentEl.innerHTML = body;
+
+  // Populate player dropdown after signin screen renders
+  if(step.id==="signin"){
+    populatePlayers();
+    toggleAdminField();
+  }
 }
 
 function ssBack(){
@@ -1525,8 +1531,6 @@ function ssApplyAndSave(){
   DAY_GAMES.day2=ss.data.games.day2.map(function(g,i){return{name:"Game "+(i+1),a:g.a.filter(Boolean),b:g.b.filter(Boolean)};}).filter(function(g){return g.a.length&&g.b.length;});
   DAY_GAMES.day3=(ss.data.games.day3||[]).map(function(g,i){return{name:"Game "+(i+1),a:g.a.filter(Boolean),b:g.b.filter(Boolean)};}).filter(function(g){return g.a.length&&g.b.length;});
   document.querySelectorAll(".app-bar-title strong").forEach(function(el){el.textContent=ss.data.tournament.name;});
-  populatePlayers();
-  toggleAdminField();
   _summaryCache={};
 }
 
