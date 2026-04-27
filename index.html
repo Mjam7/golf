@@ -8,97 +8,1577 @@
   <script src="./config.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#f0ede4;--card:#fff;--ink:#16321f;--muted:#6b7c6e;--line:#e0ddd4;--green:#0b6b3a;--green-dark:#063d22;--green-deeper:#042e19;--gold:#f0c040;--cream:#f8f5e8;--shadow:0 4px 24px rgba(11,107,58,.10);--radius:16px}
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent} html,body{height:100%} body{margin:0;font-family:Inter,sans-serif;color:var(--ink);background:var(--bg)}
-    h1,h2,h3,h4,p{margin:0}.hidden{display:none!important}
-    .app-bar{background:linear-gradient(135deg,var(--green-dark),var(--green-deeper));color:white;padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.25);flex-shrink:0}.app-bar-left{display:flex;align-items:center;gap:10px}.app-bar-flag{font-size:28px}.app-bar-title strong{display:block;font-family:'Playfair Display',serif;font-size:17px;font-weight:900;color:white}.app-bar-title span{font-size:11px;color:rgba(255,255,255,.65);font-weight:600;letter-spacing:.04em;text-transform:uppercase}.app-bar-right{display:flex;align-items:center;gap:8px}.app-bar-sync{background:rgba(240,192,64,.18);border:1px solid rgba(240,192,64,.4);color:var(--gold);font-size:11px;font-weight:800;padding:5px 10px;border-radius:999px}.app-bar-user{font-size:13px;font-weight:800;color:var(--gold)}
-    .day-tabs{background:var(--green-dark);display:flex;padding:0 12px 12px;overflow-x:auto;scrollbar-width:none}.day-tabs::-webkit-scrollbar{display:none}.day-tabs button{flex:0 0 auto;padding:9px 20px;border-radius:999px;border:none;font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);cursor:pointer;white-space:nowrap}.day-tabs button.active{background:var(--gold);color:var(--green-deeper)}
-    .wrap{max-width:640px;margin:0 auto;padding:16px;width:100%;flex:1}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}.card-title{display:flex;align-items:center;gap:8px;font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:4px}.sub{color:var(--muted);margin-top:4px;font-size:13px;line-height:1.45}.status{padding:10px 14px;border-radius:12px;font-weight:700;font-size:13px;margin-bottom:12px;background:#eef5ef;border:1px solid #d6e7d9;color:var(--green-dark)}.status.ok{background:#ebf8ef;border-color:#cde7d6}.status.bad{background:#fff0ed;border-color:#f1c8c1;color:#9b2f24}
-    input,select{width:100%;border-radius:12px;border:1.5px solid var(--line);padding:13px 14px;font-size:16px;background:white;color:var(--ink);font-family:Inter,sans-serif}button{cursor:pointer;font-weight:800;font-family:Inter,sans-serif}.btn-primary{width:100%;padding:16px;border-radius:14px;border:none;background:var(--green-dark);color:var(--gold);font-size:15px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;box-shadow:0 4px 16px rgba(6,61,34,.3)}.btn-secondary{background:white;color:var(--green);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px}.pill{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700}.teamA{background:#e6f4eb;color:var(--green)}.teamB{background:#fff0df;color:#8c4a12}
-    .comp-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}.comp-block{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px}.comp-block h4{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px}.team-score-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:10px;margin-bottom:6px;font-weight:800;font-size:14px}.team-score-row.leading{background:var(--green);color:white}.team-score-row.trailing,.team-score-row.tied{background:var(--cream);color:var(--ink)}
-    .view-toggle{display:flex;gap:8px;margin-bottom:14px}.view-toggle button{flex:1;padding:10px;font-size:13px;border-radius:12px;border:1.5px solid var(--line);background:white;color:var(--green)}.view-toggle button.active{background:var(--green);color:white;border-color:var(--green)}
-    .score-section-header{background:var(--green-dark);color:white;border-radius:14px;padding:14px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:12px;text-align:center}.sh-label{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:2px}.sh-val{font-size:26px;font-weight:900;color:var(--gold);line-height:1}.progress-bar-wrap{background:#e8f0ea;border-radius:999px;height:8px;margin:10px 0 4px;overflow:hidden}.progress-bar-fill{background:linear-gradient(90deg,var(--green),#2ecc71);height:100%;border-radius:999px;transition:width .4s ease}.progress-label{font-size:11px;font-weight:800;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:2px}.hole-half-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 0 6px;padding-left:2px}.hole-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.hole-tile{background:white;border:1.5px solid var(--line);border-radius:14px;padding:10px 8px 8px;display:flex;flex-direction:column;align-items:center;gap:4px}.hole-tile-top{display:flex;justify-content:space-between;width:100%;font-size:10px;font-weight:800;color:var(--muted)}.hole-tile-btn{width:100%;padding:12px 4px;border-radius:10px;border:1.5px solid var(--line);background:#f8f6ef;font-size:20px;font-weight:900;color:var(--ink);text-align:center}.hole-tile-btn.empty{color:#ccc}.hole-tile-btn.good{background:#e6f4eb;border-color:#8dc8a0;color:var(--green)}.hole-tile-btn.great{background:var(--green);border-color:var(--green);color:white}.hole-tile-btn.blob{background:#fff0df;border-color:#e8c878;color:#8c4a12}.hole-tile-pts{font-size:11px;font-weight:800;color:var(--muted)}
-    .summary-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.summary-box{background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}.summary-box .k{color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}.summary-box .v{font-size:20px;font-weight:900;margin-top:3px}.summary-box.highlight .v{color:var(--green)}.player-card{border:1px solid var(--line);border-radius:16px;padding:16px;background:white;margin-bottom:12px}.player-header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px}.player-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:900}.meta{font-size:13px;color:var(--muted);margin-top:5px}.points-badge{min-width:80px;text-align:center;background:var(--green-dark);color:white;padding:10px 14px;border-radius:14px;font-weight:900;font-size:24px;line-height:1}.points-badge span{display:block;font-size:10px;opacity:.75;margin-top:4px;text-transform:uppercase}.match-card{border:1px solid var(--line);border-radius:14px;padding:14px;background:white;margin-bottom:10px}.hole-chips{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px}.hole-chip{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800}.hole-A{background:#e6f4eb;color:var(--green)}.hole-B{background:#fff0df;color:#8c4a12}.hole-H{background:#f2f0e8;color:#6b7c6e}
-    table{width:100%;border-collapse:collapse}th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:middle}th{background:var(--cream);color:var(--green-dark);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}.money{font-weight:900;color:var(--green)}tr.me-row td{background:#f0faf3;font-weight:900}tr.me-row td:first-child{border-left:3px solid var(--green)}
-    .modal-backdrop{position:fixed;inset:0;background:rgba(4,30,16,.6);display:flex;align-items:flex-end;justify-content:center;padding:12px;z-index:1000;backdrop-filter:blur(3px)}.modal{width:min(520px,100%);background:white;border-radius:24px 24px 20px 20px;padding:20px;border:1px solid var(--line);box-shadow:0 -4px 40px rgba(0,0,0,.2)}.modal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.modal-nav-btn{background:var(--cream);border:1.5px solid var(--line);border-radius:10px;padding:8px 14px;font-size:18px;font-weight:900;width:auto;color:var(--ink)}.score-buttons{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:4px}.score-btn{padding:16px 8px;font-size:18px;font-weight:900;border-radius:12px;border:1.5px solid var(--line);background:#f8f6ef;color:var(--ink)}.score-btn.alt{background:#fff7e1;border-color:#ebd28e;color:#8c4a12}.score-btn.soft{background:#f0f0f0;color:var(--muted)}.score-btn.primary{background:var(--green-dark);color:var(--gold);border-color:var(--green-dark);font-size:14px}.small-note{font-size:12px;color:var(--muted);margin-top:10px;text-align:center}
-    .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--green-deeper);display:flex;border-top:1px solid rgba(255,255,255,.08);height:72px;padding:0 4px;box-shadow:0 -4px 20px rgba(0,0,0,.3)}.bottom-nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:transparent;color:rgba(255,255,255,.5);font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:8px 4px}.bottom-nav button.active{color:var(--gold)}.nav-icon{font-size:20px}.identity-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}.identity-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:900}.identity-sub{font-size:12px;color:var(--muted);margin-top:2px}.offline-toast{position:fixed;top:74px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:white;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:500;display:none}.offline-toast.show{display:block}.dark-toggle{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);padding:5px 9px;border-radius:999px;font-size:16px;width:auto;line-height:1}
-    body.dark{--bg:#0d1f14;--card:#162b1e;--ink:#e8f5ee;--muted:#7aad8a;--line:#1e3828;--cream:#1a2e22;--shadow:0 4px 24px rgba(0,0,0,.4)}body.dark input,body.dark select,body.dark .hole-tile,body.dark .player-card,body.dark .match-card{background:#162b1e;color:#e8f5ee;border-color:#1e3828}body.dark .hole-tile-btn{background:#1a2e22;color:#e8f5ee}
-    #setupScreen{position:fixed;inset:0;z-index:9000;background:linear-gradient(to bottom,rgba(2,20,10,.7),rgba(2,20,10,.3) 45%,rgba(2,20,10,.85)),url('https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=1200&q=85&auto=format&fit=crop') center/cover no-repeat;display:flex;flex-direction:column}.wizard-input{width:100%;padding:14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:16px}.wizard-input option{background:#063d22;color:white}.wizard-card{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:20px}.wizard-label{display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin:14px 0 8px}.wizard-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:white}.wizard-copy{color:rgba(255,255,255,.7);font-size:13px;margin-top:4px;line-height:1.45}
-    @media(max-width:640px){.comp-summary{grid-template-columns:1fr}.summary-strip{grid-template-columns:repeat(2,1fr)}.score-section-header .sh-val{font-size:22px}}
+    :root{
+      --bg:#f0ede4; --card:#ffffff; --ink:#16321f; --muted:#6b7c6e; --line:#e0ddd4;
+      --green:#0b6b3a; --green-dark:#063d22; --green-deeper:#042e19;
+      --gold:#f0c040; --gold-dark:#c99a10; --cream:#f8f5e8;
+      --shadow:0 4px 24px rgba(11,107,58,0.10);
+      --radius:16px;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%}
+    body{
+      margin:0;font-family:'Inter',sans-serif;color:var(--ink);
+      background:var(--bg);
+    }
+
+    /* ── LOGIN SCREEN ── */
+    .login-screen{
+      min-height:100vh;
+      background:
+        linear-gradient(to bottom, rgba(4,30,16,.55) 0%, rgba(4,30,16,.2) 40%, rgba(4,30,16,.75) 100%),
+        url('https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=900&q=80&auto=format&fit=crop') center/cover no-repeat;
+      display:flex;flex-direction:column;
+      padding-bottom:0;
+    }
+    .login-screen .app-bar{background:transparent;box-shadow:none;position:relative}
+    .login-screen-body{
+      flex:1;display:flex;flex-direction:column;justify-content:flex-end;
+      padding:16px 16px 32px;max-width:480px;margin:0 auto;width:100%;
+    }
+    .login-title-block{text-align:center;margin-bottom:24px;color:white}
+    .login-title-block .trophy{font-size:48px;margin-bottom:8px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.5))}
+    .login-title-block h1{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:white;text-shadow:0 2px 12px rgba(0,0,0,.5);line-height:1.15}
+    .login-title-block p{font-size:13px;color:rgba(255,255,255,.75);margin-top:6px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+    .login-float-card{
+      background:white;border-radius:24px;padding:24px;
+      box-shadow:0 20px 60px rgba(0,0,0,.4);
+    }
+
+    /* ── APP BAR ── */
+    .app-bar{
+      background:linear-gradient(135deg, var(--green-dark) 0%, var(--green-deeper) 100%);
+      color:white;
+      padding:0 16px;
+      display:flex;align-items:center;justify-content:space-between;
+      height:64px;
+      position:sticky;top:0;z-index:100;
+      box-shadow:0 2px 12px rgba(0,0,0,.25);
+      flex-shrink:0;
+    }
+    .app-bar-left{display:flex;align-items:center;gap:10px}
+    .app-bar-flag{font-size:28px;line-height:1}
+    .app-bar-title{line-height:1.15}
+    .app-bar-title strong{display:block;font-family:'Playfair Display',serif;font-size:17px;font-weight:900;letter-spacing:.01em;color:white}
+    .app-bar-title span{font-size:11px;color:rgba(255,255,255,.65);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+    .app-bar-right{display:flex;align-items:center;gap:8px}
+    .app-bar-sync{background:rgba(240,192,64,.18);border:1px solid rgba(240,192,64,.4);color:var(--gold);font-size:11px;font-weight:800;padding:5px 10px;border-radius:999px;letter-spacing:.04em}
+    .app-bar-user{font-size:13px;font-weight:800;color:var(--gold);display:flex;align-items:center;gap:5px}
+
+    /* ── DAY TABS ── */
+    .day-tabs{
+      background:var(--green-dark);
+      display:flex;gap:0;
+      padding:0 12px 12px;
+      overflow-x:auto;scrollbar-width:none;
+    }
+    .day-tabs::-webkit-scrollbar{display:none}
+    .day-tabs button{
+      flex:0 0 auto;padding:9px 20px;border-radius:999px;border:none;
+      font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+      background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);
+      cursor:pointer;transition:all .15s;white-space:nowrap;
+    }
+    .day-tabs button.active{background:var(--gold);color:var(--green-deeper)}
+    .day-tabs button:not(.active):hover{background:rgba(255,255,255,.18);color:white}
+
+    /* ── SCROLL BODY ── */
+    .wrap{max-width:640px;margin:0 auto;padding:16px;width:100%;flex:1}
+
+    /* ── CARDS ── */
+    h1,h2,h3,h4,p{margin:0}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
+    .card-title{display:flex;align-items:center;gap:8px;font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--ink);margin-bottom:4px}
+    .card-title .icon{font-size:20px}
+    .sub{color:var(--muted);margin-top:4px;font-size:13px;line-height:1.45}
+
+    /* ── STATUS ── */
+    .status{padding:10px 14px;border-radius:12px;font-weight:700;font-size:13px;margin-bottom:12px;background:#eef5ef;border:1px solid #d6e7d9;color:var(--green-dark)}
+    .status.ok{background:#ebf8ef;border-color:#cde7d6}
+    .status.bad{background:#fff0ed;border-color:#f1c8c1;color:#9b2f24}
+    .hidden{display:none!important}
+
+    /* ── LOGIN CARD ── */
+    .login-card{border-radius:20px;padding:24px}
+    .login-card h2{font-family:'Playfair Display',serif;font-size:26px;font-weight:900}
+    .label{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;letter-spacing:.03em;text-transform:uppercase}
+    input,select{width:100%;border-radius:12px;border:1.5px solid var(--line);padding:13px 14px;font-size:16px;background:white;color:var(--ink);font-family:'Inter',sans-serif}
+    input:focus,select:focus{outline:none;border-color:var(--green)}
+    select{appearance:auto;-webkit-appearance:menulist}
+    button{cursor:pointer;font-weight:800;font-family:'Inter',sans-serif}
+    .btn-primary{
+      width:100%;padding:16px;border-radius:14px;border:none;
+      background:var(--green-dark);color:var(--gold);
+      font-size:15px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;
+      box-shadow:0 4px 16px rgba(6,61,34,.3);
+    }
+    .btn-secondary{background:white;color:var(--green);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px}
+    .login-security{background:var(--cream);border:1px solid #e8e0c8;border-radius:12px;padding:14px;display:flex;gap:12px;align-items:flex-start;margin-top:14px}
+    .login-security .icon{font-size:22px;flex-shrink:0;margin-top:1px}
+    .login-security strong{font-size:14px;display:block;color:var(--ink)}
+    .login-security span{font-size:12px;color:var(--muted)}
+
+    /* ── TEAM PILLS ── */
+    .pill{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700}
+    .teamA{background:#e6f4eb;color:var(--green)}
+    .teamB{background:#fff0df;color:#8c4a12}
+    .pill-outline{background:transparent;border:1px solid var(--line);color:var(--muted)}
+
+    /* ── SCORE SECTION HEADER ── */
+    .score-section-header{
+      background:var(--green-dark);color:white;
+      border-radius:14px;padding:14px 16px;
+      display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;
+      margin-bottom:12px;text-align:center;
+    }
+    .score-section-header .sh-label{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:2px}
+    .score-section-header .sh-val{font-size:26px;font-weight:900;color:var(--gold);line-height:1}
+
+    /* ── HOLE TILE GRID ── */
+    .hole-half-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 0 6px;padding-left:2px}
+    .hole-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px}
+    .hole-tile{
+      background:white;border:1.5px solid var(--line);border-radius:14px;
+      padding:10px 8px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;
+      position:relative;
+    }
+    .hole-tile-top{display:flex;justify-content:space-between;width:100%;font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.02em}
+    .hole-tile-btn{
+      width:100%;padding:12px 4px;border-radius:10px;border:1.5px solid var(--line);
+      background:#f8f6ef;font-size:20px;font-weight:900;color:var(--ink);
+      cursor:pointer;text-align:center;transition:transform .1s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .hole-tile-btn:active{transform:scale(.94)}
+    .hole-tile-btn.empty{color:#ccc}
+    .hole-tile-btn.has-score{background:white;border-color:#b8d4be}
+    .hole-tile-btn.good{background:#e6f4eb;border-color:#8dc8a0;color:var(--green)}
+    .hole-tile-btn.great{background:var(--green);border-color:var(--green);color:white}
+    .hole-tile-btn.blob{background:#fff0df;border-color:#e8c878;color:#8c4a12}
+    .hole-tile-pts{font-size:11px;font-weight:800;color:var(--muted)}
+    .hole-tile-pts.pos{color:var(--green)}
+
+    /* ── SUMMARY STRIP ── */
+    .summary-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+    .summary-box{background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+    .summary-box .k{color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+    .summary-box .v{font-size:20px;font-weight:900;margin-top:3px;color:var(--ink)}
+    .summary-box.highlight .v{color:var(--green)}
+
+    /* ── MATCH CARD ── */
+    .match-card{border:1px solid var(--line);border-radius:14px;padding:14px;background:white;margin-bottom:10px}
+    .match-result{font-weight:900;color:var(--green);font-size:15px;margin-top:6px}
+    .hole-chips{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px}
+    .hole-chip{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800}
+    .hole-A{background:#e6f4eb;color:var(--green)}
+    .hole-B{background:#fff0df;color:#8c4a12}
+    .hole-H{background:#f2f0e8;color:#6b7c6e}
+
+    /* ── COMP SUMMARY BANNER ── */
+    .comp-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+    .comp-block{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+    .comp-block h4{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px}
+    .team-score-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:10px;margin-bottom:6px;font-weight:800;font-size:14px}
+    .team-score-row.leading{background:var(--green);color:white}
+    .team-score-row.trailing,.team-score-row.tied{background:var(--cream);color:var(--ink)}
+    .lb-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}
+    .lb-row:last-child{border-bottom:none}
+    .lb-pos{font-weight:900;color:var(--muted);width:18px;flex-shrink:0}
+    .lb-name{font-weight:800;flex:1}
+    .lb-pts{font-weight:900;color:var(--green)}
+    .lb-prize{font-size:11px;color:var(--muted)}
+    .my-match-text{font-size:14px;font-weight:900;color:var(--green);margin-top:6px}
+    .my-match-sub{font-size:12px;color:var(--muted);margin-top:3px}
+
+    /* ── VIEW TOGGLE ── */
+    .view-toggle{display:flex;gap:8px;margin-bottom:14px}
+    .view-toggle button{flex:1;padding:10px;font-size:13px;font-weight:800;border-radius:12px;border:1.5px solid var(--line);background:white;color:var(--green)}
+    .view-toggle button.active{background:var(--green);color:white;border-color:var(--green)}
+
+    /* ── TABLES (leaderboard, overall) ── */
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:middle}
+    th{background:var(--cream);color:var(--green-dark);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0}
+    .money{font-weight:900;color:var(--green)}
+    .row{display:grid;gap:12px}
+    .cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+
+    /* ── PLAYER CARD ── */
+    .player-card{border:1px solid var(--line);border-radius:16px;padding:16px;background:white;margin-bottom:12px}
+    .player-header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px}
+    .player-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;line-height:1.1}
+    .meta{font-size:13px;color:var(--muted);margin-top:5px;line-height:1.35}
+    .points-badge{min-width:80px;text-align:center;background:var(--green-dark);color:white;padding:10px 14px;border-radius:14px;font-weight:900;font-size:24px;line-height:1}
+    .points-badge span{display:block;font-size:10px;opacity:.75;margin-top:4px;letter-spacing:.06em;text-transform:uppercase}
+
+    /* ── SCORE MODAL ── */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(4,30,16,.6);display:flex;align-items:flex-end;justify-content:center;padding:12px;z-index:1000;backdrop-filter:blur(3px)}
+    .modal{width:min(520px,100%);background:white;border-radius:24px 24px 20px 20px;padding:20px;border:1px solid var(--line);box-shadow:0 -4px 40px rgba(0,0,0,.2)}
+    .modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+    .modal-header h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:900}
+    .score-buttons{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:4px}
+    .score-btn{padding:16px 8px;font-size:18px;font-weight:900;border-radius:12px;border:1.5px solid var(--line);background:#f8f6ef;color:var(--ink);transition:all .1s}
+    .score-btn:active{transform:scale(.95)}
+    .score-btn.alt{background:#fff7e1;border-color:#ebd28e;color:#8c4a12}
+    .score-btn.soft{background:#f0f0f0;color:var(--muted)}
+    .score-btn.primary{background:var(--green-dark);color:var(--gold);border-color:var(--green-dark);font-size:14px}
+    .small-note{font-size:12px;color:var(--muted);margin-top:10px;text-align:center}
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav{
+      position:fixed;bottom:0;left:0;right:0;z-index:200;
+      background:var(--green-deeper);
+      display:flex;border-top:1px solid rgba(255,255,255,.08);
+      height:72px;padding:0 4px;
+      box-shadow:0 -4px 20px rgba(0,0,0,.3);
+    }
+    .bottom-nav button{
+      flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:3px;border:none;background:transparent;color:rgba(255,255,255,.5);
+      font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+      padding:8px 4px;border-radius:0;transition:color .15s;
+    }
+    .bottom-nav button .nav-icon{font-size:20px;line-height:1}
+    .bottom-nav button.active{color:var(--gold)}
+    .bottom-nav button:not(.active):hover{color:rgba(255,255,255,.8)}
+
+    /* ── IDENTITY BAR ── */
+    .identity-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+    .identity-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:900}
+    .identity-sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+    @media(max-width:640px){
+      .comp-summary{grid-template-columns:1fr}
+      .summary-strip{grid-template-columns:repeat(2,1fr)}
+      .score-section-header .sh-val{font-size:22px}
+      .cols-2{grid-template-columns:1fr}
+    }
+    /* ── COURSE EDITOR ── */
+    .course-editor-tabs{display:flex;gap:8px;margin-bottom:16px}
+    .course-editor-tabs button{flex:1;padding:10px;font-size:13px;font-weight:800;border-radius:12px;border:1.5px solid var(--line);background:white;color:var(--green)}
+    .course-editor-tabs button.active{background:var(--green);color:white;border-color:var(--green)}
+    .course-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+    .course-meta-grid .full{grid-column:1/-1}
+    .field-group label{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:5px}
+    .field-group input{padding:11px 12px;font-size:15px;border-radius:10px}
+    .hole-editor-table{width:100%;border-collapse:separate;border-spacing:0 4px}
+    .hole-editor-table thead th{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:4px 6px;text-align:center}
+    .hole-editor-table thead th:first-child{text-align:left}
+    .hole-editor-table tbody tr{background:white;border-radius:10px}
+    .hole-editor-table tbody td{padding:4px 4px;vertical-align:middle}
+    .hole-editor-table tbody td:first-child{font-size:12px;font-weight:800;color:var(--muted);padding-left:8px;width:40px}
+    .hole-editor-table tbody td input{padding:8px 4px;font-size:14px;font-weight:700;text-align:center;border-radius:8px;border:1.5px solid var(--line);background:#f8f6ef}
+    .hole-editor-table tbody td input:focus{outline:none;border-color:var(--green);background:white}
+    .par3-row td input[name="par"]{color:#2a7ab5}
+    .par5-row td input[name="par"]{color:#8c4a12}
+    .save-banner{background:#ebf8ef;border:1px solid #cde7d6;color:var(--green-dark);border-radius:12px;padding:12px 14px;font-weight:700;font-size:13px;margin-top:12px;display:none;align-items:center;gap:8px}
+    .save-banner.show{display:flex}
+    /* ── PROGRESS BAR ── */
+    .progress-bar-wrap{background:#e8f0ea;border-radius:999px;height:8px;margin:10px 0 4px;overflow:hidden}
+    .progress-bar-fill{background:linear-gradient(90deg,var(--green),#2ecc71);height:100%;border-radius:999px;transition:width .4s ease}
+    .progress-label{font-size:11px;font-weight:800;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:2px}
+
+    /* ── MATCH STATUS BANNER ── */
+    .match-banner{
+      border-radius:14px;padding:12px 16px;margin-bottom:10px;
+      display:flex;align-items:center;justify-content:space-between;gap:8px;
+      background:var(--green-dark);color:white;
+    }
+    .match-banner.halved{background:var(--cream);color:var(--ink);border:1px solid var(--line)}
+    .match-banner-status{font-size:15px;font-weight:900}
+    .match-banner-sub{font-size:11px;opacity:.75;margin-top:2px}
+    .match-banner-holes{font-size:13px;font-weight:800;opacity:.85;white-space:nowrap}
+
+    /* ── SAVE FLASH ANIMATION ── */
+    @keyframes flashGreen{0%{background:var(--green)}50%{background:#2ecc71}100%{background:var(--green)}}
+    .hole-tile-btn.saving{animation:flashGreen .4s ease}
+    @keyframes popIn{0%{transform:scale(0.7);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+    .hole-tile-btn.saved-pop{animation:popIn .3s ease forwards}
+
+    /* ── LEADERBOARD HIGHLIGHT ── */
+    .lb-me{background:var(--cream);border-radius:10px;padding:6px 8px;margin:-2px -4px}
+    tr.me-row td{background:#f0faf3;font-weight:900}
+    tr.me-row td:first-child{border-left:3px solid var(--green)}
+
+    /* ── ACTIVITY FEED ── */
+    .activity-feed{margin-bottom:14px}
+    .activity-feed-inner{display:flex;flex-direction:column;gap:6px}
+    .activity-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:white;border:1px solid var(--line);border-radius:12px;font-size:12px;animation:slideIn .3s ease}
+    @keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+    .activity-icon{font-size:16px;flex-shrink:0}
+    .activity-text{flex:1;color:var(--ink);font-weight:600}
+    .activity-time{color:var(--muted);font-size:11px;white-space:nowrap}
+
+    /* ── DARK MODE ── */
+    body.dark{--bg:#0d1f14;--card:#162b1e;--ink:#e8f5ee;--muted:#7aad8a;--line:#1e3828;--cream:#1a2e22;--shadow:0 4px 24px rgba(0,0,0,.4)}
+    body.dark .hole-tile-btn{background:#1a2e22;color:#e8f5ee}
+    body.dark .hole-tile{background:#162b1e;border-color:#1e3828}
+    body.dark table{color:#e8f5ee}
+    body.dark th{background:#1a2e22}
+    body.dark input,body.dark select{background:#1a2e22;color:#e8f5ee;border-color:#1e3828}
+    body.dark .match-card,body.dark .player-card,body.dark .comp-block,body.dark .summary-box{background:#162b1e;border-color:#1e3828}
+    body.dark .login-float-card{background:#162b1e}
+    body.dark .login-security{background:#1a2e22;border-color:#1e3828}
+    .dark-toggle{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);padding:5px 9px;border-radius:999px;font-size:16px;width:auto;line-height:1}
+
+    /* ── SHARE CARD ── */
+    .share-btn{display:flex;align-items:center;gap:8px;justify-content:center;padding:12px;border-radius:14px;border:1.5px solid var(--green);background:white;color:var(--green);font-size:14px;font-weight:800;width:100%;margin-top:10px}
+    body.dark .share-btn{background:var(--card);border-color:var(--green)}
+
+    /* ── SWIPE MODAL NAV ── */
+    .modal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .modal-nav-btn{background:var(--cream);border:1.5px solid var(--line);border-radius:10px;padding:8px 14px;font-size:18px;font-weight:900;width:auto;color:var(--ink)}
+    .modal-nav-btn:disabled{opacity:.3}
+    .modal-hole-info{text-align:center;flex:1}
+
+    /* ── OFFLINE TOAST ── */
+    .offline-toast{
+      position:fixed;top:74px;left:50%;transform:translateX(-50%);
+      background:#1a1a1a;color:white;padding:10px 18px;border-radius:999px;
+      font-size:13px;font-weight:700;z-index:500;display:none;
+      box-shadow:0 4px 20px rgba(0,0,0,.3);
+    }
+    .offline-toast.show{display:block}
+
+
   </style>
 </head>
 <body>
-<div id="setupScreen">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SETUP / LOGIN SCREEN                         -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="setupScreen" style="
+  position:fixed;inset:0;z-index:9000;
+  background:
+    linear-gradient(to bottom, rgba(2,20,10,.7) 0%, rgba(2,20,10,.3) 45%, rgba(2,20,10,.85) 100%),
+    url('https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=1200&q=85&auto=format&fit=crop') center/cover no-repeat;
+  display:flex;flex-direction:column;
+">
+  <!-- Header -->
   <div style="padding:16px 16px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-    <div style="display:flex;align-items:center;gap:10px"><span style="font-size:24px">⛳</span><div><div id="ss_tourName" style="font-family:'Playfair Display',serif;font-size:15px;font-weight:900;color:white;line-height:1.1">Golf Tour</div><div id="ss_tourDates" style="font-size:11px;color:rgba(255,255,255,.6);font-weight:600;letter-spacing:.04em;text-transform:uppercase"></div></div></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:24px">⛳</span>
+      <div>
+        <div id="ss_tourName" style="font-family:'Playfair Display',serif;font-size:15px;font-weight:900;color:white;line-height:1.1">Golf Tour</div>
+        <div id="ss_tourDates" style="font-size:11px;color:rgba(255,255,255,.6);font-weight:600;letter-spacing:.04em;text-transform:uppercase"></div>
+      </div>
+    </div>
     <div id="ss_stepBadge" style="background:rgba(240,192,64,.2);border:1px solid rgba(240,192,64,.4);color:#f0c040;font-size:11px;font-weight:800;padding:5px 12px;border-radius:999px;letter-spacing:.04em"></div>
   </div>
+
+  <!-- Step dots -->
   <div id="ss_dots" style="display:flex;gap:6px;justify-content:center;padding:10px 0 0;flex-shrink:0"></div>
+
+  <!-- Scrollable content -->
   <div id="ss_content" style="flex:1;overflow-y:auto;padding:16px;max-width:560px;margin:0 auto;width:100%"></div>
+
 </div>
 
+
+<!-- MAIN APP (hidden until login) -->
 <div id="mainApp" class="hidden" style="display:flex;flex-direction:column;min-height:100vh;padding-bottom:72px">
-<header class="app-bar"><div class="app-bar-left"><span class="app-bar-flag">⛳</span><div class="app-bar-title"><strong>Cyprus Golf Tour '26</strong><span>Live Score Card</span></div></div><div class="app-bar-right" id="appBarRight"><button class="dark-toggle" onclick="toggleDark()" title="Toggle dark mode">🌙</button><span class="app-bar-user" id="whoAmI"></span><span class="app-bar-sync" id="syncState">● Live</span><button onclick="logOut()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:white;padding:6px 11px;border-radius:999px;font-size:12px;font-weight:800;width:auto">⇠ Switch</button></div></header>
-<nav class="day-tabs" id="dayTabs"><button id="tab_day1" class="active" onclick="showSection('day1')">Day 1</button><button id="tab_day2" onclick="showSection('day2')">Day 2</button><button id="tab_day3" onclick="showSection('day3')">Day 3</button><button id="tab_overall" onclick="showSection('overall')">Overall</button><button id="tab_setup" onclick="showSection('setup')">Setup</button></nav>
-<div class="wrap"><div id="appRoot"><div class="identity-bar"><div><div class="identity-name" id="whoAmIApp">—</div><div class="identity-sub" id="accessSummary">—</div></div></div><div id="compSummary" class="comp-summary"></div><div id="day1" class="section"></div><div id="day2" class="section hidden"></div><div id="day3" class="section hidden"></div><div id="overall" class="section hidden"></div><div id="setup" class="section hidden"></div></div></div>
+
+<!-- APP BAR -->
+<header class="app-bar">
+  <div class="app-bar-left">
+    <span class="app-bar-flag">⛳</span>
+    <div class="app-bar-title">
+      <strong>Cyprus Golf Tour '26</strong>
+      <span>Live Score Card</span>
+    </div>
+  </div>
+  <div class="app-bar-right" id="appBarRight">
+    <button class="dark-toggle" onclick="toggleDark()" title="Toggle dark mode">🌙</button>
+    <span class="app-bar-user" id="whoAmI"></span>
+    <span class="app-bar-sync" id="syncState">● Live</span>
+    <button onclick="logOut()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:white;padding:6px 11px;border-radius:999px;font-size:12px;font-weight:800;width:auto">⇠ Switch</button>
+  </div>
+</header>
+
+<!-- DAY TABS -->
+<nav class="day-tabs" id="dayTabs">
+  <button id="tab_day1" class="active" onclick="showSection('day1')">Day 1</button>
+  <button id="tab_day2" onclick="showSection('day2')">Day 2</button>
+  <button id="tab_day3" onclick="showSection('day3')">Day 3</button>
+  <button id="tab_overall" onclick="showSection('overall')">Overall</button>
+  <button id="tab_setup" onclick="showSection('setup')">Setup</button>
+</nav>
+
+<div class="wrap">
+  <div id="appRoot">
+    <div class="identity-bar">
+      <div>
+        <div class="identity-name" id="whoAmIApp">—</div>
+        <div class="identity-sub" id="accessSummary">—</div>
+      </div>
+    </div>
+    <div id="compSummary" class="comp-summary"></div>
+    <div id="day1" class="section"></div>
+    <div id="day2" class="section hidden"></div>
+    <div id="day3" class="section hidden"></div>
+    <div id="overall" class="section hidden"></div>
+    <div id="setup" class="section hidden"></div>
+  </div>
 </div>
-<nav class="bottom-nav hidden" id="bottomNav"><button id="bnav_day1" class="active" onclick="showSection('day1')"><span class="nav-icon">🏌️</span>Day 1</button><button id="bnav_day2" onclick="showSection('day2')"><span class="nav-icon">🎯</span>Day 2</button><button id="bnav_day3" onclick="showSection('day3')"><span class="nav-icon">⚔️</span>Day 3</button><button id="bnav_overall" onclick="showSection('overall')"><span class="nav-icon">🏆</span>Overall</button><button id="bnav_setup" onclick="showSection('setup')"><span class="nav-icon">⚙️</span>Setup</button></nav>
-<div class="offline-toast" id="offlineToast">📡 Offline — scores will sync when reconnected</div><div id="scoreModalWrap" class="hidden"></div>
+
+</div><!-- end mainApp -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav hidden" id="bottomNav">
+  <button id="bnav_day1" class="active" onclick="showSection('day1')">
+    <span class="nav-icon">🏌️</span>Day 1
+  </button>
+  <button id="bnav_day2" onclick="showSection('day2')">
+    <span class="nav-icon">🎯</span>Day 2
+  </button>
+  <button id="bnav_day3" onclick="showSection('day3')">
+    <span class="nav-icon">⚔️</span>Day 3
+  </button>
+  <button id="bnav_overall" onclick="showSection('overall')">
+    <span class="nav-icon">🏆</span>Overall
+  </button>
+  <button id="bnav_setup" onclick="showSection('setup')">
+    <span class="nav-icon">⚙️</span>Setup
+  </button>
+</nav>
+
+<div class="offline-toast" id="offlineToast">📡 Offline — scores will sync when reconnected</div>
+<div id="scoreModalWrap" class="hidden"></div>
 <script>
-'use strict';
-const DEFAULT_PLAYERS=[{id:'bradley',first:'Bradley',hi:14.1,team:'B'},{id:'eytan',first:'Eytan',hi:14.9,team:'A'},{id:'garyr',first:'Gary R',hi:19.3,team:'B'},{id:'garyd',first:'Gary D',hi:19.5,team:'A'},{id:'ian',first:'Ian',hi:19.3,team:'A'},{id:'jonathan',first:'Jonathan',hi:13.9,team:'A'},{id:'mitchell',first:'Mitchell',hi:26.0,team:'A'},{id:'rob',first:'Rob',hi:12.6,team:'A'},{id:'steven',first:'Steven',hi:14.5,team:'B'},{id:'simon',first:'Simon',hi:22.7,team:'B'},{id:'scott',first:'Scott',hi:18.7,team:'B'},{id:'richard',first:'Richard',hi:16.7,team:'B'}];
-const PLAYERS=[...DEFAULT_PLAYERS];
-let COURSES={day1:{name:'PGA National Cyprus',tees:'Yellow',par:71,rating:68.8,slope:126,allowance:95,holes:[{par:4,si:18},{par:4,si:10},{par:4,si:8},{par:4,si:4},{par:3,si:16},{par:5,si:6},{par:3,si:14},{par:4,si:2},{par:4,si:12},{par:5,si:11},{par:4,si:5},{par:3,si:15},{par:4,si:3},{par:4,si:17},{par:3,si:1},{par:4,si:7},{par:3,si:13},{par:5,si:9}]},day2:{name:'Minthis',tees:'Yellow',par:72,rating:72.1,slope:134,allowance:100,holes:[{par:4,si:14},{par:3,si:18},{par:5,si:12},{par:4,si:10},{par:4,si:6},{par:5,si:2},{par:4,si:4},{par:3,si:16},{par:4,si:8},{par:5,si:5},{par:5,si:9},{par:4,si:1},{par:3,si:17},{par:4,si:15},{par:3,si:13},{par:4,si:3},{par:5,si:7},{par:4,si:11}]},day3:{name:'Limassol Greens',tees:'Yellow',par:71,rating:72.5,slope:149,allowance:100,holes:[{par:5,si:8},{par:4,si:12},{par:3,si:14},{par:4,si:4},{par:3,si:18},{par:4,si:2},{par:4,si:16},{par:3,si:10},{par:5,si:6},{par:4,si:9},{par:3,si:13},{par:4,si:7},{par:4,si:1},{par:5,si:11},{par:4,si:17},{par:5,si:3},{par:3,si:15},{par:4,si:5}]}};
-const DAY_GAMES={day1:[{name:'Game 1',a:['rob','eytan'],b:['bradley','steven']},{name:'Game 2',a:['jonathan','ian'],b:['richard','garyr']},{name:'Game 3',a:['garyd','mitchell'],b:['scott','simon']}],day2:[{name:'Game 1',a:['rob','ian'],b:['richard','simon']},{name:'Game 2',a:['eytan','garyd'],b:['bradley','garyr']},{name:'Game 3',a:['jonathan','mitchell'],b:['steven','scott']}],day3:[]};
-const DAILY_PRIZES=[50,40,30,20],OVERALL_PRIZES=[150,100,50];
-let sb=null,channel=null,viewMode='me',courseEditorDay='day1',isDark=false,pendingScores=[],activityFeed=[],_summaryCache={};
-let state={tournamentId:null,tournamentSlug:'cyprus-tour-2026',currentPlayerId:null,isAdmin:false,adminCode:'',scoreMap:{},localMode:false};
-let modalState={day:null,playerId:null,holeNo:null};
-const $=id=>document.getElementById(id); const esc=s=>String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
-function getPlayer(id){return PLAYERS.find(p=>p.id===id)||PLAYERS[0]} function roundHalfUp(v){return Math.floor(v+.5)} function formatMoney(v){return '€'+Number(v||0).toFixed(0)} function courseHandicap(hi,c){return roundHalfUp(hi*(c.slope/113)+(c.rating-c.par))} function playingHandicap(ch,a){return roundHalfUp(ch*(a/100))} function shotsOnHole(ph,si){if(ph<=0)return 0;const base=Math.floor(ph/18),rem=ph%18;return base+(rem>=si?1:0)}
-function stablefordPoints(raw,hole,shots){if(raw===null||raw===undefined||raw==='')return null;const txt=String(raw).trim().toUpperCase();if(txt==='X'||txt==='BLOB'||txt==='0')return 0;const gross=parseInt(txt,10);if(isNaN(gross))return null;if(gross>hole.par+shots+2)return 0;return Math.max(0,2+(hole.par-(gross-shots)))}
-function grossValue(raw){const txt=String(raw||'').trim().toUpperCase();if(!txt||txt==='X'||txt==='BLOB'||txt==='0')return null;const n=parseInt(txt,10);return isNaN(n)?null:n} function countbackArray(hp){hp=hp.map(v=>v??0);return[hp.slice(9).reduce((a,b)=>a+b,0),hp.slice(12).reduce((a,b)=>a+b,0),hp.slice(15).reduce((a,b)=>a+b,0),hp.slice(17).reduce((a,b)=>a+b,0)]} function compareCountback(a,b){for(let i=0;i<a.length;i++){if(b[i]!==a[i])return b[i]-a[i]}return 0} function scoreValue(d,p,h){return state.scoreMap[`${d}:${p}:${h}`]??''}
-function setStatus(text,cls=''){const box=$('statusBox');if(!box)return;box.style.display='block';box.className='status'+(cls?' '+cls:'');box.textContent=text}
-function showSection(id){const adminId=window._adminPlayerId||'mitchell';if(id==='setup'&&state.currentPlayerId!==adminId&&!state.isAdmin)return;document.querySelectorAll('.section').forEach(el=>el.classList.add('hidden'));$(id)?.classList.remove('hidden');document.querySelectorAll('#dayTabs button,.bottom-nav button').forEach(btn=>btn.classList.remove('active'));$('tab_'+id)?.classList.add('active');$('bnav_'+id)?.classList.add('active')}
-function populatePlayers(){const el=$('playerSelect');if(!el)return;el.innerHTML=PLAYERS.map(p=>`<option value="${p.id}">${esc(p.first)} (${p.team})</option>`).join('')} function toggleAdminField(){const f=$('adminCodeField'),s=$('playerSelect');if(!f||!s)return;f.style.display=(s.value===(window._adminPlayerId||'mitchell'))?'block':'none'}
-function setupOfflineDetection(){const t=$('offlineToast');window.addEventListener('online',()=>{t?.classList.remove('show');flushPendingScores()});window.addEventListener('offline',()=>t?.classList.add('show'));if(!navigator.onLine)t?.classList.add('show')} function toggleDark(){isDark=!isDark;document.body.classList.toggle('dark',isDark);localStorage.setItem('cyprusDark',isDark?'1':'');const b=document.querySelector('.dark-toggle');if(b)b.textContent=isDark?'☀️':'🌙'}
-async function initSupabase(){if(sb)return true;if(!window.APP_CONFIG?.supabaseUrl||!window.APP_CONFIG?.supabaseAnonKey)return false;sb=window.supabase.createClient(window.APP_CONFIG.supabaseUrl,window.APP_CONFIG.supabaseAnonKey);return true}
-async function loadTournament(code){if(state.localMode)return{id:'local',name:ss.data.tournament.name||'Cyprus Golf Tour',slug:code};const {data,error}=await sb.from('tournaments').select('id,name,slug').eq('slug',code).single();if(error)throw error;return data} async function loadScores(){state.scoreMap={};if(state.localMode){try{state.scoreMap=JSON.parse(localStorage.getItem('cyprusTourScores')||'{}')}catch(e){}return} const {data,error}=await sb.from('scores_public').select('*').eq('tournament_slug',state.tournamentSlug);if(error)throw error;(data||[]).forEach(r=>state.scoreMap[`${r.day_key}:${r.player_id}:${r.hole_no}`]=r.score_value)}
-async function secureSignIn(){if(state.localMode)return{success:true,is_admin:$('playerSelect')?.value===(window._adminPlayerId||'mitchell')};const params={p_tournament_slug:$('tournamentCodeInput').value.trim(),p_player_id:$('playerSelect').value,p_admin_code:$('adminCodeInput')?.value.trim()||null};const {data,error}=await sb.rpc('sign_in_secure_nopin',params);if(error)throw error;return data}
-async function secureUpsertScore(day,playerId,holeNo,value){if(state.localMode){localStorage.setItem('cyprusTourScores',JSON.stringify(state.scoreMap));return true}const params={p_tournament_slug:state.tournamentSlug,p_player_id:playerId,p_day_key:day,p_hole_no:holeNo,p_score_value:String(value||'').trim(),p_admin_code:state.adminCode||null};const {data,error}=await sb.rpc('upsert_score_nopin',params);if(error)throw error;return data}
-function playerSummary(day,playerId){const key=`${day}:${playerId}`;if(_summaryCache[key])return _summaryCache[key];const p=getPlayer(playerId),c=COURSES[day],ch=courseHandicap(p.hi,c),ph=playingHandicap(ch,c.allowance);let total=0,gross=0,holesEntered=0;const holePoints=[];for(let i=0;i<18;i++){const raw=scoreValue(day,playerId,i+1),shots=shotsOnHole(ph,c.holes[i].si),pts=stablefordPoints(raw,c.holes[i],shots);holePoints.push(pts);if(pts!==null)total+=pts;const g=grossValue(raw);if(g!==null){gross+=g;holesEntered++}else if(String(raw).trim().toUpperCase()==='X'||String(raw).trim()==='0')holesEntered++}return _summaryCache[key]={player:p,ch,ph,total,gross,holesEntered,holePoints,countback:countbackArray(holePoints)}}
-function sortedDaily(day){const rows=PLAYERS.map(p=>playerSummary(day,p.id));rows.sort((a,b)=>b.total!==a.total?b.total-a.total:(compareCountback(a.countback,b.countback)||a.gross-b.gross));const played=rows.filter(r=>r.holesEntered>0);rows.forEach(r=>{r.position='—';r.money=0});played.forEach((r,i)=>{r.position=i+1;r.money=i<4?DAILY_PRIZES[i]:0});return rows} function overallSorted(){const d1=Object.fromEntries(sortedDaily('day1').map(r=>[r.player.id,r])),d2=Object.fromEntries(sortedDaily('day2').map(r=>[r.player.id,r])),d3=Object.fromEntries(sortedDaily('day3').map(r=>[r.player.id,r]));const rows=PLAYERS.map(p=>({player:p,d1:d1[p.id].total,d2:d2[p.id].total,d3:d3[p.id].total,total:d1[p.id].total+d2[p.id].total+d3[p.id].total}));rows.sort((a,b)=>b.total!==a.total?b.total-a.total:b.d3!==a.d3?b.d3-a.d3:b.d2!==a.d2?b.d2-a.d2:b.d1-a.d1);rows.forEach(r=>r.money=0);rows.filter(r=>r.total>0).forEach((r,i)=>{if(i<3)r.money=OVERALL_PRIZES[i]});return rows}
-function teamTotals(){const s={A:0,B:0};overallSorted().forEach(r=>s[r.player.team]+=r.total);return s} function teamMembers(tag){return PLAYERS.filter(p=>p.team===tag).map(p=>p.first).join(', ')} function day12TotalsForPairing(){const d1=Object.fromEntries(sortedDaily('day1').map(r=>[r.player.id,r.total])),d2=Object.fromEntries(sortedDaily('day2').map(r=>[r.player.id,r.total]));return PLAYERS.map(p=>({playerId:p.id,team:p.team,total:(d1[p.id]||0)+(d2[p.id]||0)}))} function getDay3SinglesPairings(){const ranked=day12TotalsForPairing(),A=ranked.filter(r=>r.team==='A').sort((a,b)=>a.total-b.total),B=ranked.filter(r=>r.team==='B').sort((a,b)=>a.total-b.total);return A.slice(0,B.length).map((a,i)=>({matchNo:i+1,a:a.playerId,b:B[i].playerId,aSeedTotal:a.total,bSeedTotal:B[i].total}))} function getDay3GroupsFromSingles(){const pairs=getDay3SinglesPairings(),groups=[];for(let i=0;i<pairs.length;i+=2){const g=[];if(pairs[i])g.push(pairs[i].a,pairs[i].b);if(pairs[i+1])g.push(pairs[i+1].a,pairs[i+1].b);groups.push(g)}return groups}
-function matchResult(day,game){const labelA=game.a.map(id=>getPlayer(id).first).join(' & '),labelB=game.b.map(id=>getPlayer(id).first).join(' & ');let aUp=0;const holes=[];for(let i=0;i<18;i++){const ap=game.a.map(id=>playerSummary(day,id).holePoints[i]??0),bp=game.b.map(id=>playerSummary(day,id).holePoints[i]??0);const av=day==='day1'?ap.reduce((x,y)=>x+y,0):Math.max(...ap),bv=day==='day1'?bp.reduce((x,y)=>x+y,0):Math.max(...bp);let w='H';if(av>bv){w='A';aUp++}else if(bv>av){w='B';aUp--}holes.push({hole:i+1,aVal:av,bVal:bv,winner:w,status:aUp,left:18-(i+1)})}return finalMatchText(labelA,labelB,holes)} function day3SinglesMatchResult(pair){const labelA=getPlayer(pair.a).first,labelB=getPlayer(pair.b).first;let aUp=0;const holes=[];const A=playerSummary('day3',pair.a),B=playerSummary('day3',pair.b);for(let i=0;i<18;i++){const av=A.holePoints[i]??0,bv=B.holePoints[i]??0;let w='H';if(av>bv){w='A';aUp++}else if(bv>av){w='B';aUp--}holes.push({hole:i+1,aVal:av,bVal:bv,winner:w,status:aUp,left:18-(i+1)})}return finalMatchText(labelA,labelB,holes)} function finalMatchText(labelA,labelB,holes){let finalText='Match halved',winnerTeam='H';for(const h of holes){if(Math.abs(h.status)>h.left){const w=h.status>0?'A':'B';finalText=`${w==='A'?labelA:labelB} wins ${Math.abs(h.status)} & ${h.left}`;winnerTeam=w;break}}if(finalText==='Match halved'){const s=holes[17].status;if(s>0){finalText=`${labelA} wins ${s} up`;winnerTeam='A'}else if(s<0){finalText=`${labelB} wins ${Math.abs(s)} up`;winnerTeam='B'}}return{labelA,labelB,holes,finalText,winnerTeam}}
-function teamMatchPointsSummary(){const out={day1:{A:0,B:0,H:0},day2:{A:0,B:0,H:0},day3:{A:0,B:0,H:0},total:{A:0,B:0,H:0}};for(const d of ['day1','day2'])for(const g of DAY_GAMES[d]){const r=matchResult(d,g);out[d][r.winnerTeam]++;out.total[r.winnerTeam]++}for(const p of getDay3SinglesPairings()){const r=day3SinglesMatchResult(p);out.day3[r.winnerTeam]++;out.total[r.winnerTeam]++}return out}
-function canEditPlayer(playerId){if(state.isAdmin||state.currentPlayerId===playerId)return true;const me=state.currentPlayerId;if(!me)return false;if(getPlayer(me).team!==getPlayer(playerId).team)return false;for(const day of ['day1','day2'])for(const game of DAY_GAMES[day]){const all=[...game.a,...game.b];if(all.includes(me)&&all.includes(playerId))return true}for(const group of getDay3GroupsFromSingles())if(group.includes(me)&&group.includes(playerId))return true;return false}
-function openScoreModal(day,playerId,holeNo){if(!canEditPlayer(playerId)){alert('You can only score for your own team in your group.');return}modalState={day,playerId,holeNo};renderScoreModal()} function renderScoreModal(){const{day,playerId,holeNo}=modalState,c=COURSES[day],hole=c.holes[holeNo-1],ps=playerSummary(day,playerId),shots=shotsOnHole(ps.ph,hole.si),current=scoreValue(day,playerId,holeNo)||'—';$('scoreModalWrap').innerHTML=`<div class="modal-backdrop" onclick="closeScoreModal(event)"><div class="modal" onclick="event.stopPropagation()"><div class="modal-nav"><button class="modal-nav-btn" onclick="navigateHole(-1)" ${holeNo<=1?'disabled':''}>‹</button><div style="text-align:center;flex:1"><div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:900">${esc(getPlayer(playerId).first)} · Hole ${holeNo}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Par ${hole.par} · SI ${hole.si} · ${shots} shot${shots!==1?'s':''} · Now: <strong>${esc(current)}</strong></div></div><button class="modal-nav-btn" onclick="navigateHole(1)" ${holeNo>=18?'disabled':''}>›</button></div><div class="score-buttons">${[1,2,3,4,5,6,7,8,9,10,11,12].map(n=>`<button class="score-btn" onclick="chooseScore('${n}')">${n}<br><span style="font-size:10px;opacity:.6">${stablefordPoints(String(n),hole,shots)}pt</span></button>`).join('')}<button class="score-btn alt" onclick="chooseScore('X')">X<br><span style="font-size:10px;opacity:.6">blob</span></button><button class="score-btn soft" onclick="chooseScore('')">Clear</button><button class="score-btn primary" onclick="closeScoreModal()">Close</button></div><div class="small-note">Tap a score to save</div></div></div>`;$('scoreModalWrap').classList.remove('hidden')} function navigateHole(dir){const n=modalState.holeNo+dir;if(n<1||n>18)return;modalState.holeNo=n;renderScoreModal()} function closeScoreModal(e){e?.stopPropagation?.();$('scoreModalWrap').classList.add('hidden');$('scoreModalWrap').innerHTML=''}
-async function chooseScore(value){const{day,playerId,holeNo}=modalState,key=`${day}:${playerId}:${holeNo}`;state.scoreMap[key]=String(value||'').trim();_summaryCache={};renderScoreModal();renderAll();if(!navigator.onLine){pendingScores.push({day,playerId,holeNo,value});return}try{await secureUpsertScore(day,playerId,holeNo,value)}catch(e){console.warn(e);pendingScores.push({day,playerId,holeNo,value})}} async function flushPendingScores(){if(!pendingScores.length)return;const q=[...pendingScores];pendingScores=[];for(const s of q){try{await secureUpsertScore(s.day,s.playerId,s.holeNo,s.value)}catch(e){pendingScores.push(s)}}}
-function scoreInputs(day,playerId){const c=COURSES[day],ps=playerSummary(day,playerId);let f=0,b=0;for(let h=1;h<=18;h++){const pts=stablefordPoints(scoreValue(day,playerId,h),c.holes[h-1],shotsOnHole(ps.ph,c.holes[h-1].si));if(pts!==null){if(h<=9)f+=pts;else b+=pts}}let html=`<div class="score-section-header"><div><div class="sh-label">Front 9</div><div class="sh-val">${f}</div></div><div><div class="sh-label">Back 9</div><div class="sh-val">${b}</div></div><div><div class="sh-label">Total</div><div class="sh-val">${ps.total}</div></div></div><div class="progress-label"><span>${ps.holesEntered}/18 holes</span><span>${Math.round(ps.holesEntered/18*100)}%</span></div><div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${Math.round(ps.holesEntered/18*100)}%"></div></div>`;for(const [start,end,label] of [[1,9,'Front 9'],[10,18,'Back 9']]){html+=`<div class="hole-half-label">${label}</div><div class="hole-grid">`;for(let h=start;h<=end;h++){const hole=c.holes[h-1],raw=scoreValue(day,playerId,h),pts=stablefordPoints(raw,hole,shotsOnHole(ps.ph,hole.si));let cls='empty';if(raw){const n=parseInt(raw);if(!isNaN(n)){if(pts>=4)cls='great';else if(pts>=3)cls='good';else if(pts===0)cls='blob';else cls='has-score'}else if(String(raw).toUpperCase()==='X')cls='blob'}html+=`<div class="hole-tile"><div class="hole-tile-top"><span>H${h}</span><span>P${hole.par}</span></div><div class="hole-tile-btn ${cls}" onclick="openScoreModal('${day}','${playerId}',${h})">${esc(raw||'·')}</div><div class="hole-tile-pts">${pts===null?'—':pts+' pts'}</div></div>`}html+='</div>'}return html}
-function renderDay(day){const c=COURSES[day],daily=sortedDaily(day),groups=day==='day3'?getDay3GroupsFromSingles():DAY_GAMES[day].map(g=>[...g.a,...g.b]);let html=`<div class="card"><div class="card-title"><span>🏳️</span>${esc(c.name)}</div><p class="sub">${day==='day1'?'Combined Stableford Matchplay':day==='day2'?'Best Ball Stableford Matchplay':'Singles Stableford Matchplay'} · ${esc(c.tees||'Yellow')} tees · Par ${c.par} · Rating ${c.rating} · Slope ${c.slope}</p></div><div class="view-toggle"><button onclick="setViewMode('me')" class="${viewMode==='me'?'active':''}">My card</button><button onclick="setViewMode('all')" class="${viewMode==='all'?'active':''}">All players</button></div>`;if(day!=='day3'){html+=`<div class="card"><h3>Matchplay</h3><div style="margin-top:12px">`;for(const game of DAY_GAMES[day]){const m=matchResult(day,game);html+=matchCard(game.name,m)}html+='</div></div>'}else{html+=`<div class="card"><h3>Day 3 Singles Matchboard</h3><p class="sub">Auto-paired from Day 1+2 totals.</p><div style="margin-top:12px">`;for(const pair of getDay3SinglesPairings()){html+=matchCard('Match '+pair.matchNo,day3SinglesMatchResult(pair))}html+='</div></div>'}groups.forEach((group,idx)=>{const visible=viewMode==='me'?group.filter(pid=>pid===state.currentPlayerId):group;if(!visible.length)return;html+=`<div class="card"><h3>${day==='day3'?'Group '+(idx+1):(DAY_GAMES[day][idx]?.name||'Group')}</h3><div style="margin-top:12px">`;for(const pid of visible){const s=playerSummary(day,pid),livePrize=daily.find(r=>r.player.id===pid)?.money||0;html+=`<div class="player-card"><div class="player-header"><div><div class="player-name">${esc(s.player.first)}</div><div class="meta"><span class="pill ${s.player.team==='A'?'teamA':'teamB'}">Team ${s.player.team}</span> &nbsp;Index ${s.player.hi.toFixed(1)} · Playing ${s.ph}</div></div><div class="points-badge">${s.total}<span>pts</span></div></div>${scoreInputs(day,pid)}<div class="summary-strip"><div class="summary-box highlight"><div class="k">Stableford</div><div class="v">${s.total}</div></div><div class="summary-box"><div class="k">Holes</div><div class="v">${s.holesEntered}/18</div></div><div class="summary-box"><div class="k">Back 9</div><div class="v">${s.countback[0]}</div></div><div class="summary-box"><div class="k">Prize</div><div class="v">${formatMoney(livePrize)}</div></div></div></div>`}html+='</div></div>'});html+=leaderboardCard(day,daily);$(day).innerHTML=html}
-function matchCard(title,m){return`<div class="match-card"><h4>${esc(title)}</h4><p class="sub" style="margin-top:4px">${esc(m.labelA)} vs ${esc(m.labelB)}</p><p style="margin-top:8px;font-weight:900;color:var(--green)">${esc(m.finalText)}</p><div class="hole-chips">${m.holes.map(h=>`<span class="hole-chip ${h.winner==='A'?'hole-A':h.winner==='B'?'hole-B':'hole-H'}">H${h.hole} ${h.winner==='H'?'Half':h.winner} ${h.aVal}-${h.bVal}</span>`).join('')}</div></div>`}
-function leaderboardCard(day,daily){return`<div class="card"><h3>Daily leaderboard</h3><div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Pos</th><th>Player</th><th>Team</th><th>Pts</th><th>Back 9</th><th>Back 6</th><th>Back 3</th><th>Last</th><th>Prize</th></tr></thead><tbody>${daily.map(r=>`<tr class="${r.player.id===state.currentPlayerId?'me-row':''}"><td>${r.position}</td><td>${esc(r.player.first)}${r.player.id===state.currentPlayerId?' 👤':''}</td><td>${r.player.team}</td><td><strong>${r.total}</strong></td><td>${r.countback[0]}</td><td>${r.countback[1]}</td><td>${r.countback[2]}</td><td>${r.countback[3]}</td><td class="money">${formatMoney(r.money)}</td></tr>`).join('')}</tbody></table></div></div>`}
-function renderOverall(){const rows=overallSorted(),teams=teamTotals(),mp=teamMatchPointsSummary(),winner=mp.total.A>mp.total.B?'Team A':mp.total.B>mp.total.A?'Team B':'Tie';$('overall').innerHTML=`<div class="card"><h2>Overall standings</h2><p class="sub">Individual ties break on Day 3, then Day 2, then Day 1.</p></div><div class="card"><h3>Team match points</h3><p class="sub"><span class="pill teamA">Team A</span> ${esc(teamMembers('A'))}</p><p class="sub"><span class="pill teamB">Team B</span> ${esc(teamMembers('B'))}</p><div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Stage</th><th>A</th><th>B</th><th>½</th></tr></thead><tbody>${['day1','day2','day3'].map((d,i)=>`<tr><td>Day ${i+1}</td><td><strong>${mp[d].A}</strong></td><td><strong>${mp[d].B}</strong></td><td>${mp[d].H}</td></tr>`).join('')}<tr><td><strong>Total</strong></td><td><strong>${mp.total.A}</strong></td><td><strong>${mp.total.B}</strong></td><td>${mp.total.H}</td></tr></tbody></table></div><p class="sub" style="margin-top:10px"><strong>Leading:</strong> ${winner}</p></div><div class="card"><h3>Overall individual leaderboard</h3><div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Pos</th><th>Player</th><th>Team</th><th>D1</th><th>D2</th><th>D3</th><th>Total</th><th>Prize</th></tr></thead><tbody>${rows.map((r,i)=>`<tr class="${r.player.id===state.currentPlayerId?'me-row':''}"><td>${i+1}</td><td>${esc(r.player.first)}${r.player.id===state.currentPlayerId?' 👤':''}</td><td>${r.player.team}</td><td>${r.d1}</td><td>${r.d2}</td><td>${r.d3}</td><td><strong>${r.total}</strong></td><td class="money">${formatMoney(r.money)}</td></tr>`).join('')}</tbody></table></div></div>`}
-function renderCompSummary(){const mp=teamMatchPointsSummary(),lead=mp.total.A>mp.total.B?'A':mp.total.B>mp.total.A?'B':'tie',daily=sortedDaily(['day3','day2','day1'].find(d=>sortedDaily(d).some(r=>r.holesEntered>0))||'day1').filter(r=>r.holesEntered>0).slice(0,3);$('compSummary').innerHTML=`<div class="comp-block"><h4>🏆 Match Points</h4><div class="team-score-row ${lead==='A'?'leading':lead==='tie'?'tied':'trailing'}"><span>Team A</span><span>${mp.total.A}</span></div><div class="team-score-row ${lead==='B'?'leading':lead==='tie'?'tied':'trailing'}"><span>Team B</span><span>${mp.total.B}</span></div></div><div class="comp-block"><h4>📋 Top 3</h4>${daily.length?daily.map(r=>`<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)"><strong>${r.position}</strong><span style="flex:1">${esc(r.player.first)}</span><strong>${r.total}pts</strong></div>`).join(''):'<p class="sub">No scores yet.</p>'}</div><div class="comp-block"><h4>⛳ Mode</h4><p class="sub">${state.localMode?'Local scoring mode':'Live Supabase sync'}</p></div>`}
-function renderSetup(){$('setup').innerHTML=`<div class="card"><div class="card-title"><span>🧙</span>Setup Wizard</div><p class="sub">Change players, courses, handicaps or groups.</p><button class="btn-primary" style="margin-top:14px" onclick="ssLaunch(true)">Re-run Setup Wizard</button></div>`} function renderAll(){_summaryCache={};renderCompSummary();renderDay('day1');renderDay('day2');renderDay('day3');renderOverall();renderSetup()} function setViewMode(mode){viewMode=mode;renderAll()} function subscribeRealtime(){if(state.localMode||!sb||!state.tournamentId||state.tournamentId==='local')return;if(channel)sb.removeChannel(channel);channel=sb.channel('scores-live-v3').on('postgres_changes',{event:'*',schema:'public',table:'scores',filter:`tournament_id=eq.${state.tournamentId}`},payload=>{const row=payload.new||payload.old;if(row){state.scoreMap[`${row.day_key}:${row.player_id}:${row.hole_no}`]=row.score_value||'';renderAll()}}).subscribe()}
-async function enterApp(){try{state.localMode=!(await initSupabase());const signIn=await secureSignIn();if(!signIn?.success)throw new Error(signIn?.message||'Sign in failed');const code=($('tournamentCodeInput')?.value||'cyprus-tour-2026').trim(),playerId=$('playerSelect').value,adminCode=$('adminCodeInput')?.value.trim()||'',t=await loadTournament(code);state.tournamentId=t.id;state.tournamentSlug=code;state.currentPlayerId=playerId;state.adminCode=adminCode;state.isAdmin=!!signIn.is_admin||playerId===(window._adminPlayerId||'mitchell');await loadScores();subscribeRealtime();$('whoAmI').textContent='👤 '+getPlayer(playerId).first;$('whoAmIApp').textContent=getPlayer(playerId).first;$('accessSummary').textContent=state.isAdmin?'Admin access — can edit any player.':'Scorer for your team in your group.';ssHideScreen();$('mainApp').classList.remove('hidden');$('bottomNav').classList.remove('hidden');$('syncState').textContent=state.localMode?'● Local':'● Live';$('tab_setup').style.display=state.isAdmin?'':'none';$('bnav_setup').style.display=state.isAdmin?'':'none';localStorage.setItem('cyprusTourV3Login',JSON.stringify({code,playerId}));renderAll();showSection('day1')}catch(e){console.error(e);setStatus('Could not enter app: '+(e.message||e),'bad')}} function logOut(){state.currentPlayerId=null;state.isAdmin=false;state.scoreMap={};if(channel&&sb){sb.removeChannel(channel);channel=null}$('mainApp').classList.add('hidden');$('bottomNav').classList.add('hidden');localStorage.removeItem('cyprusTourV3Login');ss.step=SS_STEPS.findIndex(s=>s.id==='signin');ssShowScreen();ssRender()}
-const SS_STEPS=[{id:'welcome'},{id:'tournament'},{id:'players'},{id:'courses'},{id:'holes'},{id:'games'},{id:'signin'}];
-let ss={step:0,adminId:'mitchell',data:{tournament:{name:"Cyprus Golf Tour '26",slug:'cyprus-tour-2026',dates:'14 May 2026 – 16 May 2026',startDate:'2026-05-14',endDate:'2026-05-16',numDays:3,format:''},players:DEFAULT_PLAYERS.map(p=>({...p})),courses:{day1:{name:'PGA National Cyprus',tees:'Yellow',par:71,rating:68.8,slope:126,allowance:95},day2:{name:'Minthis',tees:'Yellow',par:72,rating:72.1,slope:134,allowance:100},day3:{name:'Limassol Greens',tees:'Yellow',par:71,rating:72.5,slope:149,allowance:100}},holes:{day1:COURSES.day1.holes.map(h=>({...h})),day2:COURSES.day2.holes.map(h=>({...h})),day3:COURSES.day3.holes.map(h=>({...h}))},holeTab:'day1',games:{day1:DAY_GAMES.day1.map(g=>({name:g.name,a:[...g.a],b:[...g.b]})),day2:DAY_GAMES.day2.map(g=>({name:g.name,a:[...g.a],b:[...g.b]})),day3:[]}}};
-function ssShowScreen(){$('setupScreen').style.display='flex';$('mainApp')?.classList.add('hidden');$('bottomNav')?.classList.add('hidden')} function ssHideScreen(){$('setupScreen').style.display='none'} function ssLaunch(prefill){if(prefill)ssLoadExisting();ss.step=0;ssShowScreen();ssRender()} function ssLoadExisting(){ss.data.players=PLAYERS.map(p=>({...p}));['day1','day2','day3'].forEach(d=>{ss.data.courses[d]={name:COURSES[d].name,tees:COURSES[d].tees||'Yellow',par:COURSES[d].par,rating:COURSES[d].rating,slope:COURSES[d].slope,allowance:COURSES[d].allowance};ss.data.holes[d]=COURSES[d].holes.map(h=>({...h}))});ss.data.games.day1=DAY_GAMES.day1.map(g=>({name:g.name,a:[...g.a],b:[...g.b]}));ss.data.games.day2=DAY_GAMES.day2.map(g=>({name:g.name,a:[...g.a],b:[...g.b]}));ss.data.games.day3=(DAY_GAMES.day3||[]).map(g=>({name:g.name,a:[...g.a],b:[...g.b]}))}
-function ssRender(){const step=SS_STEPS[ss.step],total=SS_STEPS.length;$('ss_tourName').textContent=ss.data.tournament.name||'Golf Tour Setup';$('ss_tourDates').textContent=ss.data.tournament.dates||'';$('ss_stepBadge').textContent=step.id==='signin'?'Sign In':`${ss.step} / ${total-1}`;$('ss_dots').innerHTML=Array.from({length:total-1},(_,i)=>`<div style="width:${i===ss.step?24:8}px;height:8px;border-radius:999px;background:${i===ss.step?'#f0c040':i<ss.step?'rgba(240,192,64,.4)':'rgba(255,255,255,.2)'}"></div>`).join('');const c=$('ss_content');c.scrollTop=0;let body='';if(step.id==='welcome')body=ssWelcome();if(step.id==='tournament')body=ssTournament();if(step.id==='players')body=ssPlayers();if(step.id==='courses')body=ssCourses();if(step.id==='holes')body=ssHoles();if(step.id==='games')body=ssGames();if(step.id==='signin')body=ssSignIn();if(step.id!=='signin'){body+=`<div style="display:flex;gap:10px;margin-top:24px;padding-bottom:16px">${ss.step>0?'<button onclick="ssBack()" style="flex:0 0 auto;padding:16px 22px;border-radius:14px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:white;font-size:14px;font-weight:800">← Back</button>':''}<button onclick="ssNext()" style="flex:1;padding:18px;border-radius:14px;border:none;background:#f0c040;color:#042e19;font-size:16px;font-weight:900;letter-spacing:.04em;text-transform:uppercase">${step.id==='games'?'Save & Sign In →':'Continue →'}</button></div>`}c.innerHTML=body;if(step.id==='signin')toggleAdminField()}
-function ssWelcome(){return`<div style="text-align:center;padding:40px 10px;color:white"><div style="font-size:56px;margin-bottom:12px">⛳</div><h2 class="wizard-title">Welcome</h2><p class="wizard-copy">Set up the tournament, players, courses and games. This version includes the missing setup screens and safer loading so the app will not freeze on the load screen.</p></div><div class="wizard-card"><div style="font-size:14px;font-weight:900;color:#f0c040;margin-bottom:8px">Fixed in this file</div><p class="wizard-copy">Defined the missing welcome/tournament steps, stopped setup code touching sign-in fields before they exist, and added local fallback if Supabase is unavailable.</p></div>`}
-function ssTournament(){return`<div style="margin-bottom:20px"><h2 class="wizard-title">Tournament</h2><p class="wizard-copy">Basic tournament details.</p></div><div class="wizard-card"><label class="wizard-label" style="margin-top:0">Tournament name</label><input id="ss_tname" class="wizard-input" value="${esc(ss.data.tournament.name)}"><label class="wizard-label">Start date</label><input id="ss_startDate" type="date" class="wizard-input" value="${esc(ss.data.tournament.startDate)}" onchange="ss.data.tournament.startDate=this.value;ssUpdateDates()"><label class="wizard-label">End date</label><input id="ss_endDate" type="date" class="wizard-input" value="${esc(ss.data.tournament.endDate)}" onchange="ss.data.tournament.endDate=this.value;ssUpdateDates()"><label class="wizard-label">Days</label><select id="ss_tdays" class="wizard-input"><option value="3" selected>3 days</option></select><div id="ss_datepreview" style="color:#f0c040;font-weight:800;margin-top:14px">${esc(ss.data.tournament.dates)}</div></div>`}
-function ssBack(){if(ss.step>0){ss.step--;ssRender()}} function ssNext(){try{const stepId=SS_STEPS[ss.step].id;if(stepId==='players')ssFlushPlayers();if(stepId==='tournament'){const n=$('ss_tname')?.value.trim()||'';const sd=$('ss_startDate')?.value||'';const ed=$('ss_endDate')?.value||sd;if(!n)return ssError('Please enter a tournament name.');if(!sd)return ssError('Please select a start date.');ss.data.tournament.name=n;ss.data.tournament.startDate=sd;ss.data.tournament.endDate=ed;ss.data.tournament.numDays=parseInt($('ss_tdays')?.value)||3;ssUpdateDates()}if(stepId==='players'){ss.data.players=ss.data.players.filter(p=>p.first&&p.first.trim());if(ss.data.players.length<2)return ssError('Please add at least 2 players.');const a=ss.data.players.filter(p=>p.team==='A').length,b=ss.data.players.filter(p=>p.team==='B').length;if(a!==b)return ssError(`Teams must be equal — A: ${a}, B: ${b}`)}if(stepId==='courses'){for(const d of ['day1','day2','day3']){const n=$(`sc_${d}_name`)?.value.trim();if(!n)return ssError('Please enter a course name for '+d);ss.data.courses[d].name=n;ss.data.courses[d].par=parseInt($(`sc_${d}_par`)?.value)||ss.data.courses[d].par;ss.data.courses[d].rating=parseFloat($(`sc_${d}_rating`)?.value)||ss.data.courses[d].rating;ss.data.courses[d].slope=parseInt($(`sc_${d}_slope`)?.value)||ss.data.courses[d].slope;ss.data.courses[d].allowance=parseInt($(`sc_${d}_allowance`)?.value)||ss.data.courses[d].allowance}}if(stepId==='games'){ssApplyAndSave();ssSaveAndFinish()}else{ss.step++;ssRender()}}catch(e){alert('ERROR in ssNext: '+e.message)}} function ssError(msg){const old=$('ss_error');old?.remove();const el=document.createElement('div');el.id='ss_error';el.style.cssText='background:#fff0ed;border:1px solid #f1c8c1;color:#9b2f24;border-radius:12px;padding:12px 14px;font-size:13px;font-weight:700;margin-bottom:12px';el.textContent='⚠️ '+msg;$('ss_content').prepend(el);$('ss_content').scrollTop=0}
-function ssUpdateDates(){const start=ss.data.tournament.startDate||$('ss_startDate')?.value||'',end=ss.data.tournament.endDate||$('ss_endDate')?.value||'';function fmt(d){if(!d)return'';const p=d.split('-'),m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return parseInt(p[2],10)+' '+m[parseInt(p[1],10)-1]+' '+p[0]}ss.data.tournament.dates=(!end||start===end)?fmt(start):fmt(start)+' – '+fmt(end);$('ss_datepreview')&&($('ss_datepreview').textContent=ss.data.tournament.dates);$('ss_tourDates')&&($('ss_tourDates').textContent=ss.data.tournament.dates)}
-function ssFlushPlayers(){for(let i=0;i<ss.data.players.length;i++){const name=$(`ssp_name_${i}`),hi=$(`ssp_hi_${i}`),team=$(`ssp_team_${i}`);if(name){ss.data.players[i].first=name.value.trim();ss.data.players[i].id=name.value.trim().toLowerCase().replace(/[^a-z0-9]/g,'_')||('player'+i)}if(hi)ss.data.players[i].hi=parseFloat(hi.value)||0;if(team)ss.data.players[i].team=team.value}} function ssAddPlayer(team='A'){ssFlushPlayers();ss.data.players.push({id:'p'+Date.now(),first:'',hi:18,team});ssRender()} function ssRemovePlayer(i){ssFlushPlayers();ss.data.players.splice(i,1);ssRender()} function ssChangeTeam(i,val){ssFlushPlayers();if(ss.data.players[i])ss.data.players[i].team=val;ssRender()}
-function ssPlayers(){if(!ss.data.players.length)ss.data.players=DEFAULT_PLAYERS.map(p=>({...p}));const a=ss.data.players.filter(p=>p.team==='A').length,b=ss.data.players.filter(p=>p.team==='B').length;let rows='';ss.data.players.forEach((p,i)=>{rows+=`<div style="display:grid;grid-template-columns:1fr 80px 70px 38px;gap:8px;align-items:center;margin-bottom:10px"><input id="ssp_name_${i}" value="${esc(p.first)}" placeholder="Name" class="wizard-input" style="font-size:14px;padding:12px"><select id="ssp_team_${i}" onchange="ssChangeTeam(${i},this.value)" class="wizard-input" style="font-size:13px;padding:10px"><option value="A" ${p.team==='A'?'selected':''}>A</option><option value="B" ${p.team==='B'?'selected':''}>B</option></select><input id="ssp_hi_${i}" type="number" value="${p.hi}" step="0.1" class="wizard-input" style="font-size:14px;padding:10px 4px;text-align:center"><button onclick="ssRemovePlayer(${i})" style="background:rgba(255,80,60,.25);border:1px solid rgba(255,80,60,.4);color:#ff9080;border-radius:10px;width:38px;height:38px;font-size:18px">×</button></div>`});return`<div style="margin-bottom:16px"><h2 class="wizard-title">Players</h2><p class="wizard-copy">Enter each player's name, team and handicap.</p></div>${rows}<div style="display:flex;gap:8px;margin-top:12px"><button onclick="ssAddPlayer('A')" style="flex:1;padding:11px;border-radius:10px;border:1.5px dashed rgba(134,239,172,.5);background:transparent;color:#86efac;font-size:13px;font-weight:800">+ Team A</button><button onclick="ssAddPlayer('B')" style="flex:1;padding:11px;border-radius:10px;border:1.5px dashed rgba(252,211,77,.5);background:transparent;color:#fcd34d;font-size:13px;font-weight:800">+ Team B</button></div><div style="text-align:center;margin-top:10px;font-size:13px;font-weight:700;color:${a===b?'#86efac':'#fca5a5'}">${a===b?'✓ Balanced':'⚠ Unequal'} — A: ${a}, B: ${b}</div>`}
-function ssCourses(){let html=`<div style="margin-bottom:20px"><h2 class="wizard-title">Course Details</h2><p class="wizard-copy">Enter course information for each day.</p></div>`;['day1','day2','day3'].forEach((day,i)=>{const c=ss.data.courses[day];html+=`<div class="wizard-card" style="margin-bottom:16px"><div style="font-size:14px;font-weight:800;color:#f0c040;text-transform:uppercase;margin-bottom:14px">Day ${i+1}</div><label class="wizard-label" style="margin-top:0">Course name</label><input id="sc_${day}_name" class="wizard-input" value="${esc(c.name)}"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label class="wizard-label">Par</label><input id="sc_${day}_par" type="number" class="wizard-input" value="${c.par}"></div><div><label class="wizard-label">Rating</label><input id="sc_${day}_rating" type="number" step="0.1" class="wizard-input" value="${c.rating}"></div><div><label class="wizard-label">Slope</label><input id="sc_${day}_slope" type="number" class="wizard-input" value="${c.slope}"></div><div><label class="wizard-label">Allowance %</label><input id="sc_${day}_allowance" type="number" class="wizard-input" value="${c.allowance}"></div></div></div>`});return html}
-function ssHoles(){const active=ss.data.holeTab,holes=ss.data.holes[active];const tabs=['day1','day2','day3'].map((d,i)=>`<button onclick="ss.data.holeTab='${d}';ssRender()" style="flex:1;padding:10px;border-radius:12px;border:2px solid ${d===active?'#f0c040':'rgba(255,255,255,.2)'};background:${d===active?'rgba(240,192,64,.2)':'rgba(255,255,255,.05)'};color:${d===active?'#f0c040':'rgba(255,255,255,.6)'};font-size:13px;font-weight:800">Day ${i+1}</button>`).join('');let grid='';holes.forEach((h,i)=>{grid+=`<div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 8px"><div style="font-size:10px;font-weight:800;color:rgba(255,255,255,.5);text-align:center;margin-bottom:6px">H${i+1}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px"><input type="number" value="${h.par}" oninput="ss.data.holes['${active}'][${i}].par=parseInt(this.value)||4" class="wizard-input" style="padding:8px 4px;text-align:center"><input type="number" value="${h.si}" oninput="ss.data.holes['${active}'][${i}].si=parseInt(this.value)||${i+1}" class="wizard-input" style="padding:8px 4px;text-align:center;color:#f0c040"></div></div>`});return`<div style="margin-bottom:20px"><h2 class="wizard-title">Hole Data</h2><p class="wizard-copy">Par and Stroke Index for each hole.</p></div><div style="display:flex;gap:8px;margin-bottom:16px">${tabs}</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">${grid}</div>`}
-function ssGames(){ssFlushPlayers();const A=ss.data.players.filter(p=>p.team==='A'),B=ss.data.players.filter(p=>p.team==='B'),num=Math.floor(Math.min(A.length,B.length)/2);['day1','day2'].forEach(day=>{while(ss.data.games[day].length<num)ss.data.games[day].push({name:'Game '+(ss.data.games[day].length+1),a:[],b:[]});ss.data.games[day]=ss.data.games[day].slice(0,num)});function sel(day,gi,team,si,val){const pool=team==='A'?A:B,game=ss.data.games[day][gi],slots=team==='A'?game.a:game.b,other=slots[si===0?1:0]||'';return`<select onchange="ss.data.games['${day}'][${gi}].${team==='A'?'a':'b'}[${si}]=this.value;ssRender()" class="wizard-input" style="font-size:13px;padding:10px"><option value="">— select —</option>${pool.filter(p=>p.id!==other).map(p=>`<option value="${p.id}" ${val===p.id?'selected':''}>${esc(p.first)}</option>`).join('')}</select>`}let html=`<div style="margin-bottom:20px"><h2 class="wizard-title">Game Groups</h2><p class="wizard-copy">Assign two players per team per game for Days 1 and 2.</p></div>`;['day1','day2'].forEach((day,di)=>{html+=`<div style="font-size:13px;font-weight:800;color:#f0c040;text-transform:uppercase;margin:16px 0 10px">Day ${di+1}</div>`;for(let g=0;g<num;g++){const game=ss.data.games[day][g];html+=`<div class="wizard-card" style="margin-bottom:10px"><div style="font-size:13px;font-weight:800;color:white;margin-bottom:10px">Game ${g+1}</div><div style="display:grid;gap:8px"><div><div style="font-size:11px;font-weight:800;color:#86efac;margin-bottom:6px">Team A</div><div style="display:flex;gap:8px">${sel(day,g,'A',0,game.a[0]||'')}${sel(day,g,'A',1,game.a[1]||'')}</div></div><div><div style="font-size:11px;font-weight:800;color:#fcd34d;margin-bottom:6px">Team B</div><div style="display:flex;gap:8px">${sel(day,g,'B',0,game.b[0]||'')}${sel(day,g,'B',1,game.b[1]||'')}</div></div></div></div>`}});return html}
-function ssSignIn(){populatePlayers();let saved='';try{saved=JSON.parse(localStorage.getItem('cyprusTourV3Login')||'{}').playerId||''}catch(e){}const opts=ss.data.players.map(p=>`<option value="${p.id}" ${saved===p.id?'selected':''}>${esc(p.first)} (${p.team})</option>`).join('');return`<div style="text-align:center;padding:10px 0 20px"><div style="font-size:56px;margin-bottom:12px">⛳</div><h2 class="wizard-title">${esc(ss.data.tournament.name||'Golf Tour')}</h2><p class="wizard-copy">${esc(ss.data.tournament.dates||'')}</p></div><div class="wizard-card"><div id="statusBox" style="display:none"></div><label class="wizard-label" style="margin-top:0">Select Your Name</label><select id="playerSelect" onchange="toggleAdminField()" class="wizard-input">${opts}</select><label class="wizard-label">Tournament Code</label><input id="tournamentCodeInput" value="${esc(ss.data.tournament.slug||'cyprus-tour-2026')}" class="wizard-input"><div id="adminCodeField" style="display:none"><label class="wizard-label">Admin Code</label><input id="adminCodeInput" type="password" placeholder="Admin only" class="wizard-input"></div><button onclick="enterApp()" style="width:100%;padding:16px;border-radius:14px;border:none;background:#f0c040;color:#042e19;font-size:15px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;margin-top:16px">Enter App</button><div style="text-align:center;margin-top:16px"><button onclick="ssLaunch(true)" style="background:transparent;border:none;color:rgba(255,255,255,.5);font-size:12px;text-decoration:underline">⚙️ Edit setup</button></div></div>`}
-function ssApplyAndSave(){PLAYERS.length=0;ss.data.players.forEach(p=>PLAYERS.push({id:p.id||p.first.toLowerCase().replace(/[^a-z0-9]/g,'_'),first:p.first,hi:parseFloat(p.hi)||18,team:p.team}));const mitchell=PLAYERS.find(p=>p.id==='mitchell'||p.first.toLowerCase()==='mitchell');ss.adminId=(mitchell&&mitchell.id)||PLAYERS[0]?.id||'mitchell';window._adminPlayerId=ss.adminId;['day1','day2','day3'].forEach(day=>{const c=ss.data.courses[day];COURSES[day]={name:c.name||day,tees:c.tees||'Yellow',par:ss.data.holes[day].reduce((s,h)=>s+(parseInt(h.par)||4),0),rating:parseFloat(c.rating)||72,slope:parseInt(c.slope)||113,allowance:parseInt(c.allowance)||100,holes:ss.data.holes[day].map(h=>({par:parseInt(h.par)||4,si:parseInt(h.si)||1}))}});DAY_GAMES.day1=ss.data.games.day1.map((g,i)=>({name:'Game '+(i+1),a:g.a.filter(Boolean),b:g.b.filter(Boolean)})).filter(g=>g.a.length&&g.b.length);DAY_GAMES.day2=ss.data.games.day2.map((g,i)=>({name:'Game '+(i+1),a:g.a.filter(Boolean),b:g.b.filter(Boolean)})).filter(g=>g.a.length&&g.b.length);document.querySelectorAll('.app-bar-title strong').forEach(el=>el.textContent=ss.data.tournament.name);_summaryCache={};localStorage.setItem('cyprusTourSetup',JSON.stringify(ss.data))}
-async function ssSaveToSupabase(){if(!(await initSupabase()))return false;const slug=ss.data.tournament.slug||'cyprus-tour-2026';const config={tournament:ss.data.tournament,players:ss.data.players,games:ss.data.games,courses:ss.data.courses,holes:ss.data.holes,version:4};const result=await sb.from('tournament_config').upsert({tournament_slug:slug,config,updated_at:new Date().toISOString()},{onConflict:'tournament_slug'});if(result.error){console.warn(result.error);return false}return true} async function ssLoadFromSupabase(slug='cyprus-tour-2026'){if(!(await initSupabase()))return false;try{const result=await sb.from('tournament_config').select('config').eq('tournament_slug',slug).maybeSingle();if(result.error||!result.data?.config?.players?.length)return false;const cfg=result.data.config;ss.data.tournament=cfg.tournament||ss.data.tournament;ss.data.players=cfg.players;ss.data.games=cfg.games||ss.data.games;ss.data.courses=cfg.courses||ss.data.courses;ss.data.holes=cfg.holes||ss.data.holes;ssApplyAndSave();return true}catch(e){console.warn(e);return false}} async function ssSaveAndFinish(){const ok=await ssSaveToSupabase();if(!ok)state.localMode=true;ss.step=SS_STEPS.findIndex(s=>s.id==='signin');ssRender();if(state.localMode)setStatus('Supabase unavailable — using local mode on this device.','bad')}
-window.addEventListener('DOMContentLoaded',async()=>{if(localStorage.getItem('cyprusDark')){isDark=true;document.body.classList.add('dark');const btn=document.querySelector('.dark-toggle');if(btn)btn.textContent='☀️'}setupOfflineDetection();ssShowScreen();$('ss_content').innerHTML=`<div style="text-align:center;padding:60px 20px;color:white"><div style="font-size:48px;margin-bottom:16px">⛳</div><div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:900;margin-bottom:8px">Loading tournament…</div><div style="font-size:13px;color:rgba(255,255,255,.6)">Connecting to Supabase</div></div>`;$('ss_dots').innerHTML='';$('ss_stepBadge').textContent='';let hasConfig=false;try{if(window.APP_CONFIG?.supabaseUrl&&window.APP_CONFIG?.supabaseAnonKey){sb=window.supabase.createClient(window.APP_CONFIG.supabaseUrl,window.APP_CONFIG.supabaseAnonKey);hasConfig=await Promise.race([ssLoadFromSupabase('cyprus-tour-2026'),new Promise((_,rej)=>setTimeout(()=>rej(new Error('Timeout after 5s')),5000))])}else{state.localMode=true}}catch(e){console.warn('Config load failed:',e);state.localMode=true;try{const local=JSON.parse(localStorage.getItem('cyprusTourSetup')||'null');if(local){ss.data=local;ssApplyAndSave();hasConfig=true}}catch(_){}}ss.step=hasConfig?SS_STEPS.findIndex(s=>s.id==='signin'):0;ssRender();if(state.localMode&&ss.step===SS_STEPS.findIndex(s=>s.id==='signin'))setStatus('Supabase unavailable — using local mode on this device.','bad')});
+const PLAYERS = [
+  { id:"bradley", first:"Bradley", hi:14.1, team:"B" },
+  { id:"eytan", first:"Eytan", hi:14.9, team:"A" },
+  { id:"garyr", first:"Gary R", hi:19.3, team:"B" },
+  { id:"garyd", first:"Gary D", hi:19.5, team:"A" },
+  { id:"ian", first:"Ian", hi:19.3, team:"A" },
+  { id:"jonathan", first:"Jonathan", hi:13.9, team:"A" },
+  { id:"mitchell", first:"Mitchell", hi:26.0, team:"A" },
+  { id:"rob", first:"Rob", hi:12.6, team:"A" },
+  { id:"steven", first:"Steven", hi:14.5, team:"B" },
+  { id:"simon", first:"Simon", hi:22.7, team:"B" },
+  { id:"scott", first:"Scott", hi:18.7, team:"B" },
+  { id:"richard", first:"Richard", hi:16.7, team:"B" }
+];
+let COURSES = {
+  day1:{name:"PGA National Cyprus",par:71,rating:68.8,slope:126,allowance:95,holes:[{par:4,si:18},{par:4,si:10},{par:4,si:8},{par:4,si:4},{par:3,si:16},{par:5,si:6},{par:3,si:14},{par:4,si:2},{par:4,si:12},{par:5,si:11},{par:4,si:5},{par:3,si:15},{par:4,si:3},{par:4,si:17},{par:3,si:1},{par:4,si:7},{par:3,si:13},{par:5,si:9}]},
+  day2:{name:"Minthis",par:72,rating:72.1,slope:134,allowance:100,holes:[{par:4,si:14},{par:3,si:18},{par:5,si:12},{par:4,si:10},{par:4,si:6},{par:5,si:2},{par:4,si:4},{par:3,si:16},{par:4,si:8},{par:5,si:5},{par:5,si:9},{par:4,si:1},{par:3,si:17},{par:4,si:15},{par:3,si:13},{par:4,si:3},{par:5,si:7},{par:4,si:11}]},
+  day3:{name:"Limassol Greens",par:71,rating:72.5,slope:149,allowance:100,holes:[{par:5,si:8},{par:4,si:12},{par:3,si:14},{par:4,si:4},{par:3,si:18},{par:4,si:2},{par:4,si:16},{par:3,si:10},{par:5,si:6},{par:4,si:9},{par:3,si:13},{par:4,si:7},{par:4,si:1},{par:5,si:11},{par:4,si:17},{par:5,si:3},{par:3,si:15},{par:4,si:5}]}
+};
+const DAY_GAMES = {
+  day1:[{name:"Game 1",a:["rob","eytan"],b:["bradley","steven"]},{name:"Game 2",a:["jonathan","ian"],b:["richard","garyr"]},{name:"Game 3",a:["garyd","mitchell"],b:["scott","simon"]}],
+  day2:[{name:"Game 1",a:["rob","ian"],b:["richard","simon"]},{name:"Game 2",a:["eytan","garyd"],b:["bradley","garyr"]},{name:"Game 3",a:["jonathan","mitchell"],b:["steven","scott"]}]
+};
+const DAY3_GROUPS = [];
+const DAILY_PRIZES = [50,40,30,20], OVERALL_PRIZES = [150,100,50];
+
+let sb = null, channel = null;
+let state = { tournamentId:null, tournamentSlug:null, currentPlayerId:null, isAdmin:false, adminCode:"", scoreMap:{} };
+let modalState = { day:null, playerId:null, holeNo:null };
+let _summaryCache = {};
+let activityFeed = []; // [{text, icon, time}]
+let pendingScores = []; // offline queue
+let isDark = false;
+
+// ── Utility ──
+function $(id){ return document.getElementById(id); }
+function getPlayer(id){ return PLAYERS.find(p => p.id === id); }
+function roundHalfUp(v){ return Math.floor(v + 0.5); }
+function formatMoney(v){ return "€" + Number(v || 0).toFixed(0); }
+function courseHandicap(hi, c){ return roundHalfUp(hi * (c.slope / 113) + (c.rating - c.par)); }
+function playingHandicap(ch, allowance){ return roundHalfUp(ch * (allowance / 100)); }
+function shotsOnHole(ph, si){ if (ph <= 0) return 0; const base = Math.floor(ph / 18), rem = ph % 18; return base + (rem >= si ? 1 : 0); }
+function stablefordPoints(raw, hole, shots){
+  if (raw === null || raw === undefined || raw === "") return null;
+  const txt = String(raw).trim().toUpperCase();
+  if (txt === "X" || txt === "BLOB" || txt === "0") return 0;
+  const gross = parseInt(txt, 10); if (isNaN(gross)) return null;
+  const maxGross = hole.par + shots + 2; if (gross > maxGross) return 0;
+  const net = gross - shots; return Math.max(0, 2 + (hole.par - net));
+}
+function grossValue(raw){ const txt = String(raw || "").trim().toUpperCase(); if (!txt || txt === "X" || txt === "BLOB" || txt === "0") return null; const n = parseInt(txt,10); return isNaN(n) ? null : n; }
+function countbackArray(hp){ hp = hp.map(v => v ?? 0); return [hp.slice(9).reduce((a,b)=>a+b,0), hp.slice(12).reduce((a,b)=>a+b,0), hp.slice(15).reduce((a,b)=>a+b,0), hp.slice(17).reduce((a,b)=>a+b,0)]; }
+function compareCountback(a,b){ for(let i=0;i<a.length;i++){ if (b[i] !== a[i]) return b[i]-a[i]; } return 0; }
+function setStatus(text, cls=""){ const box = $("statusBox"); if(!box) return; box.className = "status" + (cls ? " " + cls : ""); box.textContent = text; }
+function scoreValue(day, playerId, holeNo){ return state.scoreMap[`${day}:${playerId}:${holeNo}`] ?? ""; }
+function canEditPlayer(playerId){
+  if(state.isAdmin || state.currentPlayerId === playerId) return true;
+  // Allow scoring for team-mates in the same game group
+  const me = state.currentPlayerId;
+  if(!me) return false;
+  const myTeam = getPlayer(me)?.team;
+  const theirTeam = getPlayer(playerId)?.team;
+  if(myTeam !== theirTeam) return false; // can't score for the other team
+  // Check if we're in the same game on any day
+  for(const day of ["day1","day2"]){
+    for(const game of DAY_GAMES[day]){
+      const allInGame = [...game.a, ...game.b];
+      if(allInGame.includes(me) && allInGame.includes(playerId)) return true;
+    }
+  }
+  // Day 3 singles pairings — same group
+  const groups = getDay3GroupsFromSingles();
+  for(const group of groups){
+    if(group.includes(me) && group.includes(playerId)) return true;
+  }
+  return false;
+}
+
+// ── Dark mode ──
+function toggleDark(){
+  isDark = !isDark;
+  document.body.classList.toggle("dark", isDark);
+  localStorage.setItem("cyprusDark", isDark ? "1" : "");
+  const btn = document.querySelector(".dark-toggle");
+  if(btn) btn.textContent = isDark ? "☀️" : "🌙";
+}
+
+// ── Offline support ──
+function setupOfflineDetection(){
+  const toast = $("offlineToast");
+  window.addEventListener("online",  () => { if(toast) toast.classList.remove("show"); flushPendingScores(); });
+  window.addEventListener("offline", () => { if(toast) toast.classList.add("show"); });
+  if(!navigator.onLine && toast) toast.classList.add("show");
+}
+async function flushPendingScores(){
+  if(!pendingScores.length) return;
+  const queue = [...pendingScores]; pendingScores = [];
+  for(const s of queue){
+    try{ await secureUpsertScore(s.day, s.playerId, s.holeNo, s.value); }
+    catch(e){ pendingScores.push(s); }
+  }
+  if(!pendingScores.length) setStatus("Synced offline scores.", "ok");
+}
+
+// ── Activity feed ──
+function pushActivity(icon, text){
+  const now = new Date();
+  const timeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+  activityFeed.unshift({icon, text, time:timeStr});
+  if(activityFeed.length > 8) activityFeed.pop();
+  renderActivityFeed();
+}
+function renderActivityFeed(){
+  const el = $("activityFeedInner");
+  if(!el) return;
+  el.innerHTML = activityFeed.map(a =>
+    `<div class="activity-item"><span class="activity-icon">${a.icon}</span><span class="activity-text">${a.text}</span><span class="activity-time">${a.time}</span></div>`
+  ).join("");
+}
+
+// ── Navigation ──
+function showSection(id){
+  const adminId = window._adminPlayerId || "mitchell";
+  if(id === "setup" && state.currentPlayerId !== adminId) return;
+  document.querySelectorAll(".section").forEach(el => el.classList.add("hidden"));
+  $(id).classList.remove("hidden");
+  document.querySelectorAll("#dayTabs button").forEach(btn => btn.classList.remove("active"));
+  $("tab_"+id).classList.add("active");
+  document.querySelectorAll(".bottom-nav button").forEach(btn => btn.classList.remove("active"));
+  const bn = $("bnav_"+id); if(bn) bn.classList.add("active");
+}
+function populatePlayers(){ $("playerSelect").innerHTML = PLAYERS.map(p => `<option value="${p.id}">${p.first}</option>`).join(""); }
+function toggleAdminField(){ $("adminCodeField").style.display = $("playerSelect").value === "mitchell" ? "block" : "none"; }
+
+// ── Supabase ──
+async function initSupabase(){
+  if(sb) return true; // already initialised on page load
+  if (!window.APP_CONFIG || !window.APP_CONFIG.supabaseUrl || !window.APP_CONFIG.supabaseAnonKey){ setStatus("Add your Supabase values to config.js first.", "bad"); return false; }
+  sb = window.supabase.createClient(window.APP_CONFIG.supabaseUrl, window.APP_CONFIG.supabaseAnonKey); return true;
+}
+async function loadTournament(code){ const { data, error } = await sb.from("tournaments").select("id,name,slug").eq("slug", code).single(); if (error) throw error; return data; }
+async function loadScores(){ const { data, error } = await sb.from("scores_public").select("*").eq("tournament_slug", state.tournamentSlug); if (error) throw error; state.scoreMap = {}; (data||[]).forEach(row => state.scoreMap[`${row.day_key}:${row.player_id}:${row.hole_no}`] = row.score_value); }
+async function secureSignIn(){
+  const params = { p_tournament_slug:$("tournamentCodeInput").value.trim(), p_player_id:$("playerSelect").value, p_admin_code:$("adminCodeInput").value.trim() || null };
+  const { data, error } = await sb.rpc("sign_in_secure_nopin", params); if (error) throw error; return data;
+}
+async function secureUpsertScore(day, playerId, holeNo, value){
+  const params = { p_tournament_slug:state.tournamentSlug, p_player_id:playerId, p_day_key:day, p_hole_no:holeNo, p_score_value:String(value||"").trim(), p_admin_code:state.adminCode || null };
+  const { data, error } = await sb.rpc("upsert_score_nopin", params); if (error) throw error; return data;
+}
+
+// ── Calculations ──
+function playerSummary(day, playerId){
+  const key = `${day}:${playerId}`;
+  if (_summaryCache[key]) return _summaryCache[key];
+  const p = getPlayer(playerId), c = COURSES[day], ch = courseHandicap(p.hi, c), ph = playingHandicap(ch, c.allowance);
+  let total=0,gross=0,holesEntered=0; const holePoints=[];
+  for(let i=0;i<18;i++){ const raw = scoreValue(day, playerId, i+1), shots = shotsOnHole(ph, c.holes[i].si), pts = stablefordPoints(raw, c.holes[i], shots); holePoints.push(pts); if (pts!==null) total += pts; const g = grossValue(raw); if (g!==null){ gross += g; holesEntered += 1; } else if (String(raw).trim().toUpperCase()==="X" || String(raw).trim()==="0") holesEntered += 1; }
+  const result = { player:p, ch, ph, total, gross, holesEntered, holePoints, countback:countbackArray(holePoints) };
+  _summaryCache[key] = result;
+  return result;
+}
+function sortedDaily(day){
+  const rows = PLAYERS.map(p => playerSummary(day, p.id));
+  rows.sort((a,b) => { if (b.total !== a.total) return b.total - a.total; const cb = compareCountback(a.countback, b.countback); if (cb !== 0) return cb; return a.gross - b.gross; });
+  const played = rows.filter(r => r.holesEntered > 0);
+  rows.forEach(r => { r.position = "—"; r.money = 0; });
+  played.forEach((r, idx) => { r.position = idx + 1; r.money = idx < 4 ? DAILY_PRIZES[idx] : 0; });
+  return rows;
+}
+function overallSorted(){
+  const d1 = Object.fromEntries(sortedDaily("day1").map(r => [r.player.id, r])), d2 = Object.fromEntries(sortedDaily("day2").map(r => [r.player.id, r])), d3 = Object.fromEntries(sortedDaily("day3").map(r => [r.player.id, r]));
+  const rows = PLAYERS.map(p => ({ player:p, d1:d1[p.id].total, d2:d2[p.id].total, d3:d3[p.id].total, total:d1[p.id].total + d2[p.id].total + d3[p.id].total }));
+  rows.sort((a,b) => { if (b.total !== a.total) return b.total - a.total; if (b.d3 !== a.d3) return b.d3 - a.d3; if (b.d2 !== a.d2) return b.d2 - a.d2; return b.d1 - a.d1; });
+  const playedOverall = rows.filter(r => r.total > 0);
+  rows.forEach(r => r.money = 0);
+  playedOverall.forEach((r, idx) => { if (idx < 3) r.money = OVERALL_PRIZES[idx]; });
+  return rows;
+}
+function teamTotals(){ const overall = overallSorted(), sums = {A:0,B:0}; overall.forEach(r => sums[r.player.team] += r.total); return sums; }
+function teamMembers(tag){ return PLAYERS.filter(p => p.team === tag).map(p => p.first).join(", "); }
+function day12TotalsForPairing(){
+  const d1 = Object.fromEntries(sortedDaily("day1").map(r => [r.player.id, r.total]));
+  const d2 = Object.fromEntries(sortedDaily("day2").map(r => [r.player.id, r.total]));
+  return PLAYERS.map(p => ({ playerId:p.id, team:p.team, total:(d1[p.id] || 0) + (d2[p.id] || 0) }));
+}
+function getDay3SinglesPairings(){
+  const ranked = day12TotalsForPairing();
+  const teamA = ranked.filter(r => r.team === "A").sort((a,b) => a.total - b.total);
+  const teamB = ranked.filter(r => r.team === "B").sort((a,b) => a.total - b.total);
+  const out = [];
+  for(let i=0;i<Math.min(teamA.length, teamB.length); i++){
+    out.push({ matchNo:i+1, a:teamA[i].playerId, b:teamB[i].playerId, aSeedTotal:teamA[i].total, bSeedTotal:teamB[i].total });
+  }
+  return out;
+}
+function getDay3GroupsFromSingles(){
+  const pairs = getDay3SinglesPairings();
+  const groups = [];
+  for(let i=0;i<pairs.length;i+=2){
+    const block = [];
+    if (pairs[i]) block.push(pairs[i].a, pairs[i].b);
+    if (pairs[i+1]) block.push(pairs[i+1].a, pairs[i+1].b);
+    groups.push(block);
+  }
+  return groups;
+}
+function day3SinglesMatchResult(pair){
+  const labelA = getPlayer(pair.a).first, labelB = getPlayer(pair.b).first;
+  const psA = playerSummary("day3", pair.a), psB = playerSummary("day3", pair.b);
+  let aUp = 0; const holes = [];
+  for(let i=0;i<18;i++){
+    const aVal = psA.holePoints[i] ?? 0, bVal = psB.holePoints[i] ?? 0;
+    let winner = "H";
+    if (aVal > bVal){ winner = "A"; aUp += 1; } else if (bVal > aVal){ winner = "B"; aUp -= 1; }
+    const left = 18 - (i+1);
+    holes.push({hole:i+1,aVal,bVal,winner,status:aUp,left});
+  }
+  let finalText = "Match halved"; let winnerTeam = "H";
+  for(const h of holes){ if (Math.abs(h.status) > h.left){ const w = h.status>0?"A":"B"; finalText = `${w==="A"?labelA:labelB} wins ${Math.abs(h.status)} & ${h.left}`; winnerTeam=w; break; } }
+  if (finalText === "Match halved"){ const s = holes[17].status; if (s > 0){ finalText = `${labelA} wins ${s} up`; winnerTeam="A"; } else if (s < 0){ finalText = `${labelB} wins ${Math.abs(s)} up`; winnerTeam="B"; } }
+  return {labelA,labelB,holes,finalText,winnerTeam};
+}
+function teamMatchPointsSummary(){
+  const out = { day1:{A:0,B:0,H:0}, day2:{A:0,B:0,H:0}, day3:{A:0,B:0,H:0}, total:{A:0,B:0,H:0} };
+  for(const g of DAY_GAMES.day1){ const r = matchResult("day1", g); out.day1[r.winnerTeam] += 1; out.total[r.winnerTeam] += 1; }
+  for(const g of DAY_GAMES.day2){ const r = matchResult("day2", g); out.day2[r.winnerTeam] += 1; out.total[r.winnerTeam] += 1; }
+  for(const p of getDay3SinglesPairings()){ const r = day3SinglesMatchResult(p); out.day3[r.winnerTeam] += 1; out.total[r.winnerTeam] += 1; }
+  return out;
+}
+function matchResult(day, game){
+  const labelA = game.a.map(id => getPlayer(id).first).join(" & "), labelB = game.b.map(id => getPlayer(id).first).join(" & ");
+  let aUp = 0; const holes = [];
+  for(let i=0;i<18;i++){
+    const aPoints = game.a.map(id => playerSummary(day,id).holePoints[i] ?? 0), bPoints = game.b.map(id => playerSummary(day,id).holePoints[i] ?? 0);
+    const aVal = day==="day1" ? aPoints.reduce((x,y)=>x+y,0) : Math.max(...aPoints);
+    const bVal = day==="day1" ? bPoints.reduce((x,y)=>x+y,0) : Math.max(...bPoints);
+    let winner="H"; if (aVal>bVal){ winner="A"; aUp+=1; } else if (bVal>aVal){ winner="B"; aUp-=1; }
+    const left = 18-(i+1); holes.push({hole:i+1,aVal,bVal,winner,status:aUp,left});
+  }
+  let finalText="Match halved"; let winnerTeam="H";
+  for(const h of holes){ if (Math.abs(h.status) > h.left){ const w = h.status>0?"A":"B"; finalText = `${w==="A"?labelA:labelB} wins ${Math.abs(h.status)} & ${h.left}`; winnerTeam=w; break; } }
+  if (finalText==="Match halved"){ const s = holes[17].status; if (s>0){ finalText = `${labelA} wins ${s} up`; winnerTeam="A"; } else if (s<0){ finalText = `${labelB} wins ${Math.abs(s)} up`; winnerTeam="B"; } }
+  return {labelA,labelB,holes,finalText,winnerTeam};
+}
+
+// ── Match status banner for current player ──
+function myMatchBanner(day){
+  if(!state.currentPlayerId) return "";
+  const pid = state.currentPlayerId;
+  let result = null;
+  if(day !== "day3"){
+    const myGame = DAY_GAMES[day]?.find(g => [...g.a,...g.b].includes(pid));
+    if(myGame) result = matchResult(day, myGame);
+  } else {
+    const pair = getDay3SinglesPairings().find(p => p.a===pid||p.b===pid);
+    if(pair) result = day3SinglesMatchResult(pair);
+  }
+  if(!result) return "";
+
+  // Work out current hole count and live status
+  const ps = playerSummary(day, pid);
+  const holesPlayed = ps.holesEntered;
+  const lastHole = result.holes[Math.min(holesPlayed, 17)];
+  const status = lastHole ? lastHole.status : 0;
+  const myTeam = getPlayer(pid).team;
+  const iAmA = result.labelA.includes(getPlayer(pid).first);
+  const myStatus = iAmA ? status : -status;
+  let statusText = "All square";
+  if(myStatus > 0) statusText = `${myStatus} UP`;
+  else if(myStatus < 0) statusText = `${Math.abs(myStatus)} DOWN`;
+  const isHalved = myStatus === 0;
+  const holesLeft = 18 - holesPlayed;
+
+  return `<div class="match-banner ${isHalved?'halved':''}">
+    <div>
+      <div class="match-banner-status">${statusText}</div>
+      <div class="match-banner-sub">${result.labelA} vs ${result.labelB}</div>
+    </div>
+    <div class="match-banner-holes">${holesPlayed}/18 · ${holesLeft} to play</div>
+  </div>`;
+}
+
+// ── Score modal with swipe navigation ──
+function openScoreModal(day, playerId, holeNo){
+  if (!canEditPlayer(playerId)){ setStatus("You can only score for your own team's players in your group.", "bad"); return; }
+  modalState = { day, playerId, holeNo };
+  renderScoreModal();
+}
+function renderScoreModal(){
+  const { day, playerId, holeNo } = modalState;
+  const current = scoreValue(day, playerId, holeNo) || "—";
+  const course = COURSES[day];
+  const hole = course.holes[holeNo-1];
+  const ps = playerSummary(day, playerId);
+  const shots = shotsOnHole(ps.ph, hole.si);
+  const html = `
+    <div class="modal-backdrop" onclick="closeScoreModal(event)">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-nav">
+          <button class="modal-nav-btn" onclick="navigateHole(-1)" ${holeNo<=1?"disabled":""}>‹</button>
+          <div class="modal-hole-info">
+            <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:900">${getPlayer(playerId).first} · Hole ${holeNo}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Par ${hole.par} · SI ${hole.si} · ${shots} shot${shots!==1?'s':''} received · Now: <strong>${current}</strong></div>
+          </div>
+          <button class="modal-nav-btn" onclick="navigateHole(1)" ${holeNo>=18?"disabled":""}>›</button>
+        </div>
+        <div class="score-buttons">
+          ${[1,2,3,4,5,6,7,8,9,10,11,12].map(n => {
+            const pts = stablefordPoints(String(n), hole, shots);
+            const highlight = current === String(n) ? "style='outline:3px solid var(--gold)'" : "";
+            return `<button class="score-btn" onclick="chooseScore('${n}')" ${highlight}>${n}<br><span style="font-size:10px;opacity:.6">${pts!==null?pts+'pt':''}</span></button>`;
+          }).join("")}
+          <button class="score-btn alt" onclick="chooseScore('X')">X<br><span style="font-size:10px;opacity:.6">blob</span></button>
+          <button class="score-btn soft" onclick="chooseScore('')">Clear</button>
+          <button class="score-btn primary" onclick="closeScoreModal()">Close</button>
+        </div>
+        <div class="small-note">Tap a score to save · ‹ › to move between holes</div>
+      </div>
+    </div>
+  `;
+  $("scoreModalWrap").innerHTML = html;
+  $("scoreModalWrap").classList.remove("hidden");
+}
+function navigateHole(dir){
+  const next = modalState.holeNo + dir;
+  if(next < 1 || next > 18) return;
+  modalState.holeNo = next;
+  renderScoreModal();
+}
+function closeScoreModal(e){
+  if (e && e.stopPropagation) e.stopPropagation();
+  $("scoreModalWrap").classList.add("hidden");
+  $("scoreModalWrap").innerHTML = "";
+}
+async function chooseScore(value){
+  const { day, playerId, holeNo } = modalState;
+  const key = `${day}:${playerId}:${holeNo}`;
+  state.scoreMap[key] = String(value || "").trim();
+
+  // Flash animation on tile
+  const tileBtn = document.querySelector(`[data-hole-key="${key}"]`);
+  if(tileBtn){ tileBtn.classList.add("saved-pop"); setTimeout(()=>tileBtn.classList.remove("saved-pop"),400); }
+
+  // Re-render modal with updated score
+  renderScoreModal();
+  _summaryCache = {};
+  renderAll();
+
+  // Activity feed
+  if(value){
+    const player = getPlayer(playerId);
+    const course = COURSES[day]; const hole = course.holes[holeNo-1];
+    const ps = playerSummary(day, playerId);
+    const shots = shotsOnHole(ps.ph, hole.si);
+    const pts = stablefordPoints(value, hole, shots);
+    const icon = pts>=4?"🦅":pts===3?"🐦":pts===2?"⛳":pts===0?"💀":"🏌️";
+    pushActivity(icon, `${player.first} scored ${value} on H${holeNo} (${pts} pts)`);
+  }
+
+  // Save — queue if offline
+  if(!navigator.onLine){
+    pendingScores.push({day, playerId, holeNo, value});
+    setStatus("Saved offline. Will sync when connected.", "");
+    return;
+  }
+  try{
+    await secureUpsertScore(day, playerId, holeNo, value);
+    setStatus("Saved.", "ok");
+  }catch(e){
+    pendingScores.push({day, playerId, holeNo, value});
+    setStatus("Save failed — queued for retry.", "bad");
+  }
+}
+
+// ── Score inputs (hole tile grid) ──
+function scoreInputs(day, playerId){
+  const c = COURSES[day], ps = playerSummary(day, playerId);
+  let front9=0, back9=0;
+  for(let h=1;h<=18;h++){
+    const hole=c.holes[h-1], shots=shotsOnHole(ps.ph,hole.si), raw=scoreValue(day,playerId,h), pts=stablefordPoints(raw,hole,shots);
+    if(pts!==null){ if(h<=9) front9+=pts; else back9+=pts; }
+  }
+
+  let html = `<div class="score-section-header">
+    <div><div class="sh-label">Front 9</div><div class="sh-val">${front9}</div></div>
+    <div><div class="sh-label">Back 9</div><div class="sh-val">${back9}</div></div>
+    <div><div class="sh-label">Total</div><div class="sh-val">${ps.total}</div></div>
+  </div>`;
+
+  // Progress bar
+  const pct = Math.round((ps.holesEntered/18)*100);
+  html += `<div class="progress-label"><span>${ps.holesEntered}/18 holes</span><span>${pct}%</span></div>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>`;
+
+  for(const [half, label] of [[[1,9],"Front 9"],[[10,18],"Back 9"]]){
+    html += `<div class="hole-half-label">${label}</div><div class="hole-grid">`;
+    for(let h=half[0];h<=half[1];h++){
+      const hole=c.holes[h-1], shots=shotsOnHole(ps.ph,hole.si), raw=scoreValue(day,playerId,h), pts=stablefordPoints(raw,hole,shots);
+      let cls='empty';
+      if(raw){ const n=parseInt(raw); if(!isNaN(n)){ if(pts>=4) cls='great'; else if(pts>=3) cls='good'; else if(pts===0) cls='blob'; else cls='has-score'; } else if(raw==='X') cls='blob'; }
+      const ptsLabel = pts===null ? '—' : pts===0 ? '0 pts' : `${pts} pts`;
+      const ptsCls = pts!==null && pts>2 ? 'pos' : '';
+      const key = `${day}:${playerId}:${h}`;
+      html += `<div class="hole-tile">
+        <div class="hole-tile-top"><span>H${h}</span><span>P${hole.par}</span></div>
+        <div class="hole-tile-btn ${cls}" data-hole-key="${key}" onclick="openScoreModal('${day}','${playerId}',${h})">${raw||'·'}</div>
+        <div class="hole-tile-pts ${ptsCls}">${ptsLabel}</div>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+  return html;
+}
+
+// ── Share scorecard ──
+function shareScorecard(day, playerId){
+  const ps = playerSummary(day, playerId);
+  const c = COURSES[day];
+  let text = `⛳ Cyprus Golf Tour '26 — ${c.name}\n${getPlayer(playerId).first} · ${ps.total} pts (${ps.holesEntered}/18 holes)\n\n`;
+  for(let h=1;h<=18;h++){
+    const raw = scoreValue(day, playerId, h);
+    if(raw) text += `H${h}: ${raw}  `;
+  }
+  text += `\n\n14-16 May 2026 · Cyprus`;
+  if(navigator.share){ navigator.share({title:"My Scorecard", text}); }
+  else { navigator.clipboard?.writeText(text); setStatus("Scorecard copied to clipboard!", "ok"); }
+}
+
+// ── Render day ──
+function renderDay(day){
+  const c = COURSES[day], daily = sortedDaily(day), groups = day==="day3" ? getDay3GroupsFromSingles() : DAY_GAMES[day].map(g => [...g.a,...g.b]);
+  let html = `<div class="card"><div class="card-title"><span class="icon">🏳️</span>${c.name}</div><p class="sub">${day==="day1"?"Combined Stableford Matchplay":day==="day2"?"Best Ball Stableford Matchplay":"Singles Stableford Matchplay"} · Yellow tees · Par ${c.par} · Rating ${c.rating} · Slope ${c.slope}</p></div>`;
+
+  // View toggle
+  html += `<div class="view-toggle"><button data-mode="me" onclick="setViewMode('me')" class="${viewMode==="me"?"active":""}">My card</button><button data-mode="all" onclick="setViewMode('all')" class="${viewMode==="all"?"active":""}">All players</button></div>`;
+
+  // Activity feed
+  if(activityFeed.length > 0){
+    html += `<div class="activity-feed card" style="padding:14px"><div class="card-title" style="font-size:14px;margin-bottom:8px"><span>📡</span> Live Activity</div><div class="activity-feed-inner" id="activityFeedInner">${activityFeed.map(a=>`<div class="activity-item"><span class="activity-icon">${a.icon}</span><span class="activity-text">${a.text}</span><span class="activity-time">${a.time}</span></div>`).join("")}</div></div>`;
+  }
+
+  if (day!=="day3"){ html += `<div class="card"><h3>${day==="day1"?"Matchplay — combined team points per hole":"Matchplay — best score per pair per hole"}</h3><div style="margin-top:12px">`; for(const game of DAY_GAMES[day]){ const m = matchResult(day, game); html += `<div class="match-card"><h4>${game.name}</h4><p class="sub" style="margin-top:4px">${m.labelA} vs ${m.labelB}</p><p style="margin-top:8px;font-weight:900;color:var(--green)">${m.finalText}</p><div style="margin-top:10px">${m.holes.map(h => { const cls = h.winner==="A"?"hole-A":h.winner==="B"?"hole-B":"hole-H", label = h.winner==="A"?"A":h.winner==="B"?"B":"Half"; return `<span class="hole-chip ${cls}">H${h.hole} ${label} ${h.aVal}-${h.bVal}</span>`; }).join("")}</div></div>`; } html += `</div></div>`; }
+  if (day==="day3"){
+    const singles = getDay3SinglesPairings();
+    html += `<div class="card"><h3>Day 3 Singles Matchboard</h3><p class="sub" style="margin-top:4px">Auto-paired from Day 1+2 totals. Lowest goes first.</p><div style="margin-top:12px">`;
+    singles.forEach(pair => {
+      const r = day3SinglesMatchResult(pair);
+      html += `<div class="match-card"><h4>Match ${pair.matchNo}</h4><p class="sub" style="margin-top:4px">${r.labelA} (${pair.aSeedTotal}) vs ${r.labelB} (${pair.bSeedTotal})</p><p style="margin-top:8px;font-weight:900;color:var(--green)">${r.finalText}</p><div style="margin-top:10px">${r.holes.map(h => { const cls = h.winner==="A"?"hole-A":h.winner==="B"?"hole-B":"hole-H", label = h.winner==="A"?"A":h.winner==="B"?"B":"Half"; return `<span class="hole-chip ${cls}">H${h.hole} ${label} ${h.aVal}-${h.bVal}</span>`; }).join("")}</div></div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  groups.forEach((group,idx) => {
+    const visibleGroup = viewMode === "me" ? group.filter(pid => pid === state.currentPlayerId) : group;
+    if (visibleGroup.length === 0) return;
+    html += `<div class="card"><h3>${day==="day3" ? `Group ${idx+1}` : DAY_GAMES[day][idx].name}</h3><div style="margin-top:12px">`;
+    visibleGroup.forEach(pid => {
+      const s = playerSummary(day, pid), livePrize = daily.find(r => r.player.id===pid)?.money || 0;
+      html += `<div class="player-card">
+        <div class="player-header">
+          <div>
+            <div class="player-name">${s.player.first}</div>
+            <div class="meta"><span class="pill ${s.player.team==="A"?"teamA":"teamB"}">${s.player.team==="A"?"Team A":"Team B"}</span> &nbsp;Index ${s.player.hi.toFixed(1)} · Playing ${s.ph}</div>
+          </div>
+          <div class="points-badge">${s.total}<span>pts</span></div>
+        </div>
+        ${myMatchBanner(day)}
+        ${scoreInputs(day,pid)}
+        <div class="summary-strip">
+          <div class="summary-box highlight"><div class="k">Stableford</div><div class="v">${s.total}</div></div>
+          <div class="summary-box"><div class="k">Holes</div><div class="v">${s.holesEntered}/18</div></div>
+          <div class="summary-box"><div class="k">Back 9</div><div class="v">${s.countback[0]}</div></div>
+          <div class="summary-box"><div class="k">Prize</div><div class="v">${formatMoney(livePrize)}</div></div>
+        </div>
+        ${canEditPlayer(pid) ? `<button class="share-btn" onclick="shareScorecard('${day}','${pid}')">📤 Share my scorecard</button>` : ""}
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+
+  // Daily leaderboard — highlight current player
+  html += `<div class="card"><h3>Daily leaderboard</h3><div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Pos</th><th>Player</th><th>Team</th><th>Pts</th><th>Back 9</th><th>Back 6</th><th>Back 3</th><th>Last</th><th>Prize</th></tr></thead><tbody>${daily.map(r => {
+    const isMe = r.player.id === state.currentPlayerId;
+    return `<tr class="${isMe?"me-row":""}"><td>${r.position}</td><td>${r.player.first}${isMe?" 👤":""}</td><td>${r.player.team}</td><td><strong>${r.total}</strong></td><td>${r.countback[0]}</td><td>${r.countback[1]}</td><td>${r.countback[2]}</td><td>${r.countback[3]}</td><td class="money">${formatMoney(r.money)}</td></tr>`;
+  }).join("")}</tbody></table></div></div>`;
+  $(day).innerHTML = html;
+}
+
+function renderOverall(){
+  const rows = overallSorted(), teams = teamTotals(), mp = teamMatchPointsSummary();
+  const teamWinner = mp.total.A > mp.total.B ? "Team A" : mp.total.B > mp.total.A ? "Team B" : "Tie";
+  $("overall").innerHTML = `<div class="card"><h2>Overall standings</h2><p class="sub">Overall individual ties break on Day 3, then Day 2, then Day 1.</p></div>
+  <div class="row cols-2">
+    <div class="card"><h3>Team match points</h3><p class="sub" style="margin-top:6px"><span class="pill teamA">Team A</span> ${teamMembers("A")}</p><p class="sub" style="margin-top:6px"><span class="pill teamB">Team B</span> ${teamMembers("B")}</p><div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Stage</th><th>A</th><th>B</th><th>½</th></tr></thead><tbody><tr><td>Day 1</td><td><strong>${mp.day1.A}</strong></td><td><strong>${mp.day1.B}</strong></td><td>${mp.day1.H}</td></tr><tr><td>Day 2</td><td><strong>${mp.day2.A}</strong></td><td><strong>${mp.day2.B}</strong></td><td>${mp.day2.H}</td></tr><tr><td>Day 3</td><td><strong>${mp.day3.A}</strong></td><td><strong>${mp.day3.B}</strong></td><td>${mp.day3.H}</td></tr><tr><td><strong>Total</strong></td><td><strong>${mp.total.A}</strong></td><td><strong>${mp.total.B}</strong></td><td>${mp.total.H}</td></tr></tbody></table></div><p class="sub" style="margin-top:10px"><strong>Leading:</strong> ${teamWinner}</p></div>
+    <div class="card"><h3>Prize pot</h3><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px"><span class="pill">Daily ${formatMoney(420)}</span><span class="pill">Overall ${formatMoney(300)}</span><span class="pill">Team ${formatMoney(240)}</span><span class="pill" style="background:var(--green);color:white">Total ${formatMoney(960)}</span></div><div style="overflow:auto;margin-top:14px"><table><thead><tr><th>Team</th><th>Total pts</th></tr></thead><tbody><tr><td>Team A</td><td><strong>${teams.A}</strong></td></tr><tr><td>Team B</td><td><strong>${teams.B}</strong></td></tr></tbody></table></div></div>
+  </div>
+  <div class="card"><h3>Overall individual leaderboard</h3><div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Pos</th><th>Player</th><th>Team</th><th>D1</th><th>D2</th><th>D3</th><th>Total</th><th>Prize</th></tr></thead><tbody>${rows.map((r,idx) => {
+    const isMe = r.player.id === state.currentPlayerId;
+    return `<tr class="${isMe?"me-row":""}"><td>${idx+1}</td><td>${r.player.first}${isMe?" 👤":""}</td><td>${r.player.team}</td><td>${r.d1}</td><td>${r.d2}</td><td>${r.d3}</td><td><strong>${r.total}</strong></td><td class="money">${formatMoney(r.money)}</td></tr>`;
+  }).join("")}</tbody></table></div></div>`;
+}
+
+// ── Course editor ──
+let courseEditorDay = "day1";
+let viewMode = "me";
+function setViewMode(mode){ viewMode = mode; document.querySelectorAll(".view-toggle button").forEach(b => b.classList.toggle("active", b.dataset.mode === mode)); renderDay("day1"); renderDay("day2"); renderDay("day3"); }
+
+function loadCoursesFromStorage(){
+  try{
+    const saved = localStorage.getItem("cyprusTourCourses");
+    if(!saved) return;
+    const data = JSON.parse(saved);
+    if(data && data.day1 && data.day2 && data.day3 && data.day1.holes?.length===18 && data.day2.holes?.length===18 && data.day3.holes?.length===18) COURSES = data;
+  }catch(e){ console.warn("loadCoursesFromStorage failed:", e); }
+}
+function saveCoursesToStorage(){
+  const adminId = window._adminPlayerId || "mitchell";
+  if(state.currentPlayerId !== adminId){ setStatus("Only the admin can edit course details.", "bad"); return; }
+  ["day1","day2","day3"].forEach(day => {
+    const prefix = `ce_${day}`;
+    const name = $(`${prefix}_name`)?.value.trim(); if(name) COURSES[day].name = name;
+    const rating = parseFloat($(`${prefix}_rating`)?.value); if(!isNaN(rating)) COURSES[day].rating = rating;
+    const slope = parseInt($(`${prefix}_slope`)?.value); if(!isNaN(slope)) COURSES[day].slope = slope;
+    for(let h=1;h<=18;h++){
+      const hp = parseInt($(`${prefix}_h${h}_par`)?.value), hs = parseInt($(`${prefix}_h${h}_si`)?.value);
+      if(!isNaN(hp)) COURSES[day].holes[h-1].par = hp;
+      if(!isNaN(hs)) COURSES[day].holes[h-1].si = hs;
+    }
+    COURSES[day].par = COURSES[day].holes.reduce((s,h)=>s+h.par,0);
+    if($(`${prefix}_par`)) $(`${prefix}_par`).value = COURSES[day].par;
+  });
+  localStorage.setItem("cyprusTourCourses", JSON.stringify(COURSES));
+  _summaryCache = {};
+  const banner = $("courseSaveBanner");
+  if(banner){ banner.classList.add("show"); clearTimeout(banner._t); banner._t = setTimeout(()=>banner.classList.remove("show"),2500); }
+}
+function switchCourseEditorTab(day){ courseEditorDay = day; ["day1","day2","day3"].forEach(d => { $(`cetab_${d}`)?.classList.toggle("active", d===day); $(`cepanel_${d}`)?.classList.toggle("hidden", d!==day); }); }
+function updateParTotal(day){ const prefix=`ce_${day}`; let t=0; for(let h=1;h<=18;h++){ const v=parseInt($(`${prefix}_h${h}_par`)?.value); if(!isNaN(v)) t+=v; } if($(`${prefix}_par`)) $(`${prefix}_par`).value=t; }
+function buildCoursePanel(day){
+  const c=COURSES[day], prefix=`ce_${day}`, editable=state.currentPlayerId==="mitchell", dis=editable?"":" disabled style='opacity:.5;cursor:not-allowed'";
+  let rows="";
+  for(let h=1;h<=18;h++){ const hole=c.holes[h-1], parCls=hole.par===3?"par3-row":hole.par===5?"par5-row":""; rows+=`<tr class="${parCls}"><td>H${h}</td><td><input id="${prefix}_h${h}_par" name="par" type="number" min="3" max="5" value="${hole.par}" oninput="updateParTotal('${day}')"${dis}/></td><td><input id="${prefix}_h${h}_si" name="si" type="number" min="1" max="18" value="${hole.si}"${dis}/></td></tr>`; }
+  return `<div id="cepanel_${day}" class="${day!==courseEditorDay?"hidden":""}"><div class="course-meta-grid"><div class="field-group full"><label>Course Name</label><input id="${prefix}_name" type="text" value="${c.name}"${dis}/></div><div class="field-group"><label>Total Par (auto)</label><input id="${prefix}_par" type="number" value="${c.par}" readonly style="background:var(--cream);color:var(--muted)"/></div><div class="field-group"><label>Course Rating</label><input id="${prefix}_rating" type="number" step="0.1" value="${c.rating}"${dis}/></div><div class="field-group"><label>Slope</label><input id="${prefix}_slope" type="number" value="${c.slope}"${dis}/></div><div class="field-group"><label>Allowance %</label><input id="${prefix}_allowance" type="number" value="${c.allowance||100}"${dis}/></div></div><p class="sub" style="margin-bottom:10px">${editable?"Par and SI for each hole. Par totals automatically.":"🔒 Only Mitchell can edit course details."}</p><div style="overflow-x:auto"><table class="hole-editor-table"><thead><tr><th>Hole</th><th>Par</th><th>SI</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+function renderSetup(){
+  const adminId = window._adminPlayerId || "mitchell";
+  const isAdmin = state.currentPlayerId === adminId;
+  const wizBtn = isAdmin ? `<div class="card"><div class="card-title"><span class="icon">🧙</span>Setup Wizard</div><p class="sub">Re-run the setup wizard to change players, courses, handicaps or game groups.</p><button class="btn-primary" style="margin-top:14px" onclick="ssLaunch(true)">🔄 Re-run Setup Wizard</button></div>` : "";
+  $("setup").innerHTML = wizBtn + `<div class="card"><div class="card-title"><span class="icon">⚙️</span>Course Setup</div><p class="sub">Course details for each day. Saved locally to this device.</p></div>
+  <div class="card"><div class="course-editor-tabs"><button id="cetab_day1" class="${courseEditorDay==="day1"?"active":""}" onclick="switchCourseEditorTab('day1')">Day 1</button><button id="cetab_day2" class="${courseEditorDay==="day2"?"active":""}" onclick="switchCourseEditorTab('day2')">Day 2</button><button id="cetab_day3" class="${courseEditorDay==="day3"?"active":""}" onclick="switchCourseEditorTab('day3')">Day 3</button></div>${buildCoursePanel("day1")}${buildCoursePanel("day2")}${buildCoursePanel("day3")}${state.currentPlayerId==="mitchell"?`<div style="margin-top:16px"><button class="btn-primary" onclick="saveCoursesToStorage()">💾 Save Course Data</button></div>`:""}<div id="courseSaveBanner" class="save-banner">✅ Saved to this device.</div></div>
+  <div class="card"><div class="card-title"><span class="icon">👥</span>Players</div><div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Player</th><th>Team</th><th>Index</th></tr></thead><tbody>${PLAYERS.map(p=>`<tr><td>${p.first}</td><td>${p.team}</td><td>${p.hi.toFixed(1)}</td></tr>`).join("")}</tbody></table></div></div>`;
+}
+
+// ── Comp summary ──
+function renderCompSummary(){
+  const mp = teamMatchPointsSummary();
+  const aTotal = mp.total.A, bTotal = mp.total.B;
+  const leading = aTotal > bTotal ? "A" : bTotal > aTotal ? "B" : "tie";
+  const activeDays = ["day3","day2","day1"];
+  let focusDay = "day1";
+  for(const d of activeDays){ if(sortedDaily(d).some(r=>r.holesEntered>0)){ focusDay=d; break; } }
+  const daily = sortedDaily(focusDay).filter(r => r.holesEntered > 0).slice(0,3);
+  const dayLabel = {day1:"Day 1",day2:"Day 2",day3:"Day 3"}[focusDay];
+  let myMatchHtml = `<p style="font-size:13px;color:var(--muted)">No match data yet.</p>`;
+  if(state.currentPlayerId){
+    const pid = state.currentPlayerId;
+    const myGame = DAY_GAMES[focusDay]?.find(g => [...g.a,...g.b].includes(pid));
+    if(myGame){ const m=matchResult(focusDay, myGame); myMatchHtml=`<div class="my-match-text">${m.finalText}</div><div class="my-match-sub">${m.labelA} vs ${m.labelB}</div>`; }
+    else if(focusDay==="day3"){ const pair=getDay3SinglesPairings().find(p=>p.a===pid||p.b===pid); if(pair){ const r=day3SinglesMatchResult(pair); myMatchHtml=`<div class="my-match-text">${r.finalText}</div><div class="my-match-sub">${r.labelA} vs ${r.labelB}</div>`; } }
+  }
+  $("compSummary").innerHTML = `
+    <div class="comp-block"><h4>🏆 Match Points</h4><div class="team-score-row ${leading==="A"?"leading":leading==="tie"?"tied":"trailing"}"><span>Team A</span><span>${aTotal}</span></div><div class="team-score-row ${leading==="B"?"leading":leading==="tie"?"tied":"trailing"}"><span>Team B</span><span>${bTotal}</span></div><p style="font-size:11px;color:var(--muted);margin-top:6px">${leading==="tie"?"All square":leading==="A"?"A leading":"B leading"} · D1:${mp.day1.A}-${mp.day1.B} D2:${mp.day2.A}-${mp.day2.B} D3:${mp.day3.A}-${mp.day3.B}</p></div>
+    <div class="comp-block"><h4>📋 ${dayLabel} Top 3</h4>${daily.length===0?`<p style="font-size:13px;color:var(--muted)">No scores yet.</p>`:daily.map(r=>`<div class="lb-row ${r.player.id===state.currentPlayerId?"lb-me":""}"><span class="lb-pos">${r.position}</span><span class="lb-name">${r.player.first}</span><span class="lb-pts">${r.total}pts</span></div>`).join("")}</div>
+    <div class="comp-block"><h4>⛳ My Match</h4>${myMatchHtml}</div>`;
+}
+
+function renderAll(){ _summaryCache = {}; renderCompSummary(); renderDay("day1"); renderDay("day2"); renderDay("day3"); renderOverall(); renderSetup(); }
+
+function subscribeRealtime(){
+  if (channel) sb.removeChannel(channel);
+  channel = sb.channel("scores-live-v3").on("postgres_changes",{event:"*",schema:"public",table:"scores",filter:`tournament_id=eq.${state.tournamentId}`},payload => {
+    const row = payload.new || payload.old;
+    if (row){
+      state.scoreMap[`${row.day_key}:${row.player_id}:${row.hole_no}`] = row.score_value || "";
+      $("syncState").textContent = "● Live";
+      // Activity for other players' scores
+      if(row.player_id !== state.currentPlayerId){
+        const p = getPlayer(row.player_id);
+        if(p) pushActivity("📡", `${p.first} updated H${row.hole_no} on ${row.day_key.replace("day","Day ")}`);
+      }
+      renderAll();
+    }
+  }).subscribe();
+}
+
+async function enterApp(){
+  try{
+    const ok = await initSupabase(); if (!ok) return;
+    const signIn = await secureSignIn(); if (!signIn || !signIn.success) throw new Error(signIn?.message || "Sign in failed");
+    const code = $("tournamentCodeInput").value.trim(), playerId = $("playerSelect").value, adminCode = $("adminCodeInput").value.trim(), t = await loadTournament(code);
+    state.tournamentId = t.id; state.tournamentSlug = code; state.currentPlayerId = playerId; state.adminCode = adminCode; state.isAdmin = !!signIn.is_admin;
+    await loadScores(); subscribeRealtime();
+    $("whoAmI").textContent = "👤 " + getPlayer(playerId).first;
+    $("whoAmIApp").textContent = getPlayer(playerId).first;
+    $("accessSummary").textContent = state.isAdmin ? "Admin access — can edit any player." : "Scorer for your team's players in your group.";
+    $("appBarRight").style.display = "flex";
+    ssHideScreen();
+    $("mainApp").classList.remove("hidden");
+    $("bottomNav").classList.remove("hidden");
+    $("syncState").textContent = "● Live";
+    setStatus("Connected. Live scores syncing.", "ok");
+    const adminId = window._adminPlayerId || "mitchell";
+    const isAdmin = playerId === adminId || state.isAdmin;
+    $("tab_setup").style.display = isAdmin ? "" : "none";
+    $("bnav_setup").style.display = isAdmin ? "" : "none";
+    localStorage.setItem("cyprusTourV3Login", JSON.stringify({ code, playerId }));
+  }catch(e){
+    console.error("enterApp error:", e);
+    setStatus("Could not enter app: " + (e.message || e), "bad");
+    return;
+  }
+  try{ renderAll(); showSection("day1"); }
+  catch(e){ console.error("renderAll error:", e); setStatus("Logged in but render error: " + (e.message || e), "bad"); }
+}
+
+function logOut(){
+  state.currentPlayerId = null; state.isAdmin = false; state.scoreMap = {}; state.tournamentId = null;
+  if(channel && sb){ sb.removeChannel(channel); channel = null; }
+  $("mainApp").classList.add("hidden");
+  $("bottomNav").classList.add("hidden");
+  $("adminCodeInput") && ($("adminCodeInput").value = "");
+  toggleAdminField();
+  localStorage.removeItem("cyprusTourV3Login");
+  // Go back to sign-in step of setup screen
+  ss.step = SS_STEPS.findIndex(s=>s.id==="signin");
+  ssShowScreen();
+  ssRender();
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// SETUP WIZARD v2 — Full replacement
+// ═══════════════════════════════════════════════════════════
+
+
+// ══════════════════════════════════════════════
+// SETUP WIZARD — clean rewrite
+// ══════════════════════════════════════════════
+
+const SS_STEPS = [
+  {id:"welcome"},
+  {id:"tournament"},
+  {id:"players"},
+  {id:"courses"},
+  {id:"holes"},
+  {id:"games"},
+  {id:"signin"},
+];
+
+let ss = {
+  step: 0,
+  adminId: "mitchell",
+  data: {
+    tournament: {name:"",dates:"",startDate:"",endDate:"",numDays:3,format:""},
+    players: [],
+    courses: {
+      day1:{name:"",tees:"Yellow",par:71,rating:68.8,slope:126,allowance:95},
+      day2:{name:"",tees:"Yellow",par:72,rating:72.1,slope:134,allowance:100},
+      day3:{name:"",tees:"Yellow",par:71,rating:72.5,slope:149,allowance:100},
+    },
+    holes: {
+      day1:Array.from({length:18},(_,i)=>({par:4,si:i+1})),
+      day2:Array.from({length:18},(_,i)=>({par:4,si:i+1})),
+      day3:Array.from({length:18},(_,i)=>({par:4,si:i+1})),
+    },
+    holeTab:"day1",
+    games:{day1:[],day2:[],day3:[]},
+  }
+};
+
+// ── Screen control ──────────────────────────────
+function ssShowScreen(){
+  var el = document.getElementById("setupScreen");
+  if(el) el.style.display="flex";
+  var ma = document.getElementById("mainApp");
+  if(ma) ma.classList.add("hidden");
+  var bn = document.getElementById("bottomNav");
+  if(bn) bn.classList.add("hidden");
+}
+function ssHideScreen(){
+  var el = document.getElementById("setupScreen");
+  if(el) el.style.display="none";
+}
+function ssLaunch(prefill){
+  if(prefill) ssLoadExisting();
+  else ss.data.players = [];
+  ss.step = 0;
+  ssShowScreen();
+  ssRender();
+}
+function ssLoadExisting(){
+  ss.data.players = PLAYERS.map(function(p){return{id:p.id,first:p.first,hi:p.hi,team:p.team};});
+  ["day1","day2","day3"].forEach(function(d){
+    ss.data.courses[d]={name:COURSES[d].name,tees:COURSES[d].tees||"Yellow",par:COURSES[d].par,rating:COURSES[d].rating,slope:COURSES[d].slope,allowance:COURSES[d].allowance};
+    ss.data.holes[d]=COURSES[d].holes.map(function(h){return{par:h.par,si:h.si};});
+  });
+  ss.data.games.day1=DAY_GAMES.day1.map(function(g){return{name:g.name,a:g.a.slice(),b:g.b.slice()};});
+  ss.data.games.day2=DAY_GAMES.day2.map(function(g){return{name:g.name,a:g.a.slice(),b:g.b.slice()};});
+  ss.data.games.day3=(DAY_GAMES.day3||[]).map(function(g){return{name:g.name,a:g.a.slice(),b:g.b.slice()};});
+}
+
+// ── Render ──────────────────────────────────────
+function ssRender(){
+  var step = SS_STEPS[ss.step];
+  var total = SS_STEPS.length;
+
+  document.getElementById("ss_tourName").textContent = ss.data.tournament.name || "Golf Tour Setup";
+  document.getElementById("ss_tourDates").textContent = ss.data.tournament.dates || "";
+  document.getElementById("ss_stepBadge").textContent = step.id==="signin" ? "Sign In" : (ss.step + " / " + (total-1));
+
+  var dotSteps = total-1;
+  document.getElementById("ss_dots").innerHTML = Array.from({length:dotSteps},function(_,i){
+    var w=i===ss.step?24:8, bg=i===ss.step?"#f0c040":i<ss.step?"rgba(240,192,64,.4)":"rgba(255,255,255,.2)";
+    return '<div style="width:'+w+'px;height:8px;border-radius:999px;background:'+bg+';transition:all .25s"></div>';
+  }).join("");
+
+  var contentEl = document.getElementById("ss_content");
+  contentEl.scrollTop = 0;
+  var body = "";
+  if(step.id==="welcome")    body = ssWelcome();
+  if(step.id==="tournament") body = ssTournament();
+  if(step.id==="players")    body = ssPlayers();
+  if(step.id==="courses")    body = ssCourses();
+  if(step.id==="holes")      body = ssHoles();
+  if(step.id==="games")      body = ssGames();
+  if(step.id==="signin")     body = ssSignIn();
+
+  // Inject nav buttons at bottom of content (no z-index issues)
+  if(step.id !== "signin"){
+    var btnLabel = step.id==="games" ? "Save &amp; Continue \u2192" : ss.step===total-2 ? "Save &amp; Sign In \u2192" : "Continue \u2192";
+    var backBtn = ss.step > 0 ? '<button onclick="ssBack()" style="flex:0 0 auto;padding:16px 22px;border-radius:14px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:white;font-size:14px;font-weight:800;cursor:pointer">← Back</button>' : "";
+    body += '<div style="display:flex;gap:10px;margin-top:24px;padding-bottom:16px">'
+      + backBtn
+      + '<button onclick="ssNext()" style="flex:1;padding:18px;border-radius:14px;border:none;background:#f0c040;color:#042e19;font-size:16px;font-weight:900;cursor:pointer;letter-spacing:.04em;text-transform:uppercase">' + btnLabel + '</button>'
+      + '</div>';
+  }
+  contentEl.innerHTML = body;
+}
+
+function ssBack(){
+  if(ss.step>0){ ss.step--; ssRender(); }
+}
+
+function ssNext(){
+  try {
+  var stepId = SS_STEPS[ss.step].id;
+
+  // Read all player fields from DOM before any validation
+  if(stepId==="players") ssFlushPlayers();
+
+  // Validate
+  if(stepId==="tournament"){
+    var name = (document.getElementById("ss_tname")||{}).value||"";
+    name = name.trim() || ss.data.tournament.name;
+    if(!name){ ssError("Please enter a tournament name."); return; }
+    ss.data.tournament.name = name;
+    if(!ss.data.tournament.startDate){ ssError("Please select a start date."); return; }
+  }
+  if(stepId==="players"){
+    ssFlushPlayers();
+    ss.data.players = ss.data.players.filter(function(p){ return p.first && p.first.trim()!==""; });
+    if(ss.data.players.length<2){ ssError("Please add at least 2 players."); return; }
+    var a = ss.data.players.filter(function(p){return p.team==="A";}).length;
+    var b = ss.data.players.filter(function(p){return p.team==="B";}).length;
+    if(a!==b){ ssError("Teams must be equal — A: "+a+", B: "+b); return; }
+  }
+  if(stepId==="courses"){
+    var days = ["day1","day2","day3"].slice(0,ss.data.tournament.numDays);
+    for(var di=0;di<days.length;di++){
+      var d = days[di];
+      var cn = (document.getElementById("sc_"+d+"_name")||{}).value||"";
+      cn = cn.trim() || ss.data.courses[d].name;
+      ss.data.courses[d].name = cn;
+      if(!cn){ ssError("Please enter a course name for Day "+(di+1)); return; }
+    }
+  }
+
+  // Save current step values
+  if(stepId==="tournament"){
+    var tn = document.getElementById("ss_tname"); if(tn) ss.data.tournament.name=tn.value.trim();
+    var td = parseInt((document.getElementById("ss_tdays")||{}).value); if(!isNaN(td)) ss.data.tournament.numDays=td;
+    ssUpdateDates();
+  }
+  if(stepId==="courses"){
+    ["day1","day2","day3"].forEach(function(d){
+      var n=document.getElementById("sc_"+d+"_name"); if(n) ss.data.courses[d].name=n.value.trim();
+      var r=document.getElementById("sc_"+d+"_rating"); if(r) ss.data.courses[d].rating=parseFloat(r.value)||ss.data.courses[d].rating;
+      var sl=document.getElementById("sc_"+d+"_slope"); if(sl) ss.data.courses[d].slope=parseInt(sl.value)||ss.data.courses[d].slope;
+      var p=document.getElementById("sc_"+d+"_par"); if(p) ss.data.courses[d].par=parseInt(p.value)||ss.data.courses[d].par;
+      var al=document.getElementById("sc_"+d+"_allowance"); if(al) ss.data.courses[d].allowance=parseInt(al.value)||ss.data.courses[d].allowance;
+    });
+  }
+
+  // Advance
+  var isLast = ss.step >= SS_STEPS.length-2;
+  if(isLast){
+    ssApplyAndSave();
+    ssSaveAndFinish();
+  } else {
+    ss.step++;
+    ssRender();
+  }
+  } catch(e) {
+    alert("ERROR in ssNext: " + e.message + "\n\nStack: " + e.stack);
+  }
+}
+
+function ssError(msg){
+  var existing = document.getElementById("ss_error");
+  if(existing) existing.remove();
+  var el = document.createElement("div");
+  el.id="ss_error";
+  el.style.cssText="background:#fff0ed;border:1px solid #f1c8c1;color:#9b2f24;border-radius:12px;padding:12px 14px;font-size:13px;font-weight:700;margin-bottom:12px";
+  el.textContent="⚠️ "+msg;
+  var content = document.getElementById("ss_content");
+  content.insertBefore(el, content.firstChild);
+  content.scrollTop=0;
+  setTimeout(function(){if(el.parentNode)el.remove();},5000);
+}
+
+function ssUpdateDates(){
+  var start=ss.data.tournament.startDate||"", end=ss.data.tournament.endDate||"";
+  if(!start){ ss.data.tournament.dates=""; return; }
+  function fmt(d){ if(!d)return""; var parts=d.split("-"); var months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; return parseInt(parts[2])+" "+months[parseInt(parts[1])-1]+" "+parts[0]; }
+  ss.data.tournament.dates = (!end||start===end) ? fmt(start) : fmt(start)+" \u2013 "+fmt(end);
+  var prev=document.getElementById("ss_datepreview"); if(prev) prev.textContent=ss.data.tournament.dates;
+  var hdr=document.getElementById("ss_tourDates"); if(hdr) hdr.textContent=ss.data.tournament.dates;
+}
+
+// ── Player management ────────────────────────────
+function ssFlushPlayers(){
+  for(var i=0;i<ss.data.players.length;i++){
+    var nameEl=document.getElementById("ssp_name_"+i);
+    var hiEl=document.getElementById("ssp_hi_"+i);
+    var teamEl=document.getElementById("ssp_team_"+i);
+    if(nameEl){ ss.data.players[i].first=nameEl.value.trim(); ss.data.players[i].id=nameEl.value.trim().toLowerCase().replace(/[^a-z0-9]/g,"_")||("player"+i); }
+    if(hiEl)   ss.data.players[i].hi=parseFloat(hiEl.value)||0;
+    if(teamEl) ss.data.players[i].team=teamEl.value;
+  }
+}
+function ssAddPlayer(team){ ssFlushPlayers(); ss.data.players.push({id:"p"+Date.now(),first:"",hi:18,team:team||"A"}); ssRender(); }
+function ssRemovePlayer(idx){ ssFlushPlayers(); ss.data.players.splice(idx,1); ssRender(); }
+function ssChangeTeam(idx,val){ ssFlushPlayers(); if(ss.data.players[idx]) ss.data.players[idx].team=val; ssRender(); }
+
+function ssPlayers(){
+  if(!ss.data.players.length){
+    ss.data.players=[{id:"p1",first:"",hi:18,team:"A"},{id:"p2",first:"",hi:18,team:"A"},{id:"p3",first:"",hi:18,team:"B"},{id:"p4",first:"",hi:18,team:"B"}];
+  }
+  var aCount=ss.data.players.filter(function(p){return p.team==="A";}).length;
+  var bCount=ss.data.players.filter(function(p){return p.team==="B";}).length;
+  var balanced=aCount===bCount;
+  var balColor=balanced?"#86efac":"#fca5a5";
+  var balMsg=balanced?"\u2713 Balanced \u2014 "+aCount+" vs "+bCount:"\u26a0 Unequal \u2014 A: "+aCount+", B: "+bCount;
+  var rows="";
+  for(var i=0;i<ss.data.players.length;i++){
+    var p=ss.data.players[i];
+    var safe=(p.first||"").replace(/"/g,"&quot;");
+    rows+='<div style="display:grid;grid-template-columns:1fr 80px 70px 38px;gap:8px;align-items:center;margin-bottom:10px">'
+      +'<input id="ssp_name_'+i+'" type="text" value="'+safe+'" placeholder="Full name" style="padding:12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.12);color:white;font-size:14px;width:100%;font-family:Inter,sans-serif" />'
+      +'<select id="ssp_team_'+i+'" onchange="ssChangeTeam('+i+',this.value)" style="padding:10px 6px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(20,50,30,1);color:white;font-size:13px;width:100%">'
+        +'<option value="A"'+(p.team==="A"?" selected":"")+'>A</option>'
+        +'<option value="B"'+(p.team==="B"?" selected":"")+'>B</option>'
+      +'</select>'
+      +'<input id="ssp_hi_'+i+'" type="number" value="'+(p.hi||18)+'" min="0" max="54" step="0.1" style="padding:10px 4px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.12);color:white;font-size:14px;text-align:center;width:100%" />'
+      +'<button onclick="ssRemovePlayer('+i+')" style="background:rgba(255,80,60,.25);border:1px solid rgba(255,80,60,.4);color:#ff9080;border-radius:10px;width:38px;height:38px;font-size:18px;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center">\u00d7</button>'
+      +'</div>';
+  }
+  return '<div style="margin-bottom:16px">'
+    +'<h2 style="font-family:\'Playfair Display\',serif;font-size:24px;font-weight:900;color:white">Players</h2>'
+    +'<p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Enter each player\'s name, team and handicap.</p>'
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 80px 70px 38px;gap:8px;padding:0 2px;margin-bottom:8px">'
+      +'<span style="font-size:11px;font-weight:800;color:rgba(255,255,255,.5);text-transform:uppercase">Name</span>'
+      +'<span style="font-size:11px;font-weight:800;color:rgba(255,255,255,.5);text-transform:uppercase">Team</span>'
+      +'<span style="font-size:11px;font-weight:800;color:rgba(255,255,255,.5);text-transform:uppercase">H\'cap</span>'
+      +'<span></span>'
+    +'</div>'
+    +rows
+    +'<div style="display:flex;gap:8px;margin-top:12px">'
+      +'<button onclick="ssAddPlayer(\'A\')" style="flex:1;padding:11px;border-radius:10px;border:1.5px dashed rgba(134,239,172,.5);background:transparent;color:#86efac;font-size:13px;font-weight:800;cursor:pointer">+ Team A</button>'
+      +'<button onclick="ssAddPlayer(\'B\')" style="flex:1;padding:11px;border-radius:10px;border:1.5px dashed rgba(252,211,77,.5);background:transparent;color:#fcd34d;font-size:13px;font-weight:800;cursor:pointer">+ Team B</button>'
+    +'</div>'
+    +'<div style="text-align:center;margin-top:10px;font-size:13px;font-weight:700;color:'+balColor+'">'+balMsg+'</div>';
+}
+
+
+function ssCourses(){
+  var numDays=ss.data.tournament.numDays||3;
+  var days=["day1","day2","day3"].slice(0,numDays);
+  var labels={day1:"Day 1",day2:"Day 2",day3:"Day 3"};
+  var teeColors={Yellow:"#d4a800",White:"#888",Red:"#c0392b",Blue:"#2980b9"};
+  var inp="width:100%;padding:12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:15px;font-weight:700";
+  var html='<div style="margin-bottom:20px"><h2 style="font-family:\'Playfair Display\',serif;font-size:24px;font-weight:900;color:white">Course Details</h2><p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Enter course information for each day</p></div>';
+  for(var di=0;di<days.length;di++){
+    var day=days[di], c=ss.data.courses[day];
+    var teeButtons=Object.keys(teeColors).map(function(tee){
+      var col=teeColors[tee], sel=c.tees===tee;
+      return '<button onclick="ss.data.courses[\''+day+'\'].tees=\''+tee+'\';ssRender()" style="flex:1;min-width:60px;padding:10px 6px;border-radius:10px;border:2px solid '+(sel?col:'rgba(255,255,255,.15)')+';background:'+(sel?col+'22':'rgba(255,255,255,.05)')+';color:'+(sel?'white':'rgba(255,255,255,.6)')+';font-size:13px;font-weight:800;cursor:pointer">'+tee+'</button>';
+    }).join('');
+    html+='<div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:18px;padding:18px;margin-bottom:16px">'
+      +'<div style="font-size:14px;font-weight:800;color:#f0c040;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px">📅 '+labels[day]+'</div>'
+      +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;color:rgba(255,255,255,.7);margin-bottom:8px;text-transform:uppercase">Course Name</label>'
+      +'<input id="sc_'+day+'_name" type="text" value="'+(c.name||'')+'" placeholder="e.g. PGA National Cyprus" oninput="ss.data.courses[\''+day+'\'].name=this.value" style="'+inp.replace('15px','16px')+';font-family:Inter,sans-serif" /></div>'
+      +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;color:rgba(255,255,255,.7);margin-bottom:8px;text-transform:uppercase">Tee Colour</label>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap">'+teeButtons+'</div></div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+      +'<div><label style="display:block;font-size:11px;font-weight:800;color:rgba(255,255,255,.6);margin-bottom:6px;text-transform:uppercase">Par</label><input id="sc_'+day+'_par" type="number" value="'+c.par+'" oninput="ss.data.courses[\''+day+'\'].par=parseInt(this.value)||71" style="'+inp+'" /></div>'
+      +'<div><label style="display:block;font-size:11px;font-weight:800;color:rgba(255,255,255,.6);margin-bottom:6px;text-transform:uppercase">Course Rating</label><input id="sc_'+day+'_rating" type="number" step="0.1" value="'+c.rating+'" oninput="ss.data.courses[\''+day+'\'].rating=parseFloat(this.value)||72" style="'+inp+'" /></div>'
+      +'<div><label style="display:block;font-size:11px;font-weight:800;color:rgba(255,255,255,.6);margin-bottom:6px;text-transform:uppercase">Slope Rating</label><input id="sc_'+day+'_slope" type="number" value="'+c.slope+'" oninput="ss.data.courses[\''+day+'\'].slope=parseInt(this.value)||113" style="'+inp+'" /></div>'
+      +'<div><label style="display:block;font-size:11px;font-weight:800;color:rgba(255,255,255,.6);margin-bottom:6px;text-transform:uppercase">Allowance %</label><input id="sc_'+day+'_allowance" type="number" value="'+c.allowance+'" oninput="ss.data.courses[\''+day+'\'].allowance=parseInt(this.value)||100" style="'+inp+'" /></div>'
+      +'</div></div>';
+  }
+  return html;
+}
+
+// ── Holes step ────────────────────────────────────
+function ssHoles(){
+  var numDays=ss.data.tournament.numDays||3;
+  var days=["day1","day2","day3"].slice(0,numDays);
+  var labels={day1:"Day 1",day2:"Day 2",day3:"Day 3"};
+  var active=ss.data.holeTab;
+  var tabs=days.map(function(d){
+    var sel=d===active;
+    return '<button onclick="ss.data.holeTab=\''+d+'\';ssRender()" style="flex:1;padding:10px;border-radius:12px;border:2px solid '+(sel?'#f0c040':'rgba(255,255,255,.2)')+';background:'+(sel?'rgba(240,192,64,.2)':'rgba(255,255,255,.05)')+';color:'+(sel?'#f0c040':'rgba(255,255,255,.6)')+';font-size:13px;font-weight:800;cursor:pointer">'+labels[d]+'</button>';
+  }).join('');
+  var holes=ss.data.holes[active];
+  var c=ss.data.courses[active];
+  var grid='';
+  for(var h=0;h<18;h++){
+    grid+='<div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 8px">'
+      +'<div style="font-size:10px;font-weight:800;color:rgba(255,255,255,.5);text-align:center;margin-bottom:6px;text-transform:uppercase">H'+(h+1)+'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">'
+      +'<div><div style="font-size:9px;color:rgba(255,255,255,.4);text-align:center;margin-bottom:3px">PAR</div>'
+      +'<input type="number" value="'+holes[h].par+'" min="3" max="5" oninput="ss.data.holes[\''+active+'\']['+h+'].par=parseInt(this.value)||4" style="width:100%;padding:8px 4px;border-radius:8px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:15px;font-weight:900;text-align:center" /></div>'
+      +'<div><div style="font-size:9px;color:rgba(255,255,255,.4);text-align:center;margin-bottom:3px">SI</div>'
+      +'<input type="number" value="'+holes[h].si+'" min="1" max="18" oninput="ss.data.holes[\''+active+'\']['+h+'].si=parseInt(this.value)||'+(h+1)+'" style="width:100%;padding:8px 4px;border-radius:8px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:rgba(240,192,64,.9);font-size:14px;font-weight:800;text-align:center" /></div>'
+      +'</div></div>';
+  }
+  return '<div style="margin-bottom:20px"><h2 style="font-family:\'Playfair Display\',serif;font-size:24px;font-weight:900;color:white">Hole Data</h2><p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Par (white) and Stroke Index (gold) for each hole. SI 1 = hardest.</p></div>'
+    +'<div style="display:flex;gap:8px;margin-bottom:16px">'+tabs+'</div>'
+    +'<div style="font-size:12px;font-weight:700;color:rgba(240,192,64,.8);margin-bottom:10px">'+(c.name||labels[active])+' · '+c.tees+' tees · Par '+c.par+'</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">'+grid+'</div>';
+}
+
+// ── Games step ────────────────────────────────────
+function ssGames(){
+  var teamA=ss.data.players.filter(function(p){return p.team==="A";});
+  var teamB=ss.data.players.filter(function(p){return p.team==="B";});
+  var numGames=Math.floor(Math.min(teamA.length,teamB.length)/2);
+  var numDays=ss.data.tournament.numDays||3;
+  var days=["day1","day2","day3"].slice(0,numDays);
+  var labels={day1:"Day 1",day2:"Day 2",day3:"Day 3"};
+  if(!ss.data.games.day3) ss.data.games.day3=[];
+  days.forEach(function(day){
+    while(ss.data.games[day].length<numGames) ss.data.games[day].push({name:"Game "+(ss.data.games[day].length+1),a:[],b:[]});
+    ss.data.games[day]=ss.data.games[day].slice(0,numGames);
+  });
+  function makeSelect(day,gi,team,si,val){
+    var pool=team==="A"?teamA:teamB;
+    var game=ss.data.games[day][gi];
+    var slots=team==="A"?game.a:game.b;
+    var otherVal=slots[si===0?1:0]||"";
+    var opts='<option value="" style="background:#063d22">— select —</option>';
+    pool.forEach(function(p){
+      if(p.id===otherVal) return; // hide already-picked player
+      opts+='<option value="'+p.id+'"'+(val===p.id?' selected':'')+' style="background:#063d22">'+p.first+'</option>';
+    });
+    return '<select onchange="ss.data.games[\''+day+'\']['+gi+'].'+(team==="A"?"a":"b")+'['+si+']=this.value;ssRender()" style="flex:1;padding:10px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(20,50,30,1);color:white;font-size:13px">'+opts+'</select>';
+  }
+  var html='<div style="margin-bottom:20px"><h2 style="font-family:\'Playfair Display\',serif;font-size:24px;font-weight:900;color:white">Game Groups</h2><p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Assign 2 players per team per game. Pairings can change each day.</p></div>';
+  days.forEach(function(day){
+    html+='<div style="font-size:13px;font-weight:800;color:#f0c040;text-transform:uppercase;letter-spacing:.06em;margin:16px 0 10px">📅 '+labels[day]+'</div>';
+    for(var g=0;g<numGames;g++){
+      var game=ss.data.games[day][g];
+      html+='<div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px;margin-bottom:10px">'
+        +'<div style="font-size:13px;font-weight:800;color:white;margin-bottom:10px">Game '+(g+1)+'</div>'
+        +'<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:800;color:#86efac;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Team A</div>'
+        +'<div style="display:flex;gap:8px">'+makeSelect(day,g,"A",0,game.a[0]||"")+makeSelect(day,g,"A",1,game.a[1]||"")+'</div></div>'
+        +'<div><div style="font-size:11px;font-weight:800;color:#fcd34d;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Team B</div>'
+        +'<div style="display:flex;gap:8px">'+makeSelect(day,g,"B",0,game.b[0]||"")+makeSelect(day,g,"B",1,game.b[1]||"")+'</div></div></div>';
+    }
+  });
+  return html;
+}
+
+// ── Sign In step ──────────────────────────────────
+function ssSignIn(){
+  var players=ss.data.players;
+  var saved=""; try{ saved=JSON.parse(localStorage.getItem("cyprusTourV3Login")||"{}").playerId||""; }catch(e){}
+  var opts=players.map(function(p){ return '<option value="'+p.id+'"'+(saved===p.id?' selected':'')+' style="background:#063d22;color:white">'+p.first+' ('+p.team+')</option>'; }).join('');
+  return '<div style="text-align:center;padding:10px 0 20px">'
+    +'<div style="font-size:56px;margin-bottom:12px">⛳</div>'
+    +'<h2 style="font-family:\'Playfair Display\',serif;font-size:26px;font-weight:900;color:white">'+(ss.data.tournament.name||"Golf Tour")+'</h2>'
+    +'<p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">'+(ss.data.tournament.dates||"")+'</p>'
+    +'</div>'
+    +'<div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:20px">'
+    +'<div id="statusBox" style="display:none;padding:10px 14px;border-radius:12px;font-weight:700;font-size:13px;margin-bottom:12px"></div>'
+    +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">Select Your Name</label>'
+    +'<select id="playerSelect" onchange="toggleAdminField()" style="width:100%;padding:14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(20,50,30,1);color:white;font-size:16px">'+opts+'</select></div>'
+    +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">Tournament Code</label>'
+    +'<input id="tournamentCodeInput" value="cyprus-tour-2026" style="width:100%;padding:14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:16px" /></div>'
+    +'<div id="adminCodeField" style="display:none;margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.7);margin-bottom:8px">Admin Code</label>'
+    +'<input id="adminCodeInput" type="password" placeholder="Admin only" style="width:100%;padding:14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:16px" /></div>'
+    +'<button onclick="enterApp()" style="width:100%;padding:16px;border-radius:14px;border:none;background:#f0c040;color:#042e19;font-size:15px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-top:4px">ENTER APP</button>'
+    +'<div style="display:flex;align-items:flex-start;gap:10px;background:rgba(255,255,255,.07);border-radius:12px;padding:12px;margin-top:14px">'
+    +'<span style="font-size:18px">🤝</span><div><div style="font-size:13px;font-weight:800;color:white">Team Scoring</div><div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:2px">You can score for all players on your team in your group</div></div></div>'
+    +'<div style="text-align:center;margin-top:16px"><button onclick="ssLaunch(true)" style="background:transparent;border:none;color:rgba(255,255,255,.4);font-size:12px;font-weight:700;cursor:pointer;text-decoration:underline">⚙️ Edit setup</button></div>'
+    +'</div>';
+}
+
+// ── Apply & Save ──────────────────────────────────
+function ssApplyAndSave(){
+  PLAYERS.length=0;
+  ss.data.players.forEach(function(p){
+    PLAYERS.push({id:p.id||p.first.toLowerCase().replace(/[^a-z0-9]/g,"_"),first:p.first,hi:parseFloat(p.hi)||18,team:p.team});
+  });
+  var mitchell=PLAYERS.find(function(p){return p.id==="mitchell"||p.first.toLowerCase()==="mitchell";});
+  ss.adminId=(mitchell&&mitchell.id)||PLAYERS[0].id||"mitchell";
+  window._adminPlayerId=ss.adminId;
+  ["day1","day2","day3"].forEach(function(day){
+    var wc=ss.data.courses[day];
+    COURSES[day]={name:wc.name||day,par:wc.par,rating:wc.rating,slope:wc.slope,allowance:wc.allowance,tees:wc.tees,holes:ss.data.holes[day].map(function(h){return{par:h.par,si:h.si};})};
+  });
+  DAY_GAMES.day1=ss.data.games.day1.map(function(g,i){return{name:"Game "+(i+1),a:g.a.filter(Boolean),b:g.b.filter(Boolean)};}).filter(function(g){return g.a.length&&g.b.length;});
+  DAY_GAMES.day2=ss.data.games.day2.map(function(g,i){return{name:"Game "+(i+1),a:g.a.filter(Boolean),b:g.b.filter(Boolean)};}).filter(function(g){return g.a.length&&g.b.length;});
+  DAY_GAMES.day3=(ss.data.games.day3||[]).map(function(g,i){return{name:"Game "+(i+1),a:g.a.filter(Boolean),b:g.b.filter(Boolean)};}).filter(function(g){return g.a.length&&g.b.length;});
+  document.querySelectorAll(".app-bar-title strong").forEach(function(el){el.textContent=ss.data.tournament.name;});
+  populatePlayers();
+  toggleAdminField();
+  _summaryCache={};
+}
+
+async function ssSaveToSupabase(){
+  if(!sb) return false;
+  var slug=ss.data.tournament.slug||"cyprus-tour-2026";
+  ss.data.tournament.slug=slug;
+  var config={tournament:ss.data.tournament,players:ss.data.players,games:ss.data.games,courses:ss.data.courses,holes:ss.data.holes,version:3};
+  var result=await sb.from("tournament_config").upsert({tournament_slug:slug,config:config,updated_at:new Date().toISOString()},{onConflict:"tournament_slug"});
+  if(result.error){console.error("ssSaveToSupabase:",result.error);return false;}
+  return true;
+}
+
+async function ssLoadFromSupabase(slug){
+  if(!sb) return false;
+  slug=slug||"cyprus-tour-2026";
+  try{
+    var result=await sb.from("tournament_config").select("config").eq("tournament_slug",slug).maybeSingle();
+    if(!result||result.error||!result.data||!result.data.config) return false;
+    var cfg=result.data.config;
+    if(!cfg||!cfg.players||!cfg.players.length) return false;
+    ss.data.tournament=cfg.tournament||ss.data.tournament;
+    ss.data.players=cfg.players;
+    ss.data.games=cfg.games||ss.data.games;
+    ss.data.courses=cfg.courses||ss.data.courses;
+    ss.data.holes=cfg.holes||ss.data.holes;
+    ssApplyAndSave();
+    return true;
+  }catch(e){console.warn("ssLoadFromSupabase:",e);return false;}
+}
+
+async function ssSaveAndFinish(){
+  // Show saving state in content
+  var saveBtn = document.querySelector('#ss_content button[onclick="ssNext()"]');
+  if(saveBtn){ saveBtn.textContent="Saving…"; saveBtn.disabled=true; }
+  var ok = await ssSaveToSupabase();
+  if(!ok){
+    if(saveBtn){ saveBtn.disabled=false; saveBtn.textContent="Save & Sign In →"; }
+    ssError("Could not save to Supabase. Check your connection.");
+    return;
+  }
+  ss.step = SS_STEPS.findIndex(function(s){return s.id==="signin";});
+  ssRender();
+}
+
+
+
+window.addEventListener("DOMContentLoaded", async () => {
+  if(localStorage.getItem("cyprusDark")){ isDark=true; document.body.classList.add("dark"); var btn=document.querySelector(".dark-toggle"); if(btn) btn.textContent="☀️"; }
+  setupOfflineDetection();
+  ssShowScreen();
+
+  function showLoading(msg){
+    document.getElementById("ss_content").innerHTML = '<div style="text-align:center;padding:60px 20px;color:white"><div style="font-size:48px;margin-bottom:16px">⛳</div><div style="font-size:16px;color:rgba(255,255,255,.8);font-weight:700">'+msg+'</div></div>';
+    document.getElementById("ss_dots").innerHTML = "";
+    document.getElementById("ss_stepBadge").textContent = "";
+  }
+
+  showLoading("Starting…");
+
+  if(!window.APP_CONFIG || !window.APP_CONFIG.supabaseUrl){
+    showLoading("❌ config.js not found. Check file exists next to index.html");
+    return;
+  }
+  showLoading("Connecting to Supabase…");
+
+  try{
+    sb = window.supabase.createClient(window.APP_CONFIG.supabaseUrl, window.APP_CONFIG.supabaseAnonKey);
+  }catch(e){
+    showLoading("❌ Supabase init failed: " + e.message);
+    return;
+  }
+  showLoading("Loading config…");
+
+  var hasConfig = false;
+  try{
+    var race = await Promise.race([
+      ssLoadFromSupabase("cyprus-tour-2026"),
+      new Promise(function(resolve){ setTimeout(function(){ resolve(false); }, 5000); })
+    ]);
+    hasConfig = !!race;
+  }catch(e){
+    console.warn("Config load error:", e);
+    hasConfig = false;
+  }
+
+  if(hasConfig){
+    ss.step = SS_STEPS.findIndex(function(s){ return s.id==="signin"; });
+  } else {
+    ss.step = 0;
+  }
+  ssRender();
+});
 </script>
 </body>
 </html>
