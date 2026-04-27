@@ -1618,4 +1618,67 @@ function ssScorers(){
 
       html += '<div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px;margin-bottom:10px">'
         +'<div style="font-size:13px;font-weight:800;color:white;margin-bottom:12px">Game '+(gi+1)+'</div>'
-        +'<div style="display:grid;grid-template-col
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+        +'<div>'
+          +'<div style="font-size:11px;font-weight:800;color:#fcd34d;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Team A scorer</div>'
+          +'<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:6px">Scores for Team B</div>'
+          +'<select onchange="ss.data.scorers[\"'+key+'\"].A=this.value" style="'+inp+'">'+aOpts+'</select>'
+        +'</div>'
+        +'<div>'
+          +'<div style="font-size:11px;font-weight:800;color:#86efac;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Team B scorer</div>'
+          +'<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:6px">Scores for Team A</div>'
+          +'<select onchange="ss.data.scorers[\"'+key+'\"].B=this.value" style="'+inp+'">'+bOpts+'</select>'
+        +'</div>'
+        +'</div></div>';
+    }
+  });
+
+  return html;
+}
+
+async function ssSaveAndFinish(){
+  // Show saving state in content
+  var saveBtn = document.querySelector('#ss_content button[onclick="ssNext()"]');
+  if(saveBtn){ saveBtn.textContent="Saving…"; saveBtn.disabled=true; }
+  var ok = await ssSaveToSupabase();
+  if(!ok){
+    if(saveBtn){ saveBtn.disabled=false; saveBtn.textContent="Save & Sign In →"; }
+    ssError("Could not save to Supabase. Check your connection.");
+    return;
+  }
+  localStorage.setItem("cyprusTourSetupDone","1");
+  ss.step = SS_STEPS.findIndex(function(s){return s.id==="signin";});
+  ssRender();
+}
+
+
+
+window.addEventListener("DOMContentLoaded", async () => {
+  if(localStorage.getItem("cyprusDark")){ isDark=true; document.body.classList.add("dark"); var btn=document.querySelector(".dark-toggle"); if(btn) btn.textContent="☀️"; }
+  setupOfflineDetection();
+
+  // Clear all stale localStorage from previous sessions
+  localStorage.removeItem("cyprusTourSetupDone");
+  localStorage.removeItem("cyprusTourSetup");
+  localStorage.removeItem("cyprusTourCourses");
+  localStorage.removeItem("cyprusTourV3Login");
+
+  // Init Supabase silently in background
+  try{
+    if(window.APP_CONFIG && window.APP_CONFIG.supabaseUrl){
+      sb = window.supabase.createClient(window.APP_CONFIG.supabaseUrl, window.APP_CONFIG.supabaseAnonKey);
+    }
+  }catch(e){ console.warn("Supabase init:", e); }
+
+  // Always start at welcome screen - no loading, no Supabase query
+  ssShowScreen();
+  ss.step = 0;
+  try {
+    ssRender();
+  } catch(e) {
+    document.getElementById("ss_content").innerHTML = '<div style="color:white;padding:20px;font-size:16px">Error: ' + e.message + '</div>';
+  }
+});
+</script>
+</body>
+</html>
