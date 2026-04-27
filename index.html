@@ -1527,6 +1527,7 @@ async function ssSaveAndFinish(){
     ssError("Could not save to Supabase. Check your connection.");
     return;
   }
+  localStorage.setItem("cyprusTourSetupDone","1");
   ss.step = SS_STEPS.findIndex(function(s){return s.id==="signin";});
   ssRender();
 }
@@ -1558,18 +1559,20 @@ window.addEventListener("DOMContentLoaded", async () => {
     showLoading("❌ Supabase init failed: " + e.message);
     return;
   }
-  showLoading("Loading config…");
-
   var hasConfig = false;
-  try{
-    var race = await Promise.race([
-      ssLoadFromSupabase("cyprus-tour-2026"),
-      new Promise(function(resolve){ setTimeout(function(){ resolve(false); }, 5000); })
-    ]);
-    hasConfig = !!race;
-  }catch(e){
-    console.warn("Config load error:", e);
-    hasConfig = false;
+  // Only try Supabase if setup was previously completed on this device
+  if(localStorage.getItem("cyprusTourSetupDone")){
+    showLoading("Loading config…");
+    try{
+      var race = await Promise.race([
+        ssLoadFromSupabase("cyprus-tour-2026"),
+        new Promise(function(resolve){ setTimeout(function(){ resolve(false); }, 4000); })
+      ]);
+      hasConfig = !!race;
+    }catch(e){
+      console.warn("Config load error:", e);
+      hasConfig = false;
+    }
   }
 
   if(hasConfig){
