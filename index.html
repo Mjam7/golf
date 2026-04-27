@@ -360,7 +360,7 @@
     <div style="display:flex;align-items:center;gap:10px">
       <span style="font-size:24px">⛳</span>
       <div>
-        <div id="ss_tourName" style="font-family:'Playfair Display',serif;font-size:15px;font-weight:900;color:white;line-height:1.1">Golf Tour</div>
+        <div id="ss_tourName" style="font-family:'Playfair Display',serif;font-size:15px;font-weight:900;color:white;line-height:1.1"></div>
         <div id="ss_tourDates" style="font-size:11px;color:rgba(255,255,255,.6);font-weight:600;letter-spacing:.04em;text-transform:uppercase"></div>
       </div>
     </div>
@@ -1537,49 +1537,23 @@ async function ssSaveAndFinish(){
 window.addEventListener("DOMContentLoaded", async () => {
   if(localStorage.getItem("cyprusDark")){ isDark=true; document.body.classList.add("dark"); var btn=document.querySelector(".dark-toggle"); if(btn) btn.textContent="☀️"; }
   setupOfflineDetection();
-  ssShowScreen();
 
-  function showLoading(msg){
-    document.getElementById("ss_content").innerHTML = '<div style="text-align:center;padding:60px 20px;color:white"><div style="font-size:48px;margin-bottom:16px">⛳</div><div style="font-size:16px;color:rgba(255,255,255,.8);font-weight:700">'+msg+'</div></div>';
-    document.getElementById("ss_dots").innerHTML = "";
-    document.getElementById("ss_stepBadge").textContent = "";
-  }
+  // Clear all stale localStorage from previous sessions
+  localStorage.removeItem("cyprusTourSetupDone");
+  localStorage.removeItem("cyprusTourSetup");
+  localStorage.removeItem("cyprusTourCourses");
+  localStorage.removeItem("cyprusTourV3Login");
 
-  showLoading("Starting…");
-
-  if(!window.APP_CONFIG || !window.APP_CONFIG.supabaseUrl){
-    showLoading("❌ config.js not found. Check file exists next to index.html");
-    return;
-  }
-  showLoading("Connecting to Supabase…");
-
+  // Init Supabase silently in background
   try{
-    sb = window.supabase.createClient(window.APP_CONFIG.supabaseUrl, window.APP_CONFIG.supabaseAnonKey);
-  }catch(e){
-    showLoading("❌ Supabase init failed: " + e.message);
-    return;
-  }
-  var hasConfig = false;
-  // Only try Supabase if setup was previously completed on this device
-  if(localStorage.getItem("cyprusTourSetupDone")){
-    showLoading("Loading config…");
-    try{
-      var race = await Promise.race([
-        ssLoadFromSupabase("cyprus-tour-2026"),
-        new Promise(function(resolve){ setTimeout(function(){ resolve(false); }, 4000); })
-      ]);
-      hasConfig = !!race;
-    }catch(e){
-      console.warn("Config load error:", e);
-      hasConfig = false;
+    if(window.APP_CONFIG && window.APP_CONFIG.supabaseUrl){
+      sb = window.supabase.createClient(window.APP_CONFIG.supabaseUrl, window.APP_CONFIG.supabaseAnonKey);
     }
-  }
+  }catch(e){ console.warn("Supabase init:", e); }
 
-  if(hasConfig){
-    ss.step = SS_STEPS.findIndex(function(s){ return s.id==="signin"; });
-  } else {
-    ss.step = 0;
-  }
+  // Always start at welcome screen - no loading, no Supabase query
+  ssShowScreen();
+  ss.step = 0;
   ssRender();
 });
 </script>
