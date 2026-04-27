@@ -369,7 +369,7 @@
   <div id="ss_dots" style="display:flex;gap:6px;justify-content:center;padding:10px 0 0;flex-shrink:0"></div>
 
   <!-- Scrollable content -->
-  <div id="ss_content" style="flex:1;overflow-y:auto;padding:16px;max-width:560px;margin:0 auto;width:100%;color:white">LOADING...</div>
+  <div id="ss_content" style="flex:1;overflow-y:auto;padding:16px;max-width:560px;margin:0 auto;width:100%;color:white"></div>
 
 </div>
 
@@ -1674,10 +1674,9 @@ window.addEventListener("DOMContentLoaded", async () => {
   ssShowScreen();
   ss.step = 0;
   try {
-    var welcomeHtml = ssWelcome();
-    document.getElementById("ss_content").innerHTML = welcomeHtml || "<p style='color:red'>ssWelcome returned empty</p>";
+    ssRender();
   } catch(e) {
-    document.getElementById("ss_content").innerHTML = "<p style='color:red'>Error: " + e.message + "</p>";
+    document.getElementById("ss_content").innerHTML = "<p style='color:red;padding:20px'>Error in ssRender: " + e.message + "<br><small>" + e.stack + "</small></p>";
   }
 });
 </script>
