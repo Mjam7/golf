@@ -1172,18 +1172,13 @@ function ssWelcome(){
 function ssTournament(){
   var t=ss.data.tournament;
   var inp='width:100%;padding:14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:white;font-size:16px;font-family:Inter,sans-serif;color-scheme:dark';
-  var formats=["Stableford Matchplay","Best Ball Stableford","Singles Stableford","Medal","Scramble"];
   var dayBtns=[1,2,3].map(function(n){
     var sel=t.numDays===n;
     return '<button onclick="ss.data.tournament.numDays='+n+';ssRender()" style="flex:1;padding:14px;border-radius:12px;border:2px solid '+(sel?'#f0c040':'rgba(255,255,255,.2)')+';background:'+(sel?'rgba(240,192,64,.2)':'rgba(255,255,255,.05)')+';color:'+(sel?'#f0c040':'rgba(255,255,255,.7)')+';font-size:16px;font-weight:900;cursor:pointer">'+n+' Day'+(n>1?'s':'')+'</button>';
   }).join('');
-  var fmtBtns=formats.map(function(f){
-    var sel=t.format===f;
-    return '<button onclick="ss.data.tournament.format=\''+f+'\';ssRender()" style="padding:13px 16px;border-radius:12px;border:2px solid '+(sel?'#f0c040':'rgba(255,255,255,.2)')+';background:'+(sel?'rgba(240,192,64,.15)':'rgba(255,255,255,.05)')+';color:'+(sel?'#f0c040':'rgba(255,255,255,.8)')+';font-size:14px;font-weight:700;cursor:pointer;text-align:left;width:100%">'+(sel?'&#10003; ':'')+f+'</button>';
-  }).join('');
   return '<div style="margin-bottom:20px">'
     +'<h2 style="font-family:Playfair Display,serif;font-size:24px;font-weight:900;color:white">Tournament Details</h2>'
-    +'<p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Name, dates and format</p></div>'
+    +'<p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">Name and dates. Set format per day in the Course Details step.</p></div>'
     +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:8px">Tournament Name</label>'
     +'<input id="ss_tname" type="text" value="'+(t.name||'')+'" placeholder="e.g. Cyprus Golf Tour 2026" oninput="ss.data.tournament.name=this.value" style="'+inp+'" /></div>'
     +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:8px">Dates</label>'
@@ -1194,9 +1189,7 @@ function ssTournament(){
     +'<input id="ss_enddate" type="date" value="'+(t.endDate||'')+'" onchange="ss.data.tournament.endDate=this.value;ssUpdateDates()" style="'+inp+'" /></div>'
     +'</div><div id="ss_datepreview" style="font-size:13px;color:rgba(240,192,64,.9);font-weight:700;margin-top:8px">'+(t.dates||'')+'</div></div>'
     +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:8px">Number of Days</label>'
-    +'<div style="display:flex;gap:10px">'+dayBtns+'</div></div>'
-    +'<div style="margin-bottom:14px"><label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:8px">Format</label>'
-    +'<div style="display:flex;flex-direction:column;gap:8px">'+fmtBtns+'</div></div>';
+    +'<div style="display:flex;gap:10px">'+dayBtns+'</div></div>';
 }
 
 
@@ -1235,6 +1228,14 @@ function ssRender(){
       + '</div>';
   }
   contentEl.innerHTML = body;
+
+  // Populate format dropdowns with saved values
+  if(step.id==="courses"){
+    ["day1","day2","day3"].forEach(function(d){
+      var el = document.getElementById("sf_"+d+"_format");
+      if(el && ss.data.courses[d].format) el.value = ss.data.courses[d].format;
+    });
+  }
 
   // Populate player dropdown after signin screen renders
   if(step.id==="signin"){
@@ -1390,6 +1391,16 @@ function ssPlayers(){
 }
 
 
+
+function ssCopyFormatToAllDays(fromDay, fmt){
+  if(!fmt) return;
+  ["day1","day2","day3"].forEach(function(d){
+    ss.data.courses[d].format = fmt;
+    var el = document.getElementById("sf_"+d+"_format");
+    if(el) el.value = fmt;
+  });
+}
+
 function ssCourses(){
   var numDays=ss.data.tournament.numDays||3;
   var days=["day1","day2","day3"].slice(0,numDays);
@@ -1414,7 +1425,13 @@ function ssCourses(){
       +'<div><label style="display:block;font-size:11px;font-weight:800;color:rgba(255,255,255,.6);margin-bottom:6px;text-transform:uppercase">Course Rating</label><input id="sc_'+day+'_rating" type="number" step="0.1" value="'+c.rating+'" oninput="ss.data.courses[\''+day+'\'].rating=parseFloat(this.value)||72" style="'+inp+'" /></div>'
       +'<div><label style="display:block;font-size:11px;font-weight:800;color:rgba(255,255,255,.6);margin-bottom:6px;text-transform:uppercase">Slope Rating</label><input id="sc_'+day+'_slope" type="number" value="'+c.slope+'" oninput="ss.data.courses[\''+day+'\'].slope=parseInt(this.value)||113" style="'+inp+'" /></div>'
       +'<div><label style="display:block;font-size:11px;font-weight:800;color:rgba(255,255,255,.6);margin-bottom:6px;text-transform:uppercase">Allowance %</label><input id="sc_'+day+'_allowance" type="number" value="'+c.allowance+'" oninput="ss.data.courses[\''+day+'\'].allowance=parseInt(this.value)||100" style="'+inp+'" /></div>'
-      +'</div></div>';
+      +'<div style="margin-top:12px">'
+      +'<label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:6px">Competition Format</label>'
+      +'<select id="sf_'+day+'_format" onchange="ss.data.courses[\''+day+'\'].format=this.value" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(20,50,30,1);color:white;font-size:14px">'
+      +'<option value="Combined Stableford Matchplay">Combined Stableford Matchplay</option><option value="Best Ball Matchplay">Best Ball Matchplay</option><option value="Singles Stableford">Singles Stableford</option><option value="Singles Matchplay">Singles Matchplay</option><option value="Medal (Stroke Play)">Medal (Stroke Play)</option><option value="Foursomes (Alternate Shot)">Foursomes (Alternate Shot)</option><option value="Greensome">Greensome</option><option value="Chapman / Modified Greensome">Chapman / Modified Greensome</option><option value="Scramble">Scramble</option><option value="Texas Scramble">Texas Scramble</option><option value="Skins">Skins</option><option value="Stableford + Skins">Stableford + Skins</option><option value="Bogey / Par Competition">Bogey / Par Competition</option><option value="Vegas">Vegas</option>'
+      +'</select>'
+      +'<button onclick="ssCopyFormatToAllDays(\''+day+'\',document.getElementById(\'sf_'+day+'_format\').value)" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;border:1.5px dashed rgba(255,255,255,.3);background:transparent;color:rgba(255,255,255,.7);font-size:12px;font-weight:800;cursor:pointer">&#8635; Apply this format to all days</button>'
+      +'</div></div></div>';
   }
   return html;
 }
