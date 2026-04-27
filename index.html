@@ -502,24 +502,27 @@ function compareCountback(a,b){ for(let i=0;i<a.length;i++){ if (b[i] !== a[i]) 
 function setStatus(text, cls=""){ const box = $("statusBox"); if(!box) return; box.className = "status" + (cls ? " " + cls : ""); box.textContent = text; }
 function scoreValue(day, playerId, holeNo){ return state.scoreMap[`${day}:${playerId}:${holeNo}`] ?? ""; }
 function canEditPlayer(playerId){
-  if(state.isAdmin || state.currentPlayerId === playerId) return true;
-  // Allow scoring for team-mates in the same game group
+  const adminId = window._adminPlayerId || "mitchell";
+  if(state.currentPlayerId === adminId || state.isAdmin) return true;
   const me = state.currentPlayerId;
   if(!me) return false;
-  const myTeam = getPlayer(me)?.team;
-  const theirTeam = getPlayer(playerId)?.team;
-  if(myTeam !== theirTeam) return false; // can't score for the other team
-  // Check if we're in the same game on any day
-  for(const day of ["day1","day2"]){
-    for(const game of DAY_GAMES[day]){
+  const myTeam = getPlayer(me) ? getPlayer(me).team : null;
+  const theirTeam = getPlayer(playerId) ? getPlayer(playerId).team : null;
+  // Traditional golf: you score for the OPPOSING team only
+  if(!myTeam || !theirTeam || myTeam === theirTeam) return false;
+  const scorers = window._scorers || {};
+  // Check day1/day2 game assignments
+  for(var day of ["day1","day2","day3"]){
+    const games = DAY_GAMES[day] || [];
+    for(var gi=0; gi<games.length; gi++){
+      const game = games[gi];
       const allInGame = [...game.a, ...game.b];
-      if(allInGame.includes(me) && allInGame.includes(playerId)) return true;
+      if(!allInGame.includes(playerId) || !allInGame.includes(me)) continue;
+      const key = day+'_game'+gi;
+      const sc = scorers[key] || {};
+      if(myTeam==="A" && sc.A===me && theirTeam==="B") return true;
+      if(myTeam==="B" && sc.B===me && theirTeam==="A") return true;
     }
-  }
-  // Day 3 singles pairings — same group
-  const groups = getDay3GroupsFromSingles();
-  for(const group of groups){
-    if(group.includes(me) && group.includes(playerId)) return true;
   }
   return false;
 }
@@ -1103,6 +1106,7 @@ const SS_STEPS = [
   {id:"courses"},
   {id:"holes"},
   {id:"games"},
+  {id:"scorers"},
   {id:"signin"},
 ];
 
@@ -1124,6 +1128,7 @@ let ss = {
     },
     holeTab:"day1",
     games:{day1:[],day2:[],day3:[]},
+    scorers:{},  // {gameKey: {A: playerId, B: playerId}}
   }
 };
 
@@ -1216,6 +1221,7 @@ function ssRender(){
   if(step.id==="courses")    body = ssCourses();
   if(step.id==="holes")      body = ssHoles();
   if(step.id==="games")      body = ssGames();
+  if(step.id==="scorers")    body = ssScorers();
   if(step.id==="signin")     body = ssSignIn();
 
   // Inject nav buttons at bottom of content (no z-index issues)
@@ -1540,6 +1546,7 @@ function ssApplyAndSave(){
   var mitchell=PLAYERS.find(function(p){return p.id==="mitchell"||p.first.toLowerCase()==="mitchell";});
   ss.adminId=(mitchell&&mitchell.id)||PLAYERS[0].id||"mitchell";
   window._adminPlayerId=ss.adminId;
+  window._scorers=ss.data.scorers||{};
   ["day1","day2","day3"].forEach(function(day){
     var wc=ss.data.courses[day];
     COURSES[day]={name:wc.name||day,par:wc.par,rating:wc.rating,slope:wc.slope,allowance:wc.allowance,tees:wc.tees,holes:ss.data.holes[day].map(function(h){return{par:h.par,si:h.si};})};
@@ -1555,7 +1562,7 @@ async function ssSaveToSupabase(){
   if(!sb) return false;
   var slug=ss.data.tournament.slug||"cyprus-tour-2026";
   ss.data.tournament.slug=slug;
-  var config={tournament:ss.data.tournament,players:ss.data.players,games:ss.data.games,courses:ss.data.courses,holes:ss.data.holes,version:3};
+  var config={tournament:ss.data.tournament,players:ss.data.players,games:ss.data.games,courses:ss.data.courses,holes:ss.data.holes,scorers:ss.data.scorers||{},version:3};
   var result=await sb.from("tournament_config").upsert({tournament_slug:slug,config:config,updated_at:new Date().toISOString()},{onConflict:"tournament_slug"});
   if(result.error){console.error("ssSaveToSupabase:",result.error);return false;}
   return true;
@@ -1574,50 +1581,39 @@ async function ssLoadFromSupabase(slug){
     ss.data.games=cfg.games||ss.data.games;
     ss.data.courses=cfg.courses||ss.data.courses;
     ss.data.holes=cfg.holes||ss.data.holes;
+    ss.data.scorers=cfg.scorers||{};
     ssApplyAndSave();
     return true;
   }catch(e){console.warn("ssLoadFromSupabase:",e);return false;}
 }
 
-async function ssSaveAndFinish(){
-  // Show saving state in content
-  var saveBtn = document.querySelector('#ss_content button[onclick="ssNext()"]');
-  if(saveBtn){ saveBtn.textContent="Saving…"; saveBtn.disabled=true; }
-  var ok = await ssSaveToSupabase();
-  if(!ok){
-    if(saveBtn){ saveBtn.disabled=false; saveBtn.textContent="Save & Sign In →"; }
-    ssError("Could not save to Supabase. Check your connection.");
-    return;
-  }
-  localStorage.setItem("cyprusTourSetupDone","1");
-  ss.step = SS_STEPS.findIndex(function(s){return s.id==="signin";});
-  ssRender();
-}
 
+function ssScorers(){
+  var days = ["day1","day2","day3"].slice(0, ss.data.tournament.numDays);
+  var labels = {day1:"Day 1", day2:"Day 2", day3:"Day 3"};
+  var numGames = ss.data.games.day1.length;
+  var inp = 'width:100%;padding:10px;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(20,50,30,1);color:white;font-size:13px';
+  if(!ss.data.scorers) ss.data.scorers = {};
 
+  var html = '<div style="margin-bottom:20px">'
+    +'<h2 style="font-family:Playfair Display,serif;font-size:24px;font-weight:900;color:white">Designated Scorers</h2>'
+    +'<p style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">In traditional golf, each team scores for the <strong style="color:white">opposing team</strong>. Choose one scorer from each team per group per day.</p>'
+    +'</div>';
 
-window.addEventListener("DOMContentLoaded", async () => {
-  if(localStorage.getItem("cyprusDark")){ isDark=true; document.body.classList.add("dark"); var btn=document.querySelector(".dark-toggle"); if(btn) btn.textContent="☀️"; }
-  setupOfflineDetection();
+  days.forEach(function(day){
+    var games = ss.data.games[day];
+    if(!games || !games.length) return;
+    html += '<div style="font-size:13px;font-weight:800;color:#f0c040;text-transform:uppercase;letter-spacing:.06em;margin:16px 0 10px">'+labels[day]+'</div>';
 
-  // Clear all stale localStorage from previous sessions
-  localStorage.removeItem("cyprusTourSetupDone");
-  localStorage.removeItem("cyprusTourSetup");
-  localStorage.removeItem("cyprusTourCourses");
-  localStorage.removeItem("cyprusTourV3Login");
+    for(var gi=0; gi<games.length; gi++){
+      var game = games[gi];
+      var key = day+'_game'+gi;
+      if(!ss.data.scorers[key]) ss.data.scorers[key] = {A:'', B:''};
+      var sc = ss.data.scorers[key];
 
-  // Init Supabase silently in background
-  try{
-    if(window.APP_CONFIG && window.APP_CONFIG.supabaseUrl){
-      sb = window.supabase.createClient(window.APP_CONFIG.supabaseUrl, window.APP_CONFIG.supabaseAnonKey);
-    }
-  }catch(e){ console.warn("Supabase init:", e); }
+      // Team A scorer scores for Team B players, and vice versa
+      var teamAPlayers = game.a.map(function(id){ return ss.data.players.find(function(p){return p.id===id;}); }).filter(Boolean);
+      var teamBPlayers = game.b.map(function(id){ return ss.data.players.find(function(p){return p.id===id;}); }).filter(Boolean);
 
-  // Always start at welcome screen - no loading, no Supabase query
-  ssShowScreen();
-  ss.step = 0;
-  ssRender();
-});
-</script>
-</body>
-</html>
+      var aOpts = '<option value="">— select —</option>' + teamAPlayers.map(function(p){ return '<option value="'+p.id+'"'+(sc.A===p.id?' selected':'')+'>'+p.first+'</option>'; }).join('');
+      var bOpts = '<option value="">— select —</option>' + teamBPlayers.map(function(p){ return '<option valu
